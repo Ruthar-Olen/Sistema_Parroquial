@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block title %}Nueva inscripción{% endblock %}
+{% block header %}Inscripciones{% endblock %}
+
+{% block content %}
+    {% if modo == 'editar' %}
+        <h1 class="page-title">Editar inscripción #{{ inscripcion.id }}</h1>
+    {% else %}
+        <h1 class="page-title">Nueva inscripción</h1>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <h2 class="section-title">Datos generales</h2>
+        <div class="grid-3">
+            <div class="field">
+                <label for="{{ form.tipo.id_for_label }}">Tipo</label>
+                {{ form.tipo }}
+                {{ form.tipo.errors }}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.fecha.id_for_label }}">Fecha</label>
+                {{ form.fecha }}
+                {{ form.fecha.errors }}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.edad.id_for_label }}">Edad</label>
+                {{ form.edad }}
+                {{ form.edad.errors }}
+            </div>
+        </div>
+
+        <div class="grid" style="margin-top: 18px;">
+            <div class="field">
+                <label for="{{ form.nombre_completo.id_for_label }}">Nombre completo</label>
+                {{ form.nombre_completo }}
+                {{ form.nombre_completo.errors }}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.telefono.id_for_label }}">Teléfono</label>
+                {{ form.telefono }}
+                {{ form.telefono.errors }}
+            </div>
+        </div>
+
+        <h2 class="section-title">Familia y vínculos</h2>
+        <div class="grid">
+            <div class="field">
+                <label for="{{ form.nombre_padre.id_for_label }}">Nombre padre</label>
+                {{ form.nombre_padre }}
+                {{ form.nombre_padre.errors }}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.nombre_madre.id_for_label }}">Nombre madre</label>
+                {{ form.nombre_madre }}
+                {{ form.nombre_madre.errors }}
+            </div>
+
+            <div class="field" id="campo-novio" style="display: none;">
+                <label for="{{ form.nombre_novio.id_for_label }}">Nombre novio(a)</label>
+                {{ form.nombre_novio }}
+                {{ form.nombre_novio.errors }}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.nombre_padrino.id_for_label }}">Nombre padrino</label>
+                {{ form.nombre_padrino }}
+                {{ form.nombre_padrino.errors }}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.nombre_madrina.id_for_label }}">Nombre madrina</label>
+                {{ form.nombre_madrina }}
+                {{ form.nombre_madrina.errors }}
+            </div>
+        </div>
+
+        <h2 class="section-title">Catequesis</h2>
+        <div class="grid-3">
+            <div class="field">
+                <label for="{{ form.lugar_clases.id_for_label }}">Lugar de clases</label>
+                {{ form.lugar_clases }}
+                {{ form.lugar_clases.errors }}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.dia_clases.id_for_label }}">Día de clases</label>
+                {{ form.dia_clases }}
+                {{ form.dia_clases.errors }}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.hora_clases.id_for_label }}">Hora de clases</label>
+                {{ form.hora_clases }}
+                {{ form.hora_clases.errors }}
+            </div>
+        </div>
+
+        <h2 class="section-title">Historial sacramental</h2>
+        <div class="checks">
+            <label class="check-item">{{ form.bautizo }} Bautizo</label>
+            <label class="check-item">{{ form.eucaristia }} Eucaristía</label>
+            <label class="check-item">{{ form.confirmacion }} Confirmación</label>
+            <label class="check-item">{{ form.matrimonio }} Matrimonio</label>
+        </div>
+
+        <h2 class="section-title">Documentos entregados</h2>
+        <div class="checks">
+            <label class="check-item">{{ form.acta_nacimiento }} Acta de nacimiento</label>
+            <label class="check-item">{{ form.boleta_bautizo }} Boleta de bautizo</label>
+            <label class="check-item">{{ form.boleta_confirmacion }} Boleta de confirmación</label>
+            <label class="check-item">{{ form.ine }} INE</label>
+        </div>
+
+        <div class="grid" style="margin-top: 18px;">
+            <div class="field">
+                <label for="{{ form.otros_documentos.id_for_label }}">Otros documentos</label>
+                {{ form.otros_documentos }}
+                {{ form.otros_documentos.errors }}
+            </div>
+        </div>
+
+        <div class="actions">
+            {% if modo == 'editar' %}
+                <button type="submit" class="btn btn-primary">Actualizar inscripción</button>
+            {% else %}
+                <button type="submit" class="btn btn-primary">Guardar inscripción</button>
+            {% endif %}
+
+            <a href="{% url 'lista_inscripciones' %}" class="btn btn-secondary">Volver a la lista</a>
+        </div>
+    </form>
+
+    <script>
+        function toggleNovioField() {
+            const tipo = document.getElementById("id_tipo");
+            const campoNovio = document.getElementById("campo-novio");
+
+            if (tipo && tipo.value === "matrimonio") {
+                campoNovio.style.display = "flex";
+            } else if (campoNovio) {
+                campoNovio.style.display = "none";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const tipo = document.getElementById("id_tipo");
+            toggleNovioField();
+
+            if (tipo) {
+                tipo.addEventListener("change", toggleNovioField);
+            }
+        });
+    </script>
+{% endblock %}
