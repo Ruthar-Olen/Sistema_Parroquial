@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar grupo{% endblock %}
+{% block header %}Eliminar grupo{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Eliminar grupo</h1>
+<p>¿Seguro que deseas eliminar el grupo <strong>{{ objeto }}</strong>?</p>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="actions">
+        <button type="submit" class="btn btn-primary">Sí, eliminar</button>
+        <a href="{% url 'menu_catequesis' %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

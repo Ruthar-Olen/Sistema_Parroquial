@@ -81,6 +81,32 @@
             </div>
         </div>
 
+
+        <h2 class="section-title">Asignación de catequesis</h2>
+
+        <div class="grid-3">
+            <div class="field">
+                <label for="{{ form.catequista.id_for_label }}">Catequista</label>
+                {{ form.catequista }}
+                {{ form.catequista.errors }}
+            </div>
+
+            <div class="field">
+                <label for="{{ form.grupo_catequesis.id_for_label }}">Grupo</label>
+                {{ form.grupo_catequesis }}
+                {{ form.grupo_catequesis.errors }}
+            </div>
+
+            <div class="field">
+            <label for="{{ form.horario_catequesis.id_for_label }}">Horario</label>
+            {{ form.horario_catequesis }}
+            {{ form.horario_catequesis.errors }}
+            </div>
+        </div>
+
+
+
+
         <h2 class="section-title">Catequesis</h2>
         <div class="grid-3">
             <div class="field">

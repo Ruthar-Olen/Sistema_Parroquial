@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Grupo de catequesis{% endblock %}
+{% block header %}Grupo de catequesis{% endblock %}
+
+{% block content %}
+<h1 class="page-title">
+    {% if modo == 'editar' %}Editar grupo{% else %}Nuevo grupo{% endif %}
+</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="grid-3">
+        <div class="field">
+            <label for="{{ form.numero_grupo.id_for_label }}">Número de grupo</label>
+            {{ form.numero_grupo }}
+            {{ form.numero_grupo.errors }}
+        </div>
+
+        <div class="field">
+            <label for="{{ form.catequista.id_for_label }}">Catequista</label>
+            {{ form.catequista }}
+            {{ form.catequista.errors }}
+        </div>
+
+        <div class="field">
+            <label for="{{ form.dia.id_for_label }}">Día</label>
+            {{ form.dia }}
+            {{ form.dia.errors }}
+        </div>
+    </div>
+
+    <div class="grid" style="margin-top: 18px;">
+        <div class="field">
+            <label for="{{ form.lugar.id_for_label }}">Lugar</label>
+            {{ form.lugar }}
+            {{ form.lugar.errors }}
+        </div>
+    </div>
+
+    <div class="actions">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a href="{% url 'menu_catequesis' %}" class="btn btn-secondary">Volver</a>
+    </div>
+</form>
+{% endblock %}

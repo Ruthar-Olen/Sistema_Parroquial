@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Horario de catequesis{% endblock %}
+{% block header %}Horario de catequesis{% endblock %}
+
+{% block content %}
+<h1 class="page-title">
+    {% if modo == 'editar' %}Editar horario{% else %}Nuevo horario{% endif %}
+</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="grid-3">
+        <div class="field">
+            <label for="{{ form.grupo.id_for_label }}">Grupo</label>
+            {{ form.grupo }}
+            {{ form.grupo.errors }}
+        </div>
+
+        <div class="field">
+            <label for="{{ form.hora_inicio.id_for_label }}">Hora inicio</label>
+            {{ form.hora_inicio }}
+            {{ form.hora_inicio.errors }}
+        </div>
+
+        <div class="field">
+            <label for="{{ form.hora_fin.id_for_label }}">Hora fin</label>
+            {{ form.hora_fin }}
+            {{ form.hora_fin.errors }}
+        </div>
+    </div>
+
+    <div class="actions">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a href="{% url 'menu_catequesis' %}" class="btn btn-secondary">Volver</a>
+    </div>
+</form>
+{% endblock %}
