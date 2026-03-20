@@ -81,9 +81,7 @@
             </div>
         </div>
 
-
         <h2 class="section-title">Asignación de catequesis</h2>
-
         <div class="grid-3">
             <div class="field">
                 <label for="{{ form.catequista.id_for_label }}">Catequista</label>
@@ -98,14 +96,11 @@
             </div>
 
             <div class="field">
-            <label for="{{ form.horario_catequesis.id_for_label }}">Horario</label>
-            {{ form.horario_catequesis }}
-            {{ form.horario_catequesis.errors }}
+                <label for="{{ form.horario_catequesis.id_for_label }}">Horario</label>
+                {{ form.horario_catequesis }}
+                {{ form.horario_catequesis.errors }}
             </div>
         </div>
-
-
-
 
         <h2 class="section-title">Catequesis</h2>
         <div class="grid-3">
@@ -177,10 +172,96 @@
 
         document.addEventListener("DOMContentLoaded", function () {
             const tipo = document.getElementById("id_tipo");
+            const catequistaSelect = document.getElementById("id_catequista");
+            const grupoSelect = document.getElementById("id_grupo_catequesis");
+            const horarioSelect = document.getElementById("id_horario_catequesis");
+
+            const lugarInput = document.getElementById("id_lugar_clases");
+            const diaInput = document.getElementById("id_dia_clases");
+            const horaInput = document.getElementById("id_hora_clases");
+
             toggleNovioField();
 
             if (tipo) {
                 tipo.addEventListener("change", toggleNovioField);
+            }
+
+            function limpiarGrupos() {
+                if (grupoSelect) {
+                    grupoSelect.innerHTML = '<option value="">---------</option>';
+                }
+            }
+
+            function limpiarHorarios() {
+                if (horarioSelect) {
+                    horarioSelect.innerHTML = '<option value="">---------</option>';
+                }
+
+                if (lugarInput) lugarInput.value = '';
+                if (diaInput) diaInput.value = '';
+                if (horaInput) horaInput.value = '';
+            }
+
+            if (catequistaSelect) {
+                catequistaSelect.addEventListener("change", function () {
+                    const catequistaId = this.value;
+                    limpiarGrupos();
+                    limpiarHorarios();
+
+                    if (!catequistaId) return;
+
+                    fetch(`/catequesis/api/grupos-por-catequista/?catequista_id=${catequistaId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            data.grupos.forEach(grupo => {
+                                const option = document.createElement("option");
+                                option.value = grupo.id;
+                                option.textContent = grupo.nombre;
+                                grupoSelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => console.error("Error cargando grupos:", error));
+                });
+            }
+
+            if (grupoSelect) {
+                grupoSelect.addEventListener("change", function () {
+                    const grupoId = this.value;
+                    limpiarHorarios();
+
+                    if (!grupoId) return;
+
+                    fetch(`/catequesis/api/horarios-por-grupo/?grupo_id=${grupoId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            data.horarios.forEach(horario => {
+                                const option = document.createElement("option");
+                                option.value = horario.id;
+                                option.textContent = horario.nombre;
+                                option.dataset.lugar = horario.lugar;
+                                option.dataset.dia = horario.dia;
+                                option.dataset.hora = horario.nombre;
+                                horarioSelect.appendChild(option);
+                            });
+                        })
+                        .catch(error => console.error("Error cargando horarios:", error));
+                });
+            }
+
+            if (horarioSelect) {
+                horarioSelect.addEventListener("change", function () {
+                    const selected = this.options[this.selectedIndex];
+
+                    if (selected && selected.value) {
+                        if (lugarInput) lugarInput.value = selected.dataset.lugar || '';
+                        if (diaInput) diaInput.value = selected.dataset.dia || '';
+                        if (horaInput) horaInput.value = selected.dataset.hora || '';
+                    } else {
+                        if (lugarInput) lugarInput.value = '';
+                        if (diaInput) diaInput.value = '';
+                        if (horaInput) horaInput.value = '';
+                    }
+                });
             }
         });
     </script>

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Horarios de catequesis{% endblock %}
+{% block header %}Horarios de catequesis{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Horarios de catequesis</h1>
+
+<div class="actions">
+    <a href="{% url 'crear_horario' %}" class="btn btn-primary">Nuevo horario</a>
+    <a href="{% url 'menu_catequesis' %}" class="btn btn-secondary">Volver al módulo</a>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Grupo</th>
+            <th>Hora inicio</th>
+            <th>Hora fin</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in horarios %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.grupo.numero_grupo }}</td>
+            <td>{{ item.hora_inicio|time:"H:i" }}</td>
+            <td>{{ item.hora_fin|time:"H:i" }}</td>
+            <td>
+                <a href="{% url 'editar_horario' item.id %}">Editar</a>
+                <a href="{% url 'eliminar_horario' item.id %}">Eliminar</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No hay horarios registrados.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

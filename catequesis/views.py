@@ -248,7 +248,7 @@ def grupos_por_catequista(request):
         grupos = [
             {
                 'id': grupo.id,
-                'nombre': f'{grupo.numero_grupo} - {grupo.lugar} - {grupo.dia}'
+                'nombre': grupo.numero_grupo
             }
             for grupo in grupos_qs
         ]

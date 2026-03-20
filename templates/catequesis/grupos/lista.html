@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Grupos de catequesis{% endblock %}
+{% block header %}Grupos de catequesis{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Grupos de catequesis</h1>
+
+<div class="actions">
+    <a href="{% url 'crear_grupo' %}" class="btn btn-primary">Nuevo grupo</a>
+    <a href="{% url 'menu_catequesis' %}" class="btn btn-secondary">Volver al módulo</a>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Número de grupo</th>
+            <th>Catequista</th>
+            <th>Lugar</th>
+            <th>Día</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in grupos %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.numero_grupo }}</td>
+            <td>{{ item.catequista.nombre }}</td>
+            <td>{{ item.lugar }}</td>
+            <td>{{ item.dia }}</td>
+            <td>
+                <a href="{% url 'editar_grupo' item.id %}">Editar</a>
+                <a href="{% url 'eliminar_grupo' item.id %}">Eliminar</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6">No hay grupos registrados.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
