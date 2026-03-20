@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Catequistas{% endblock %}
+{% block header %}Catequistas{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Catequistas</h1>
+
+<div class="actions">
+    <a href="{% url 'crear_catequista' %}" class="btn btn-primary">Nuevo catequista</a>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in catequistas %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.nombre }}</td>
+            <td>
+                <a href="{% url 'editar_catequista' item.id %}">Editar</a>
+                <a href="{% url 'eliminar_catequista' item.id %}">Eliminar</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">No hay catequistas registrados.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

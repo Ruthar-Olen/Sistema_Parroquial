@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}Catequesis{% endblock %}
+{% block header %}Catequesis{% endblock %}
+
+{% block content %}
+<style>
+    .section-box {
+        margin-bottom: 30px;
+        border: 1px solid #e4e9e3;
+        border-radius: 14px;
+        padding: 18px;
+        background: #fafcf9;
+    }
+
+    .section-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+    }
+
+    .section-title-small {
+        margin: 0;
+        color: var(--verde-principal);
+        font-size: 22px;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .acciones a {
+        margin-right: 10px;
+        white-space: nowrap;
+    }
+
+    .empty-msg {
+        color: #666;
+        padding: 10px 0;
+    }
+</style>
+
+<h1 class="page-title">Módulo de Catequesis</h1>
+
+<!-- CATEQUISTAS -->
+<div class="section-box">
+    <div class="section-top">
+        <h2 class="section-title-small">Catequistas</h2>
+        <a href="{% url 'crear_catequista' %}" class="btn btn-primary">Nuevo catequista</a>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in catequistas %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.nombre }}</td>
+                        <td class="acciones">
+                            <a href="{% url 'editar_catequista' item.id %}">Editar</a>
+                            <a href="{% url 'eliminar_catequista' item.id %}">Eliminar</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3" class="empty-msg">No hay catequistas registrados.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- GRUPOS -->
+<div class="section-box">
+    <div class="section-top">
+        <h2 class="section-title-small">Grupos</h2>
+        <a href="{% url 'crear_grupo' %}" class="btn btn-primary">Nuevo grupo</a>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Número de grupo</th>
+                    <th>Catequista</th>
+                    <th>Lugar</th>
+                    <th>Día</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in grupos %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.numero_grupo }}</td>
+                        <td>{{ item.catequista.nombre }}</td>
+                        <td>{{ item.lugar }}</td>
+                        <td>{{ item.dia }}</td>
+                        <td class="acciones">
+                            <a href="{% url 'editar_grupo' item.id %}">Editar</a>
+                            <a href="{% url 'eliminar_grupo' item.id %}">Eliminar</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-msg">No hay grupos registrados.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- HORARIOS -->
+<div class="section-box">
+    <div class="section-top">
+        <h2 class="section-title-small">Horarios</h2>
+        <a href="{% url 'crear_horario' %}" class="btn btn-primary">Nuevo horario</a>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Grupo</th>
+                    <th>Hora inicio</th>
+                    <th>Hora fin</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in horarios %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.grupo.numero_grupo }}</td>
+                        <td>{{ item.hora_inicio|time:"H:i" }}</td>
+                        <td>{{ item.hora_fin|time:"H:i" }}</td>
+                        <td class="acciones">
+                            <a href="{% url 'editar_horario' item.id %}">Editar</a>
+                            <a href="{% url 'eliminar_horario' item.id %}">Eliminar</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="empty-msg">No hay horarios registrados.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

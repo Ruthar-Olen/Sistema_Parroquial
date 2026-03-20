@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar catequista{% endblock %}
+{% block header %}Eliminar catequista{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Eliminar catequista</h1>
+<p>¿Seguro que deseas eliminar a <strong>{{ objeto }}</strong>?</p>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="actions">
+        <button type="submit" class="btn btn-primary">Sí, eliminar</button>
+        <a href="{% url 'lista_catequistas' %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}
