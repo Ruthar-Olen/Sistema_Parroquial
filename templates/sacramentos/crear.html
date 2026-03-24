@@ -1,20 +1,104 @@
 {% extends 'base.html' %}
 
-{% block title %}Nueva inscripción{% endblock %}
+{% block title %}
+    {% if modo == 'editar' %}Editar inscripción{% else %}Nueva inscripción{% endif %}
+{% endblock %}
+
 {% block header %}Inscripciones{% endblock %}
 
 {% block content %}
+<style>
+    .form-section {
+        margin-bottom: 34px;
+    }
+
+    .section-heading {
+        margin: 0 0 18px 0;
+        font-size: 2rem;
+        color: var(--azul-principal);
+    }
+
+    .section-subtitle {
+        margin: 0 0 16px 0;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--azul-profundo);
+    }
+
+    .compact-grid {
+        display: grid;
+        grid-template-columns: 220px 220px 1fr;
+        gap: 16px 18px;
+        align-items: end;
+    }
+
+    .compact-grid-2 {
+        display: grid;
+        grid-template-columns: 220px 220px;
+        gap: 16px 18px;
+        align-items: end;
+    }
+
+    .full-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .family-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px 18px;
+    }
+
+    .field {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .field label {
+        margin-bottom: 6px;
+        font-weight: 600;
+        color: var(--texto);
+    }
+
+    .actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+        flex-wrap: wrap;
+    }
+
+    .readonly-note {
+        margin-top: 6px;
+        font-size: 0.85rem;
+        color: var(--texto-suave);
+    }
+
+    @media (max-width: 1100px) {
+        .compact-grid,
+        .compact-grid-2,
+        .family-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<h1 class="section-heading">
     {% if modo == 'editar' %}
-        <h1 class="page-title">Editar inscripción #{{ inscripcion.id }}</h1>
+        Editar inscripción
     {% else %}
-        <h1 class="page-title">Nueva inscripción</h1>
+        Nueva inscripción
     {% endif %}
+</h1>
 
-    <form method="post">
-        {% csrf_token %}
+<form method="post">
+    {% csrf_token %}
 
-        <h2 class="section-title">Datos generales</h2>
-        <div class="grid-3">
+    <div class="form-section">
+        <h2 class="section-subtitle">Datos generales</h2>
+
+        <div class="compact-grid">
             <div class="field">
                 <label for="{{ form.tipo.id_for_label }}">Tipo</label>
                 {{ form.tipo }}
@@ -28,17 +112,17 @@
             </div>
 
             <div class="field">
-                <label for="{{ form.edad.id_for_label }}">Edad</label>
-                {{ form.edad }}
-                {{ form.edad.errors }}
-            </div>
-        </div>
-
-        <div class="grid" style="margin-top: 18px;">
-            <div class="field">
                 <label for="{{ form.nombre_completo.id_for_label }}">Nombre completo</label>
                 {{ form.nombre_completo }}
                 {{ form.nombre_completo.errors }}
+            </div>
+        </div>
+
+        <div class="compact-grid-2" style="margin-top: 16px;">
+            <div class="field">
+                <label for="{{ form.edad.id_for_label }}">Edad</label>
+                {{ form.edad }}
+                {{ form.edad.errors }}
             </div>
 
             <div class="field">
@@ -47,9 +131,12 @@
                 {{ form.telefono.errors }}
             </div>
         </div>
+    </div>
 
-        <h2 class="section-title">Familia y vínculos</h2>
-        <div class="grid">
+    <div class="form-section">
+        <h2 class="section-subtitle">Familia y vínculos</h2>
+
+        <div class="family-grid">
             <div class="field">
                 <label for="{{ form.nombre_padre.id_for_label }}">Nombre padre</label>
                 {{ form.nombre_padre }}
@@ -60,12 +147,6 @@
                 <label for="{{ form.nombre_madre.id_for_label }}">Nombre madre</label>
                 {{ form.nombre_madre }}
                 {{ form.nombre_madre.errors }}
-            </div>
-
-            <div class="field" id="campo-novio" style="display: none;">
-                <label for="{{ form.nombre_novio.id_for_label }}">Nombre novio(a)</label>
-                {{ form.nombre_novio }}
-                {{ form.nombre_novio.errors }}
             </div>
 
             <div class="field">
@@ -79,10 +160,21 @@
                 {{ form.nombre_madrina }}
                 {{ form.nombre_madrina.errors }}
             </div>
-        </div>
 
-        <h2 class="section-title">Asignación de catequesis</h2>
-        <div class="grid-3">
+            {% if form.nombre_novio %}
+            <div class="field">
+                <label for="{{ form.nombre_novio.id_for_label }}">Nombre novia(o)</label>
+                {{ form.nombre_novio }}
+                {{ form.nombre_novio.errors }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h2 class="section-subtitle">Asignación de catequesis</h2>
+
+        <div class="compact-grid-2">
             <div class="field">
                 <label for="{{ form.catequista.id_for_label }}">Catequista</label>
                 {{ form.catequista }}
@@ -94,175 +186,139 @@
                 {{ form.grupo_catequesis }}
                 {{ form.grupo_catequesis.errors }}
             </div>
-
-            <div class="field">
-                <label for="{{ form.horario_catequesis.id_for_label }}">Horario</label>
-                {{ form.horario_catequesis }}
-                {{ form.horario_catequesis.errors }}
-            </div>
         </div>
+    </div>
 
-        <h2 class="section-title">Catequesis</h2>
-        <div class="grid-3">
+    <div class="form-section">
+        <h2 class="section-subtitle">Datos de clase</h2>
+
+        <div class="compact-grid">
             <div class="field">
-                <label for="{{ form.lugar_clases.id_for_label }}">Lugar de clases</label>
+                <label for="{{ form.lugar_clases.id_for_label }}">Lugar</label>
                 {{ form.lugar_clases }}
                 {{ form.lugar_clases.errors }}
             </div>
 
             <div class="field">
-                <label for="{{ form.dia_clases.id_for_label }}">Día de clases</label>
+                <label for="{{ form.dia_clases.id_for_label }}">Día</label>
                 {{ form.dia_clases }}
                 {{ form.dia_clases.errors }}
             </div>
 
             <div class="field">
-                <label for="{{ form.hora_clases.id_for_label }}">Hora de clases</label>
+                <label for="{{ form.hora_clases.id_for_label }}">Hora</label>
                 {{ form.hora_clases }}
                 {{ form.hora_clases.errors }}
             </div>
         </div>
 
-        <h2 class="section-title">Historial sacramental</h2>
-        <div class="checks">
-            <label class="check-item">{{ form.bautizo }} Bautizo</label>
-            <label class="check-item">{{ form.eucaristia }} Eucaristía</label>
-            <label class="check-item">{{ form.confirmacion }} Confirmación</label>
-            <label class="check-item">{{ form.matrimonio }} Matrimonio</label>
+        <div class="readonly-note">
+            Estos datos se completan automáticamente según la configuración del grupo en catequesis.
         </div>
+    </div>
 
-        <h2 class="section-title">Documentos entregados</h2>
-        <div class="checks">
-            <label class="check-item">{{ form.acta_nacimiento }} Acta de nacimiento</label>
-            <label class="check-item">{{ form.boleta_bautizo }} Boleta de bautizo</label>
-            <label class="check-item">{{ form.boleta_confirmacion }} Boleta de confirmación</label>
-            <label class="check-item">{{ form.ine }} INE</label>
+    <div class="form-section">
+        <h2 class="section-subtitle">Documentación</h2>
+
+        <div class="full-grid">
+            {% for field in form %}
+                {% if field.name in 'acta_nacimiento,bautizo,eucaristia,confirmacion,matrimonio,boleta_bautizo,boleta_confirmacion,ine,otros_documentos' %}
+                <div class="field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {{ field.errors }}
+                </div>
+                {% endif %}
+            {% endfor %}
         </div>
+    </div>
 
-        <div class="grid" style="margin-top: 18px;">
-            <div class="field">
-                <label for="{{ form.otros_documentos.id_for_label }}">Otros documentos</label>
-                {{ form.otros_documentos }}
-                {{ form.otros_documentos.errors }}
-            </div>
-        </div>
+    <div class="actions">
+        <button type="submit" class="btn btn-primary">
+            {% if modo == 'editar' %}Guardar cambios{% else %}Guardar inscripción{% endif %}
+        </button>
 
-        <div class="actions">
-            {% if modo == 'editar' %}
-                <button type="submit" class="btn btn-primary">Actualizar inscripción</button>
-            {% else %}
-                <button type="submit" class="btn btn-primary">Guardar inscripción</button>
-            {% endif %}
+        <a href="{% url 'lista_inscripciones' %}" class="btn btn-secondary">
+            Cancelar
+        </a>
+    </div>
+</form>
 
-            <a href="{% url 'lista_inscripciones' %}" class="btn btn-secondary">Volver a la lista</a>
-        </div>
-    </form>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const catequistaSelect = document.getElementById('id_catequista');
+    const grupoSelect = document.getElementById('id_grupo_catequesis');
 
-    <script>
-        function toggleNovioField() {
-            const tipo = document.getElementById("id_tipo");
-            const campoNovio = document.getElementById("campo-novio");
+    const lugarInput = document.getElementById('id_lugar_clases');
+    const diaInput = document.getElementById('id_dia_clases');
+    const horaInput = document.getElementById('id_hora_clases');
 
-            if (tipo && tipo.value === "matrimonio") {
-                campoNovio.style.display = "flex";
-            } else if (campoNovio) {
-                campoNovio.style.display = "none";
-            }
-        }
+    function limpiarGrupos() {
+        grupoSelect.innerHTML = '<option value="">---------</option>';
+    }
 
-        document.addEventListener("DOMContentLoaded", function () {
-            const tipo = document.getElementById("id_tipo");
-            const catequistaSelect = document.getElementById("id_catequista");
-            const grupoSelect = document.getElementById("id_grupo_catequesis");
-            const horarioSelect = document.getElementById("id_horario_catequesis");
+    function limpiarDatosClase() {
+        lugarInput.value = '';
+        diaInput.value = '';
+        horaInput.value = '';
+    }
 
-            const lugarInput = document.getElementById("id_lugar_clases");
-            const diaInput = document.getElementById("id_dia_clases");
-            const horaInput = document.getElementById("id_hora_clases");
+    function cargarGrupos(catequistaId, grupoSeleccionado = null) {
+        limpiarGrupos();
+        limpiarDatosClase();
 
-            toggleNovioField();
+        if (!catequistaId) return;
 
-            if (tipo) {
-                tipo.addEventListener("change", toggleNovioField);
-            }
-
-            function limpiarGrupos() {
-                if (grupoSelect) {
-                    grupoSelect.innerHTML = '<option value="">---------</option>';
-                }
-            }
-
-            function limpiarHorarios() {
-                if (horarioSelect) {
-                    horarioSelect.innerHTML = '<option value="">---------</option>';
-                }
-
-                if (lugarInput) lugarInput.value = '';
-                if (diaInput) diaInput.value = '';
-                if (horaInput) horaInput.value = '';
-            }
-
-            if (catequistaSelect) {
-                catequistaSelect.addEventListener("change", function () {
-                    const catequistaId = this.value;
-                    limpiarGrupos();
-                    limpiarHorarios();
-
-                    if (!catequistaId) return;
-
-                    fetch(`/catequesis/api/grupos-por-catequista/?catequista_id=${catequistaId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            data.grupos.forEach(grupo => {
-                                const option = document.createElement("option");
-                                option.value = grupo.id;
-                                option.textContent = grupo.nombre;
-                                grupoSelect.appendChild(option);
-                            });
-                        })
-                        .catch(error => console.error("Error cargando grupos:", error));
-                });
-            }
-
-            if (grupoSelect) {
-                grupoSelect.addEventListener("change", function () {
-                    const grupoId = this.value;
-                    limpiarHorarios();
-
-                    if (!grupoId) return;
-
-                    fetch(`/catequesis/api/horarios-por-grupo/?grupo_id=${grupoId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            data.horarios.forEach(horario => {
-                                const option = document.createElement("option");
-                                option.value = horario.id;
-                                option.textContent = horario.nombre;
-                                option.dataset.lugar = horario.lugar;
-                                option.dataset.dia = horario.dia;
-                                option.dataset.hora = horario.nombre;
-                                horarioSelect.appendChild(option);
-                            });
-                        })
-                        .catch(error => console.error("Error cargando horarios:", error));
-                });
-            }
-
-            if (horarioSelect) {
-                horarioSelect.addEventListener("change", function () {
-                    const selected = this.options[this.selectedIndex];
-
-                    if (selected && selected.value) {
-                        if (lugarInput) lugarInput.value = selected.dataset.lugar || '';
-                        if (diaInput) diaInput.value = selected.dataset.dia || '';
-                        if (horaInput) horaInput.value = selected.dataset.hora || '';
-                    } else {
-                        if (lugarInput) lugarInput.value = '';
-                        if (diaInput) diaInput.value = '';
-                        if (horaInput) horaInput.value = '';
+        fetch(`/catequesis/api/grupos-por-catequista/?catequista_id=${catequistaId}`)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(grupo => {
+                    const option = document.createElement('option');
+                    option.value = grupo.id;
+                    option.textContent = grupo.nombre;
+                    if (grupoSeleccionado && grupo.id == grupoSeleccionado) {
+                        option.selected = true;
                     }
+                    grupoSelect.appendChild(option);
                 });
-            }
-        });
-    </script>
+
+                if (grupoSeleccionado) {
+                    cargarDatosClase(grupoSeleccionado);
+                }
+            });
+    }
+
+    function cargarDatosClase(grupoId) {
+        limpiarDatosClase();
+
+        if (!grupoId) return;
+
+        fetch(`/catequesis/api/horarios-por-grupo/?grupo_id=${grupoId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    const horario = data[0];
+                    lugarInput.value = horario.lugar || '';
+                    diaInput.value = horario.dia || '';
+                    horaInput.value = horario.hora || '';
+                }
+            });
+    }
+
+    catequistaSelect.addEventListener('change', function () {
+        cargarGrupos(this.value);
+    });
+
+    grupoSelect.addEventListener('change', function () {
+        cargarDatosClase(this.value);
+    });
+
+    const catequistaActual = catequistaSelect.value;
+    const grupoActual = grupoSelect.value;
+
+    if (catequistaActual) {
+        cargarGrupos(catequistaActual, grupoActual);
+    }
+});
+</script>
 {% endblock %}

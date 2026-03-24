@@ -1,12 +1,12 @@
 from django import forms
 from .models import Inscripcion
-from catequesis.models import GrupoCatequesis, HorarioCatequesis
+from catequesis.models import GrupoCatequesis
 
 
 class InscripcionForm(forms.ModelForm):
     class Meta:
         model = Inscripcion
-        fields = '__all__'
+        exclude = ['horario_catequesis']
         widgets = {
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'tipo': forms.Select(attrs={'class': 'form-control'}),
@@ -23,7 +23,6 @@ class InscripcionForm(forms.ModelForm):
 
             'catequista': forms.Select(attrs={'class': 'form-control'}),
             'grupo_catequesis': forms.Select(attrs={'class': 'form-control'}),
-            'horario_catequesis': forms.Select(attrs={'class': 'form-control'}),
 
             'lugar_clases': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
             'dia_clases': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
@@ -36,15 +35,8 @@ class InscripcionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields['grupo_catequesis'].queryset = GrupoCatequesis.objects.none()
-        self.fields['horario_catequesis'].queryset = HorarioCatequesis.objects.none()
 
-        if self.instance.pk:
-            if self.instance.catequista:
-                self.fields['grupo_catequesis'].queryset = GrupoCatequesis.objects.filter(
-                    catequista=self.instance.catequista
-                ).order_by('numero_grupo')
-
-            if self.instance.grupo_catequesis:
-                self.fields['horario_catequesis'].queryset = HorarioCatequesis.objects.filter(
-                    grupo=self.instance.grupo_catequesis
-                ).order_by('hora_inicio')
+        if self.instance.pk and self.instance.catequista:
+            self.fields['grupo_catequesis'].queryset = GrupoCatequesis.objects.filter(
+                catequista=self.instance.catequista
+            ).order_by('numero_grupo')
