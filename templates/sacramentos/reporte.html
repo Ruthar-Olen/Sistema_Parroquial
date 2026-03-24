@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+
+{% block title %}Reporte completo de inscripciones{% endblock %}
+{% block header %}Reporte de inscripciones{% endblock %}
+
+{% block content %}
+
+<style>
+    .report-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+
+    .report-meta {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .meta-box {
+        background: #f6f8fc;
+        border: 1px solid var(--gris-borde);
+        border-radius: 12px;
+        padding: 14px 16px;
+        min-width: 180px;
+    }
+
+    .meta-box .label {
+        font-size: 12px;
+        color: var(--texto-suave);
+        margin-bottom: 4px;
+    }
+
+    .meta-box .value {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--azul-principal);
+    }
+
+    .report-wrapper {
+        overflow-x: auto;
+        border: 1px solid var(--gris-borde);
+        border-radius: 14px;
+        background: #fff;
+    }
+
+    .report-table {
+        width: 100%;
+        min-width: 2200px;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+    .report-table th {
+        background: #f3f6fb;
+        color: var(--azul-principal);
+        padding: 12px 10px;
+        border-bottom: 1px solid var(--gris-borde);
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .report-table td {
+        padding: 11px 10px;
+        border-bottom: 1px solid #edf1f6;
+        vertical-align: top;
+        white-space: nowrap;
+    }
+
+    .report-table tbody tr:nth-child(even) {
+        background: #fbfcfe;
+    }
+
+    .yes {
+        font-weight: 700;
+        color: #2d7a39;
+    }
+
+    .no {
+        color: #9aa3af;
+    }
+
+    .report-title {
+        margin: 0 0 16px 0;
+        color: var(--azul-principal);
+        font-size: 28px;
+    }
+
+    @media print {
+        body {
+            background: white !important;
+        }
+
+        .sidebar,
+        .topbar,
+        .report-toolbar {
+            display: none !important;
+        }
+
+        .main,
+        .content,
+        .card {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            box-shadow: none !important;
+            background: white !important;
+            overflow: visible !important;
+            height: auto !important;
+        }
+
+        .report-wrapper {
+            border: none !important;
+            overflow: visible !important;
+        }
+
+        .report-table {
+            min-width: 100% !important;
+            font-size: 10px;
+        }
+
+        .report-table th,
+        .report-table td {
+            white-space: normal;
+            padding: 6px 5px;
+        }
+
+        @page {
+            size: landscape;
+            margin: 10mm;
+        }
+    }
+</style>
+
+<h1 class="report-title">Reporte completo de inscripciones</h1>
+
+<div class="report-meta">
+    <div class="meta-box">
+        <div class="label">Total resultados</div>
+        <div class="value">{{ inscripciones|length }}</div>
+    </div>
+
+    <div class="meta-box">
+        <div class="label">Filtro por nombre</div>
+        <div class="value">
+            {% if query %}{{ query }}{% else %}Sin filtro{% endif %}
+        </div>
+    </div>
+
+    <div class="meta-box">
+        <div class="label">Sacramento</div>
+        <div class="value">
+            {% if tipo == 'comunion' %}
+                Primera Comunión
+            {% elif tipo == 'confirmacion' %}
+                Confirmación
+            {% else %}
+                Todos
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="report-toolbar">
+    <div>
+        <a href="{% url 'lista_inscripciones' %}?q={{ query|urlencode }}&tipo={{ tipo|urlencode }}" class="btn btn-secondary">
+            Volver a lista
+        </a>
+    </div>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a href="{% url 'exportar_inscripciones_csv' %}?q={{ query|urlencode }}&tipo={{ tipo|urlencode }}" class="btn btn-secondary">
+            Descargar CSV
+        </a>
+        <a href="{% url 'exportar_inscripciones_excel' %}?q={{ query|urlencode }}&tipo={{ tipo|urlencode }}" class="btn btn-secondary">
+            Descargar Excel
+        </a>
+        <button type="button" class="btn btn-primary" onclick="window.print()">
+            Imprimir
+        </button>
+    </div>
+</div>
+
+{% if inscripciones %}
+    <div class="report-wrapper">
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tipo</th>
+                    <th>Fecha</th>
+                    <th>Nombre completo</th>
+                    <th>Teléfono</th>
+                    <th>Edad</th>
+                    <th>Padre</th>
+                    <th>Madre</th>
+                    <th>Padrino</th>
+                    <th>Madrina</th>
+                    <th>Catequista</th>
+                    <th>Grupo</th>
+                    <th>Lugar</th>
+                    <th>Día</th>
+                    <th>Hora</th>
+                    <th>Bautizo</th>
+                    <th>Eucaristía</th>
+                    <th>Confirmación</th>
+                    <th>Matrimonio</th>
+                    <th>Acta nac.</th>
+                    <th>B. Bautizo</th>
+                    <th>B. Confirmación</th>
+                    <th>INE</th>
+                    <th>Otros documentos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ins in inscripciones %}
+                    <tr>
+                        <td>{{ ins.id }}</td>
+                        <td>{{ ins.get_tipo_display }}</td>
+                        <td>{{ ins.fecha|date:"d/m/Y" }}</td>
+                        <td>{{ ins.nombre_completo }}</td>
+                        <td>{{ ins.telefono|default:"-" }}</td>
+                        <td>{{ ins.edad|default:"-" }}</td>
+                        <td>{{ ins.nombre_padre|default:"-" }}</td>
+                        <td>{{ ins.nombre_madre|default:"-" }}</td>
+                        <td>{{ ins.nombre_padrino|default:"-" }}</td>
+                        <td>{{ ins.nombre_madrina|default:"-" }}</td>
+                        <td>{{ ins.catequista|default:"-" }}</td>
+                        <td>{{ ins.grupo_catequesis|default:"-" }}</td>
+                        <td>{{ ins.lugar_clases|default:"-" }}</td>
+                        <td>{{ ins.dia_clases|default:"-" }}</td>
+                        <td>{{ ins.hora_clases|default:"-" }}</td>
+
+                        <td>{% if ins.bautizo %}<span class="yes">Sí</span>{% else %}<span class="no">No</span>{% endif %}</td>
+                        <td>{% if ins.eucaristia %}<span class="yes">Sí</span>{% else %}<span class="no">No</span>{% endif %}</td>
+                        <td>{% if ins.confirmacion %}<span class="yes">Sí</span>{% else %}<span class="no">No</span>{% endif %}</td>
+                        <td>{% if ins.matrimonio %}<span class="yes">Sí</span>{% else %}<span class="no">No</span>{% endif %}</td>
+                        <td>{% if ins.acta_nacimiento %}<span class="yes">Sí</span>{% else %}<span class="no">No</span>{% endif %}</td>
+                        <td>{% if ins.boleta_bautizo %}<span class="yes">Sí</span>{% else %}<span class="no">No</span>{% endif %}</td>
+                        <td>{% if ins.boleta_confirmacion %}<span class="yes">Sí</span>{% else %}<span class="no">No</span>{% endif %}</td>
+                        <td>{% if ins.ine %}<span class="yes">Sí</span>{% else %}<span class="no">No</span>{% endif %}</td>
+                        <td>{{ ins.otros_documentos|default:"-" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty">
+        No hay inscripciones para mostrar con los filtros actuales.
+    </div>
+{% endif %}
+
+{% endblock %}

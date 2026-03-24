@@ -6,199 +6,333 @@
 {% block content %}
 
 <style>
-    .table-wrapper {
-        overflow-x: auto;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 14px;
-    }
-
-    thead {
-        background: #f5f7fa;
-    }
-
-    th {
-        text-align: left;
-        padding: 12px;
-        font-weight: 600;
-        color: #2c3e50;
-        border-bottom: 2px solid #eaecef;
-    }
-
-    td {
-        padding: 10px 12px;
-        border-bottom: 1px solid #f0f0f0;
-    }
-
-    tbody tr:nth-child(even) {
-        background: #fafafa;
-    }
-
-    tbody tr:hover {
-        background: #eef5ff;
-    }
-
-    .badge {
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    .badge-comunion {
-        background: #e3f2fd;
-        color: #1976d2;
-    }
-
-    .badge-confirmacion {
-        background: #e8f5e9;
-        color: #2e7d32;
-    }
-
-    .acciones a {
-        padding: 5px 10px;
-        border-radius: 6px;
-        font-size: 12px;
-        text-decoration: none;
-        margin-right: 6px;
-    }
-
-    .btn-ver {
-        background: #e3f2fd;
-        color: #1976d2;
-    }
-
-    .btn-editar {
-        background: #fff3e0;
-        color: #ef6c00;
-    }
-
-    .btn-eliminar {
-        background: #ffebee;
-        color: #c62828;
-    }
-
     .toolbar {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 20px;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 22px;
         flex-wrap: wrap;
-        gap: 12px;
+    }
+
+    .filtros-box {
+        flex: 1;
+        min-width: 280px;
     }
 
     .filtros-form {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
+        align-items: center;
     }
 
     .filtros-form input,
     .filtros-form select {
-        padding: 8px;
+        max-width: 240px;
+    }
+
+    .acciones-top {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        background: var(--blanco);
+        border: 1px solid var(--gris-borde);
+        border-radius: 14px;
+    }
+
+    .data-table {
+        width: 100%;
+        min-width: 980px;
+        border-collapse: collapse;
+    }
+
+    .data-table thead th {
+        background: #f3f6fb;
+        color: var(--azul-principal);
+        font-size: 13px;
+        font-weight: 700;
+        padding: 14px 12px;
+        border-bottom: 1px solid var(--gris-borde);
+        white-space: nowrap;
+    }
+
+    .data-table tbody td {
+        padding: 14px 12px;
+        border-bottom: 1px solid #edf1f6;
+        vertical-align: middle;
+        font-size: 14px;
+    }
+
+    .data-table tbody tr:nth-child(even) {
+        background: #fbfcfe;
+    }
+
+    .data-table tbody tr:hover {
+        background: #f5f8fc;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .badge-comunion {
+        background: rgba(201, 163, 74, 0.16);
+        color: #8a6a1f;
+    }
+
+    .badge-confirmacion {
+        background: rgba(31, 53, 87, 0.12);
+        color: var(--azul-principal);
+    }
+
+    .muted {
+        color: var(--texto-suave);
+    }
+
+    .acciones {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .action-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px 10px;
         border-radius: 8px;
-        border: 1px solid #ccc;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .action-view {
+        background: rgba(31, 53, 87, 0.10);
+        color: var(--azul-principal);
+    }
+
+    .action-edit {
+        background: rgba(201, 163, 74, 0.15);
+        color: #8a6a1f;
+    }
+
+    .action-delete {
+        background: rgba(179, 58, 58, 0.10);
+        color: #a13232;
+    }
+
+    .summary-strip {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .summary-card {
+        background: #f6f8fc;
+        border: 1px solid var(--gris-borde);
+        border-radius: 12px;
+        padding: 14px 16px;
+        min-width: 160px;
+    }
+
+    .summary-card .label {
+        font-size: 12px;
+        color: var(--texto-suave);
+        margin-bottom: 4px;
+    }
+
+    .summary-card .value {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--azul-principal);
     }
 
     .empty {
-        background: white;
-        padding: 30px;
-        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid var(--gris-borde);
+        border-radius: 14px;
+        padding: 26px;
         text-align: center;
-        color: #666;
+        color: var(--texto-suave);
+    }
+
+    @media (max-width: 900px) {
+        .toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filtros-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filtros-form input,
+        .filtros-form select,
+        .filtros-form button,
+        .filtros-form a,
+        .acciones-top a {
+            width: 100%;
+            max-width: 100%;
+            text-align: center;
+        }
+
+        .acciones-top {
+            justify-content: stretch;
+        }
     }
 </style>
 
 <h1 class="page-title">Lista de inscripciones</h1>
 
+<div class="summary-strip">
+    <div class="summary-card">
+        <div class="label">Total resultados</div>
+        <div class="value">{{ inscripciones|length }}</div>
+    </div>
+
+    <div class="summary-card">
+        <div class="label">Filtro por nombre</div>
+        <div class="value" style="font-size:16px;">
+            {% if query %}{{ query }}{% else %}<span class="muted">Sin filtro</span>{% endif %}
+        </div>
+    </div>
+
+    <div class="summary-card">
+        <div class="label">Sacramento</div>
+        <div class="value" style="font-size:16px;">
+            {% if tipo == 'comunion' %}
+                Comunión
+            {% elif tipo == 'confirmacion' %}
+                Confirmación
+            {% else %}
+                <span class="muted">Todos</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
 <div class="toolbar">
+    <div class="filtros-box">
+        <form method="get" class="filtros-form">
+            <input
+                type="text"
+                name="q"
+                value="{{ query }}"
+                placeholder="Buscar por nombre..."
+            >
 
-    <form method="get" class="filtros-form">
-        <input type="text" name="q" value="{{ query }}" placeholder="Buscar nombre...">
+            <select name="tipo">
+                <option value="">Todos los sacramentos</option>
+                <option value="comunion" {% if tipo == 'comunion' %}selected{% endif %}>Primera Comunión</option>
+                <option value="confirmacion" {% if tipo == 'confirmacion' %}selected{% endif %}>Confirmación</option>
+            </select>
 
-        <select name="tipo">
-            <option value="">Todos</option>
-            <option value="comunion" {% if tipo == 'comunion' %}selected{% endif %}>Comunión</option>
-            <option value="confirmacion" {% if tipo == 'confirmacion' %}selected{% endif %}>Confirmación</option>
-        </select>
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+            <a href="{% url 'lista_inscripciones' %}" class="btn btn-secondary">Limpiar</a>
+        </form>
+    </div>
 
-        <button class="btn btn-primary">Filtrar</button>
-        <a href="{% url 'lista_inscripciones' %}" class="btn btn-secondary">Limpiar</a>
-    </form>
+    <div class="acciones-top">
+        {% if puede_editar %}
+            <a href="{% url 'crear_inscripcion' %}" class="btn btn-primary">Nueva inscripción</a>
+        {% endif %}
 
-    {% if puede_editar %}
-        <a href="{% url 'crear_inscripcion' %}" class="btn btn-primary">+ Nueva inscripción</a>
-    {% endif %}
+        <a href="{% url 'reporte_inscripciones' %}?q={{ query|urlencode }}&tipo={{ tipo|urlencode }}" class="btn btn-secondary">
+            Reporte completo
+        </a>
 
+        <a href="{% url 'exportar_inscripciones_csv' %}?q={{ query|urlencode }}&tipo={{ tipo|urlencode }}" class="btn btn-secondary">
+            Descargar CSV
+        </a>
+
+        <a href="{% url 'exportar_inscripciones_excel' %}?q={{ query|urlencode }}&tipo={{ tipo|urlencode }}" class="btn btn-secondary">
+            Descargar Excel
+        </a>
+    </div>
 </div>
 
 {% if inscripciones %}
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tipo</th>
+                    <th>Fecha</th>
+                    <th>Nombre completo</th>
+                    <th>Teléfono</th>
+                    <th>Edad</th>
+                    <th>Catequista</th>
+                    <th>Grupo</th>
+                    <th>Día</th>
+                    <th>Hora</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ins in inscripciones %}
+                    <tr>
+                        <td>{{ ins.id }}</td>
 
-<div class="table-wrapper">
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Tipo</th>
-            <th>Nombre</th>
-            <th>Teléfono</th>
-            <th>Edad</th>
-            <th>Grupo</th>
-            <th>Día</th>
-            <th>Hora</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
+                        <td>
+                            {% if ins.tipo == 'comunion' %}
+                                <span class="badge badge-comunion">Comunión</span>
+                            {% elif ins.tipo == 'confirmacion' %}
+                                <span class="badge badge-confirmacion">Confirmación</span>
+                            {% else %}
+                                {{ ins.get_tipo_display }}
+                            {% endif %}
+                        </td>
 
-    {% for ins in inscripciones %}
-    <tr>
-        <td>{{ ins.id }}</td>
+                        <td>{{ ins.fecha|date:"d/m/Y" }}</td>
+                        <td>{{ ins.nombre_completo }}</td>
+                        <td>{{ ins.telefono|default:"-" }}</td>
+                        <td>{{ ins.edad|default:"-" }}</td>
+                        <td>{{ ins.catequista|default:"-" }}</td>
+                        <td>{{ ins.grupo_catequesis|default:"-" }}</td>
+                        <td>{{ ins.dia_clases|default:"-" }}</td>
+                        <td>{{ ins.hora_clases|default:"-" }}</td>
 
-        <td>
-            {% if ins.tipo == 'comunion' %}
-                <span class="badge badge-comunion">Comunión</span>
-            {% elif ins.tipo == 'confirmacion' %}
-                <span class="badge badge-confirmacion">Confirmación</span>
-            {% else %}
-                {{ ins.get_tipo_display }}
-            {% endif %}
-        </td>
+                        <td>
+                            <div class="acciones">
+                                <a href="{% url 'detalle_inscripcion' ins.id %}" class="action-link action-view">Ver</a>
 
-        <td>{{ ins.nombre_completo }}</td>
-        <td>{{ ins.telefono }}</td>
-        <td>{{ ins.edad }}</td>
-        <td>{{ ins.grupo_catequesis }}</td>
-        <td>{{ ins.dia_clases }}</td>
-        <td>{{ ins.hora_clases }}</td>
+                                {% if puede_editar %}
+                                    <a href="{% url 'editar_inscripcion' ins.id %}" class="action-link action-edit">Editar</a>
+                                {% endif %}
 
-        <td class="acciones">
-            <a href="{% url 'detalle_inscripcion' ins.id %}" class="btn-ver">Ver</a>
-
-            {% if puede_editar %}
-                <a href="{% url 'editar_inscripcion' ins.id %}" class="btn-editar">Editar</a>
-            {% endif %}
-
-            {% if puede_eliminar %}
-                <a href="{% url 'eliminar_inscripcion' ins.id %}" class="btn-eliminar">Eliminar</a>
-            {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
-
-    </tbody>
-</table>
-</div>
-
+                                {% if puede_eliminar %}
+                                    <a href="{% url 'eliminar_inscripcion' ins.id %}" class="action-link action-delete">Eliminar</a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% else %}
-<div class="empty">
-    No hay inscripciones registradas.
-</div>
+    <div class="empty">
+        {% if query or tipo %}
+            No se encontraron inscripciones con los filtros seleccionados.
+        {% else %}
+            No hay inscripciones registradas.
+        {% endif %}
+    </div>
 {% endif %}
 
 {% endblock %}
