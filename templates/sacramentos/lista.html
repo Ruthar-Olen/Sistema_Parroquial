@@ -4,352 +4,201 @@
 {% block header %}Inscripciones{% endblock %}
 
 {% block content %}
+
 <style>
     .table-wrapper {
         overflow-x: auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    thead {
+        background: #f5f7fa;
+    }
+
+    th {
+        text-align: left;
+        padding: 12px;
+        font-weight: 600;
+        color: #2c3e50;
+        border-bottom: 2px solid #eaecef;
+    }
+
+    td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    tbody tr:nth-child(even) {
+        background: #fafafa;
+    }
+
+    tbody tr:hover {
+        background: #eef5ff;
+    }
+
+    .badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge-comunion {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .badge-confirmacion {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .acciones a {
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        text-decoration: none;
+        margin-right: 6px;
+    }
+
+    .btn-ver {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .btn-editar {
+        background: #fff3e0;
+        color: #ef6c00;
+    }
+
+    .btn-eliminar {
+        background: #ffebee;
+        color: #c62828;
     }
 
     .toolbar {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
-        gap: 16px;
         margin-bottom: 20px;
         flex-wrap: wrap;
-    }
-
-    .filtros-box {
-        width: 100%;
-        max-width: 900px;
+        gap: 12px;
     }
 
     .filtros-form {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
-        align-items: center;
     }
 
     .filtros-form input,
     .filtros-form select {
-        width: 240px;
-        max-width: 100%;
-    }
-
-    .acciones-top {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        align-items: center;
-    }
-
-    .acciones a {
-        margin-right: 8px;
-        white-space: nowrap;
-    }
-
-    .print-only {
-        display: none;
-    }
-
-    .screen-only {
-        display: block;
-    }
-
-    table {
-        font-size: 14px;
-        min-width: 1800px;
-    }
-
-    th, td {
-        vertical-align: top;
-        white-space: nowrap;
-    }
-
-    .bool-si {
-        font-weight: bold;
-        color: #2f8f46;
-    }
-
-    .bool-no {
-        color: #999;
-    }
-
-    .print-report {
-        display: none;
-    }
-
-    .print-card {
-        border: 1px solid #bbb;
-        padding: 10px;
-        margin-bottom: 12px;
+        padding: 8px;
         border-radius: 8px;
-        page-break-inside: avoid;
-        break-inside: avoid;
+        border: 1px solid #ccc;
     }
 
-    .print-card h3 {
-        margin: 0 0 8px 0;
-        font-size: 14px;
-    }
-
-    .print-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px 16px;
-        font-size: 11px;
-    }
-
-    .print-item strong {
-        color: #333;
-    }
-
-    @page {
-        size: landscape;
-        margin: 10mm;
-    }
-
-    @media print {
-        .sidebar,
-        .topbar,
-        .toolbar,
-        .screen-only,
-        .no-print {
-            display: none !important;
-        }
-
-        body,
-        .content,
-        .card {
-            background: white !important;
-            box-shadow: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: visible !important;
-            height: auto !important;
-        }
-
-        .print-only,
-        .print-report {
-            display: block !important;
-        }
-
-        .print-only {
-            margin-bottom: 16px;
-        }
-
-        .print-only h2 {
-            margin: 0 0 8px 0;
-            font-size: 18px;
-        }
-
-        .print-only p {
-            margin: 4px 0;
-            font-size: 12px;
-        }
-
-        .print-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (max-width: 900px) {
-        .toolbar {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .filtros-box {
-            max-width: 100%;
-        }
-
-        .filtros-form {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .filtros-form input,
-        .filtros-form select,
-        .filtros-form button,
-        .filtros-form a,
-        .acciones-top a,
-        .acciones-top button {
-            width: 100%;
-            box-sizing: border-box;
-            text-align: center;
-        }
-
-        .acciones-top {
-            width: 100%;
-            flex-direction: column;
-            align-items: stretch;
-        }
+    .empty {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+        color: #666;
     }
 </style>
 
 <h1 class="page-title">Lista de inscripciones</h1>
 
-<div class="toolbar no-print">
-    <div class="filtros-box">
-        <form method="get" class="filtros-form">
-            <input
-                type="text"
-                name="q"
-                value="{{ query }}"
-                placeholder="Buscar por nombre..."
-            >
+<div class="toolbar">
 
-            <select name="tipo">
-                <option value="">Todos los sacramentos</option>
-                <option value="comunion" {% if tipo == 'comunion' %}selected{% endif %}>Primera Comunión</option>
-                <option value="confirmacion" {% if tipo == 'confirmacion' %}selected{% endif %}>Confirmación</option>
-                <option value="matrimonio" {% if tipo == 'matrimonio' %}selected{% endif %}>Matrimonio</option>
-            </select>
+    <form method="get" class="filtros-form">
+        <input type="text" name="q" value="{{ query }}" placeholder="Buscar nombre...">
 
-            <button type="submit" class="btn btn-primary">Filtrar</button>
-            <a href="{% url 'lista_inscripciones' %}" class="btn btn-secondary">Limpiar</a>
-        </form>
-    </div>
+        <select name="tipo">
+            <option value="">Todos</option>
+            <option value="comunion" {% if tipo == 'comunion' %}selected{% endif %}>Comunión</option>
+            <option value="confirmacion" {% if tipo == 'confirmacion' %}selected{% endif %}>Confirmación</option>
+        </select>
 
-    <div class="acciones-top">
-        {% if puede_editar %}
-            <a href="{% url 'crear_inscripcion' %}" class="btn btn-primary">Nueva inscripción</a>
-        {% endif %}
+        <button class="btn btn-primary">Filtrar</button>
+        <a href="{% url 'lista_inscripciones' %}" class="btn btn-secondary">Limpiar</a>
+    </form>
 
-        <button type="button" class="btn btn-secondary" onclick="window.print()">Imprimir resultados</button>
-    </div>
-</div>
+    {% if puede_editar %}
+        <a href="{% url 'crear_inscripcion' %}" class="btn btn-primary">+ Nueva inscripción</a>
+    {% endif %}
 
-<div class="print-only">
-    <h2>Parroquia de la Santísima Trinidad</h2>
-    <p><strong>Reporte de inscripciones filtradas</strong></p>
-    <p>
-        <strong>Búsqueda:</strong>
-        {% if query %}{{ query }}{% else %}Sin filtro{% endif %}
-        &nbsp; | &nbsp;
-        <strong>Sacramento:</strong>
-        {% if tipo == 'comunion' %}
-            Primera Comunión
-        {% elif tipo == 'confirmacion' %}
-            Confirmación
-        {% elif tipo == 'matrimonio' %}
-            Matrimonio
-        {% else %}
-            Todos
-        {% endif %}
-    </p>
 </div>
 
 {% if inscripciones %}
-    <!-- Vista normal de pantalla -->
-    <div class="table-wrapper screen-only">
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Tipo</th>
-                    <th>Fecha</th>
-                    <th>Nombre completo</th>
-                    <th>Teléfono</th>
-                    <th>Edad</th>
-                    <th>Padre</th>
-                    <th>Madre</th>
-                    <th>Novio(a)</th>
-                    <th>Padrino</th>
-                    <th>Madrina</th>
-                    <th>Lugar</th>
-                    <th>Día</th>
-                    <th>Hora</th>
-                    <th>Bautizo</th>
-                    <th>Eucaristía</th>
-                    <th>Confirmación</th>
-                    <th>Matrimonio</th>
-                    <th>Acta nac.</th>
-                    <th>B. Bautizo</th>
-                    <th>B. Confirmación</th>
-                    <th>INE</th>
-                    <th>Otros documentos</th>
-                    <th class="no-print">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ins in inscripciones %}
-                    <tr>
-                        <td>{{ ins.id }}</td>
-                        <td>{{ ins.get_tipo_display }}</td>
-                        <td>{{ ins.fecha|date:"d/m/Y" }}</td>
-                        <td>{{ ins.nombre_completo }}</td>
-                        <td>{{ ins.telefono }}</td>
-                        <td>{{ ins.edad }}</td>
-                        <td>{{ ins.nombre_padre|default:"-" }}</td>
-                        <td>{{ ins.nombre_madre|default:"-" }}</td>
-                        <td>{{ ins.nombre_novio|default:"-" }}</td>
-                        <td>{{ ins.nombre_padrino|default:"-" }}</td>
-                        <td>{{ ins.nombre_madrina|default:"-" }}</td>
-                        <td>{{ ins.lugar_clases|default:"-" }}</td>
-                        <td>{{ ins.dia_clases|default:"-" }}</td>
-                        <td>{{ ins.hora_clases|default:"-" }}</td>
-                        <td>{% if ins.bautizo %}<span class="bool-si">Sí</span>{% else %}<span class="bool-no">No</span>{% endif %}</td>
-                        <td>{% if ins.eucaristia %}<span class="bool-si">Sí</span>{% else %}<span class="bool-no">No</span>{% endif %}</td>
-                        <td>{% if ins.confirmacion %}<span class="bool-si">Sí</span>{% else %}<span class="bool-no">No</span>{% endif %}</td>
-                        <td>{% if ins.matrimonio %}<span class="bool-si">Sí</span>{% else %}<span class="bool-no">No</span>{% endif %}</td>
-                        <td>{% if ins.acta_nacimiento %}<span class="bool-si">Sí</span>{% else %}<span class="bool-no">No</span>{% endif %}</td>
-                        <td>{% if ins.boleta_bautizo %}<span class="bool-si">Sí</span>{% else %}<span class="bool-no">No</span>{% endif %}</td>
-                        <td>{% if ins.boleta_confirmacion %}<span class="bool-si">Sí</span>{% else %}<span class="bool-no">No</span>{% endif %}</td>
-                        <td>{% if ins.ine %}<span class="bool-si">Sí</span>{% else %}<span class="bool-no">No</span>{% endif %}</td>
-                        <td>{{ ins.otros_documentos|default:"-" }}</td>
-                        <td class="acciones no-print">
-                            <a href="{% url 'detalle_inscripcion' ins.id %}">Ver</a>
-                            {% if puede_editar %}
-                                <a href="{% url 'editar_inscripcion' ins.id %}">Editar</a>
-                            {% endif %}
-                            {% if puede_eliminar %}
-                                <a href="{% url 'eliminar_inscripcion' ins.id %}">Eliminar</a>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
 
-    <!-- Vista especial para impresión -->
-    <div class="print-report">
-        {% for ins in inscripciones %}
-            <div class="print-card">
-                <h3>{{ ins.nombre_completo }} — {{ ins.get_tipo_display }}</h3>
-                <div class="print-grid">
-                    <div class="print-item"><strong>Fecha:</strong> {{ ins.fecha|date:"d/m/Y" }}</div>
-                    <div class="print-item"><strong>Teléfono:</strong> {{ ins.telefono|default:"-" }}</div>
-                    <div class="print-item"><strong>Edad:</strong> {{ ins.edad|default:"-" }}</div>
-                    <div class="print-item"><strong>Padre:</strong> {{ ins.nombre_padre|default:"-" }}</div>
-                    <div class="print-item"><strong>Madre:</strong> {{ ins.nombre_madre|default:"-" }}</div>
-                    <div class="print-item"><strong>Novio(a):</strong> {{ ins.nombre_novio|default:"-" }}</div>
-                    <div class="print-item"><strong>Padrino:</strong> {{ ins.nombre_padrino|default:"-" }}</div>
-                    <div class="print-item"><strong>Madrina:</strong> {{ ins.nombre_madrina|default:"-" }}</div>
-                    <div class="print-item"><strong>Lugar:</strong> {{ ins.lugar_clases|default:"-" }}</div>
-                    <div class="print-item"><strong>Día:</strong> {{ ins.dia_clases|default:"-" }}</div>
-                    <div class="print-item"><strong>Hora:</strong> {{ ins.hora_clases|default:"-" }}</div>
-                    <div class="print-item"><strong>Otros documentos:</strong> {{ ins.otros_documentos|default:"-" }}</div>
-                    <div class="print-item"><strong>Bautizo:</strong> {% if ins.bautizo %}Sí{% else %}No{% endif %}</div>
-                    <div class="print-item"><strong>Eucaristía:</strong> {% if ins.eucaristia %}Sí{% else %}No{% endif %}</div>
-                    <div class="print-item"><strong>Confirmación:</strong> {% if ins.confirmacion %}Sí{% else %}No{% endif %}</div>
-                    <div class="print-item"><strong>Matrimonio:</strong> {% if ins.matrimonio %}Sí{% else %}No{% endif %}</div>
-                    <div class="print-item"><strong>Acta de nacimiento:</strong> {% if ins.acta_nacimiento %}Sí{% else %}No{% endif %}</div>
-                    <div class="print-item"><strong>Boleta de bautizo:</strong> {% if ins.boleta_bautizo %}Sí{% else %}No{% endif %}</div>
-                    <div class="print-item"><strong>Boleta de confirmación:</strong> {% if ins.boleta_confirmacion %}Sí{% else %}No{% endif %}</div>
-                    <div class="print-item"><strong>INE:</strong> {% if ins.ine %}Sí{% else %}No{% endif %}</div>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
+<div class="table-wrapper">
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tipo</th>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Edad</th>
+            <th>Grupo</th>
+            <th>Día</th>
+            <th>Hora</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+
+    {% for ins in inscripciones %}
+    <tr>
+        <td>{{ ins.id }}</td>
+
+        <td>
+            {% if ins.tipo == 'comunion' %}
+                <span class="badge badge-comunion">Comunión</span>
+            {% elif ins.tipo == 'confirmacion' %}
+                <span class="badge badge-confirmacion">Confirmación</span>
+            {% else %}
+                {{ ins.get_tipo_display }}
+            {% endif %}
+        </td>
+
+        <td>{{ ins.nombre_completo }}</td>
+        <td>{{ ins.telefono }}</td>
+        <td>{{ ins.edad }}</td>
+        <td>{{ ins.grupo_catequesis }}</td>
+        <td>{{ ins.dia_clases }}</td>
+        <td>{{ ins.hora_clases }}</td>
+
+        <td class="acciones">
+            <a href="{% url 'detalle_inscripcion' ins.id %}" class="btn-ver">Ver</a>
+
+            {% if puede_editar %}
+                <a href="{% url 'editar_inscripcion' ins.id %}" class="btn-editar">Editar</a>
+            {% endif %}
+
+            {% if puede_eliminar %}
+                <a href="{% url 'eliminar_inscripcion' ins.id %}" class="btn-eliminar">Eliminar</a>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+</div>
+
 {% else %}
-    <div class="empty">
-        {% if query or tipo %}
-            No se encontraron inscripciones con los filtros seleccionados.
-        {% else %}
-            No hay inscripciones registradas.
-        {% endif %}
-    </div>
+<div class="empty">
+    No hay inscripciones registradas.
+</div>
 {% endif %}
+
 {% endblock %}
