@@ -4,17 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Sistema Parroquial{% endblock %}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --verde-principal: #2f5d3a;
-            --verde-secundario: #2f8f46;
-            --verde-suave: #eef5ee;
-            --fondo: #f4f6f3;
+            --azul-profundo: #14243d;
+            --azul-principal: #1f3557;
+            --azul-hover: #2a4a78;
+            --dorado: #c9a34a;
+            --dorado-suave: #e7cc84;
+
+            --fondo: #f4f6fb;
             --blanco: #ffffff;
-            --gris-borde: #d9dfd7;
-            --gris-texto: #5e665d;
-            --rojo: #b23b3b;
-            --sombra: 0 8px 24px rgba(0,0,0,0.08);
+            --gris-borde: #e1e6ef;
+            --texto: #243041;
+            --texto-suave: #6e7785;
+
+            --sombra: 0 10px 30px rgba(0,0,0,0.08);
             --radio: 16px;
 
             --sidebar-width: 260px;
@@ -25,16 +32,11 @@
             box-sizing: border-box;
         }
 
-        html, body {
-            height: 100%;
-        }
-
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Inter', sans-serif;
             background: var(--fondo);
-            color: #222;
-            overflow: hidden;
+            color: var(--texto);
         }
 
         .layout {
@@ -42,9 +44,10 @@
             height: 100vh;
         }
 
+        /* SIDEBAR */
         .sidebar {
             width: var(--sidebar-width);
-            background: var(--verde-principal);
+            background: linear-gradient(180deg, #0f1c31, #1f3557);
             color: white;
             padding: 24px 18px;
 
@@ -54,17 +57,17 @@
             bottom: 0;
 
             overflow-y: auto;
-            z-index: 1100;
         }
 
         .sidebar h2 {
-            margin: 0 0 8px 0;
+            margin: 0;
+            font-family: 'Cormorant Garamond', serif;
             font-size: 22px;
         }
 
         .sidebar .subtitle {
             font-size: 13px;
-            color: rgba(255,255,255,0.8);
+            opacity: 0.7;
             margin-bottom: 28px;
         }
 
@@ -73,10 +76,10 @@
         }
 
         .nav-section-title {
-            font-size: 12px;
+            font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
-            opacity: 0.75;
+            letter-spacing: 1px;
+            opacity: 0.6;
             margin-bottom: 10px;
         }
 
@@ -84,27 +87,30 @@
             display: block;
             color: white;
             text-decoration: none;
-            padding: 11px 12px;
+            padding: 10px 12px;
             border-radius: 10px;
             margin-bottom: 6px;
+            transition: 0.2s;
         }
 
         .nav-link:hover {
-            background: rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.08);
+            padding-left: 16px;
         }
 
+        /* MAIN */
         .main {
             margin-left: var(--sidebar-width);
             width: calc(100% - var(--sidebar-width));
-            height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
+        /* TOPBAR */
         .topbar {
             background: var(--blanco);
             padding: 18px 28px;
-            border-bottom: 1px solid #e6ece4;
+            border-bottom: 1px solid var(--gris-borde);
 
             position: fixed;
             top: 0;
@@ -116,212 +122,91 @@
             justify-content: space-between;
             align-items: center;
 
-            z-index: 1000;
+            box-shadow: var(--sombra);
         }
 
         .topbar-title {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--verde-principal);
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--azul-principal);
         }
 
+        /* CONTENT */
         .content {
             margin-top: var(--topbar-height);
+            padding: 30px;
+            background: var(--fondo);
             height: calc(100vh - var(--topbar-height));
             overflow-y: auto;
-            padding: 28px;
         }
 
         .card {
             background: var(--blanco);
             border-radius: var(--radio);
             box-shadow: var(--sombra);
-            padding: 24px;
+            padding: 26px;
         }
 
         .page-title {
             margin: 0 0 20px 0;
-            color: var(--verde-principal);
-            font-size: 28px;
+            color: var(--azul-principal);
+            font-size: 26px;
         }
 
-        .section-title {
-            margin-top: 28px;
-            margin-bottom: 14px;
-            color: var(--verde-principal);
-            font-size: 18px;
-            border-bottom: 2px solid var(--verde-suave);
-            padding-bottom: 8px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 18px;
-        }
-
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 18px;
-        }
-
-        .field {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .field label {
-            margin-bottom: 6px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        input[type="text"],
-        input[type="date"],
-        input[type="number"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 11px 12px;
-            border: 1px solid var(--gris-borde);
-            border-radius: 10px;
-            font-size: 14px;
-            background: white;
-        }
-
-        .checks {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .check-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border: 1px solid var(--gris-borde);
-            background: #fafcf9;
-            border-radius: 12px;
-            padding: 12px;
-        }
-
-        .actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 28px;
-            flex-wrap: wrap;
-        }
-
+        /* BOTONES */
         .btn {
             padding: 12px 18px;
             border-radius: 10px;
-            text-decoration: none;
             border: none;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
             font-size: 14px;
         }
 
         .btn-primary {
-            background: var(--verde-secundario);
+            background: linear-gradient(135deg, var(--azul-profundo), var(--azul-principal));
             color: white;
         }
 
         .btn-secondary {
-            background: #e7ebe6;
-            color: #333;
+            background: #eef2f8;
+            color: var(--texto);
         }
 
+        /* TABLAS */
         table {
             width: 100%;
             border-collapse: collapse;
         }
 
         th, td {
-            padding: 14px 12px;
-            border-bottom: 1px solid #e7ece6;
-            text-align: left;
+            padding: 14px;
+            border-bottom: 1px solid var(--gris-borde);
         }
 
         th {
-            background: var(--verde-suave);
-            color: var(--verde-principal);
+            background: #f0f4fa;
+            color: var(--azul-principal);
         }
 
-        .toolbar {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+        /* FORMULARIOS */
+        input, select, textarea {
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid var(--gris-borde);
+            width: 100%;
         }
 
-        .toolbar form {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            flex: 1;
+        input:focus {
+            border-color: var(--dorado);
+            outline: none;
         }
 
-        .empty {
-            padding: 20px 0;
-            color: var(--gris-texto);
-        }
-
-        ul.errorlist {
-            margin: 6px 0 0 0;
-            padding-left: 18px;
-            color: var(--rojo);
-        }
-
-        @media (max-width: 960px) {
-            body {
-                overflow: auto;
-            }
-
-            .layout {
-                display: block;
-                height: auto;
-            }
-
-            .sidebar {
-                position: relative;
-                width: 100%;
-                top: auto;
-                left: auto;
-                bottom: auto;
-            }
-
-            .main {
-                margin-left: 0;
-                width: 100%;
-                height: auto;
-            }
-
-            .topbar {
-                position: relative;
-                left: auto;
-                right: auto;
-                top: auto;
-                height: auto;
-            }
-
-            .content {
-                margin-top: 0;
-                height: auto;
-                overflow: visible;
-            }
-
-            .grid,
-            .grid-3,
-            .checks {
-                grid-template-columns: 1fr;
-            }
-        }
     </style>
 </head>
 <body>
     <div class="layout">
+
         <aside class="sidebar">
             <h2>Santísima Trinidad</h2>
             <div class="subtitle">Sistema parroquial</div>
@@ -339,9 +224,9 @@
 
             <div class="nav-section">
                 <div class="nav-section-title">Sesión</div>
-                    <form method="post" action="{% url 'logout' %}" style="margin: 0;">
+                <form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}
-                    <button type="submit" class="nav-link logout-btn">Cerrar sesión</button>
+                    <button type="submit" class="nav-link">Cerrar sesión</button>
                 </form>
             </div>
 
@@ -350,11 +235,10 @@
                 <a class="nav-link" href="/catequesis/">Módulo catequesis</a>
             </div>
 
-
-
         </aside>
 
         <main class="main">
+
             <div class="topbar">
                 <div class="topbar-title">{% block header %}Sistema Parroquial{% endblock %}</div>
                 <div>Usuario: {{ request.user.username }}</div>
@@ -365,7 +249,9 @@
                     {% block content %}{% endblock %}
                 </div>
             </div>
+
         </main>
+
     </div>
 </body>
 </html>
