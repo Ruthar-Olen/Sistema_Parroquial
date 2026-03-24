@@ -7,6 +7,7 @@
 {% block header %}Inscripciones{% endblock %}
 
 {% block content %}
+
 <style>
     .form-section {
         margin-bottom: 34px;
@@ -95,136 +96,139 @@
 <form method="post">
     {% csrf_token %}
 
+    <!-- ===================== -->
+    <!-- DATOS GENERALES -->
+    <!-- ===================== -->
     <div class="form-section">
         <h2 class="section-subtitle">Datos generales</h2>
 
         <div class="compact-grid">
             <div class="field">
-                <label for="{{ form.tipo.id_for_label }}">Tipo</label>
+                <label>Tipo</label>
                 {{ form.tipo }}
-                {{ form.tipo.errors }}
             </div>
 
             <div class="field">
-                <label for="{{ form.fecha.id_for_label }}">Fecha</label>
+                <label>Fecha</label>
                 {{ form.fecha }}
-                {{ form.fecha.errors }}
             </div>
 
             <div class="field">
-                <label for="{{ form.nombre_completo.id_for_label }}">Nombre completo</label>
+                <label>Nombre completo</label>
                 {{ form.nombre_completo }}
-                {{ form.nombre_completo.errors }}
             </div>
         </div>
 
         <div class="compact-grid-2" style="margin-top: 16px;">
             <div class="field">
-                <label for="{{ form.edad.id_for_label }}">Edad</label>
+                <label>Edad</label>
                 {{ form.edad }}
-                {{ form.edad.errors }}
             </div>
 
             <div class="field">
-                <label for="{{ form.telefono.id_for_label }}">Teléfono</label>
+                <label>Teléfono</label>
                 {{ form.telefono }}
-                {{ form.telefono.errors }}
             </div>
         </div>
     </div>
 
+    <!-- ===================== -->
+    <!-- FAMILIA -->
+    <!-- ===================== -->
     <div class="form-section">
         <h2 class="section-subtitle">Familia y vínculos</h2>
 
         <div class="family-grid">
             <div class="field">
-                <label for="{{ form.nombre_padre.id_for_label }}">Nombre padre</label>
+                <label>Nombre padre</label>
                 {{ form.nombre_padre }}
-                {{ form.nombre_padre.errors }}
             </div>
 
             <div class="field">
-                <label for="{{ form.nombre_madre.id_for_label }}">Nombre madre</label>
+                <label>Nombre madre</label>
                 {{ form.nombre_madre }}
-                {{ form.nombre_madre.errors }}
             </div>
 
             <div class="field">
-                <label for="{{ form.nombre_padrino.id_for_label }}">Nombre padrino</label>
+                <label>Nombre padrino</label>
                 {{ form.nombre_padrino }}
-                {{ form.nombre_padrino.errors }}
             </div>
 
             <div class="field">
-                <label for="{{ form.nombre_madrina.id_for_label }}">Nombre madrina</label>
+                <label>Nombre madrina</label>
                 {{ form.nombre_madrina }}
-                {{ form.nombre_madrina.errors }}
             </div>
         </div>
     </div>
 
+    <!-- ===================== -->
+    <!-- CATEQUESIS -->
+    <!-- ===================== -->
     <div class="form-section">
         <h2 class="section-subtitle">Asignación de catequesis</h2>
 
         <div class="compact-grid-2">
             <div class="field">
-                <label for="{{ form.catequista.id_for_label }}">Catequista</label>
+                <label>Catequista</label>
                 {{ form.catequista }}
-                {{ form.catequista.errors }}
             </div>
 
             <div class="field">
-                <label for="{{ form.grupo_catequesis.id_for_label }}">Grupo</label>
+                <label>Grupo</label>
                 {{ form.grupo_catequesis }}
-                {{ form.grupo_catequesis.errors }}
             </div>
         </div>
     </div>
 
+    <!-- ===================== -->
+    <!-- DATOS DE CLASE -->
+    <!-- ===================== -->
     <div class="form-section">
         <h2 class="section-subtitle">Datos de clase</h2>
 
         <div class="compact-grid">
             <div class="field">
-                <label for="{{ form.lugar_clases.id_for_label }}">Lugar</label>
+                <label>Lugar</label>
                 {{ form.lugar_clases }}
-                {{ form.lugar_clases.errors }}
             </div>
 
             <div class="field">
-                <label for="{{ form.dia_clases.id_for_label }}">Día</label>
+                <label>Día</label>
                 {{ form.dia_clases }}
-                {{ form.dia_clases.errors }}
             </div>
 
             <div class="field">
-                <label for="{{ form.hora_clases.id_for_label }}">Hora</label>
+                <label>Hora</label>
                 {{ form.hora_clases }}
-                {{ form.hora_clases.errors }}
             </div>
         </div>
 
         <div class="readonly-note">
-            Estos datos se completan automáticamente según la configuración del grupo en catequesis.
+            Estos datos se llenan automáticamente según el grupo.
         </div>
     </div>
 
+    <!-- ===================== -->
+    <!-- DOCUMENTOS -->
+    <!-- ===================== -->
     <div class="form-section">
         <h2 class="section-subtitle">Documentación</h2>
 
         <div class="full-grid">
             {% for field in form %}
-                {% if field.name in 'acta_nacimiento,bautizo,eucaristia,confirmacion,matrimonio,boleta_bautizo,boleta_confirmacion,ine,otros_documentos' %}
+                {% if field.name in 'acta_nacimiento,bautizo,eucaristia,confirmacion,boleta_bautizo,boleta_confirmacion,ine,otros_documentos' %}
                 <div class="field">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    <label>{{ field.label }}</label>
                     {{ field }}
-                    {{ field.errors }}
                 </div>
                 {% endif %}
             {% endfor %}
         </div>
     </div>
 
+    <!-- ===================== -->
+    <!-- BOTONES -->
+    <!-- ===================== -->
     <div class="actions">
         <button type="submit" class="btn btn-primary">
             {% if modo == 'editar' %}Guardar cambios{% else %}Guardar inscripción{% endif %}
@@ -236,96 +240,61 @@
     </div>
 </form>
 
+<!-- ===================== -->
+<!-- JS DINÁMICO -->
+<!-- ===================== -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const catequistaSelect = document.getElementById('id_catequista');
-    const grupoSelect = document.getElementById('id_grupo_catequesis');
+    const catequista = document.getElementById('id_catequista');
+    const grupo = document.getElementById('id_grupo_catequesis');
 
-    const lugarInput = document.getElementById('id_lugar_clases');
-    const diaInput = document.getElementById('id_dia_clases');
-    const horaInput = document.getElementById('id_hora_clases');
+    const lugar = document.getElementById('id_lugar_clases');
+    const dia = document.getElementById('id_dia_clases');
+    const hora = document.getElementById('id_hora_clases');
 
-    function limpiarGrupos() {
-        grupoSelect.innerHTML = '<option value="">---------</option>';
+    function limpiar() {
+        grupo.innerHTML = '<option value="">---------</option>';
+        lugar.value = '';
+        dia.value = '';
+        hora.value = '';
     }
 
-    function limpiarDatosClase() {
-        lugarInput.value = '';
-        diaInput.value = '';
-        horaInput.value = '';
-    }
+    catequista.addEventListener('change', function () {
+        limpiar();
 
-    function cargarGrupos(catequistaId, grupoSeleccionado = null) {
-        limpiarGrupos();
-        limpiarDatosClase();
+        if (!this.value) return;
 
-        if (!catequistaId) return;
-
-        fetch(`/catequesis/api/grupos-por-catequista/?catequista_id=${catequistaId}`)
-            .then(response => response.json())
+        fetch(`/catequesis/api/grupos-por-catequista/?catequista_id=${this.value}`)
+            .then(r => r.json())
             .then(data => {
-                const grupos = data.grupos || [];
-
-                grupos.forEach(grupo => {
-                    const option = document.createElement('option');
-                    option.value = grupo.id;
-                    option.textContent = grupo.nombre;
-                    if (grupoSeleccionado && String(grupo.id) === String(grupoSeleccionado)) {
-                        option.selected = true;
-                    }
-                    grupoSelect.appendChild(option);
+                (data.grupos || []).forEach(g => {
+                    const opt = document.createElement('option');
+                    opt.value = g.id;
+                    opt.textContent = g.nombre;
+                    grupo.appendChild(opt);
                 });
-
-                if (grupoSeleccionado) {
-                    cargarDatosClase(grupoSeleccionado);
-                }
-            })
-            .catch(error => {
-                console.error('Error al cargar grupos:', error);
             });
-    }
+    });
 
-    function cargarDatosClase(grupoId) {
-        limpiarDatosClase();
+    grupo.addEventListener('change', function () {
+        lugar.value = '';
+        dia.value = '';
+        hora.value = '';
 
-        if (!grupoId) return;
+        if (!this.value) return;
 
-        fetch(`/catequesis/api/horarios-por-grupo/?grupo_id=${grupoId}`)
-            .then(response => response.json())
+        fetch(`/catequesis/api/horarios-por-grupo/?grupo_id=${this.value}`)
+            .then(r => r.json())
             .then(data => {
-                const horarios = data.horarios || [];
+                const h = (data.horarios || [])[0];
+                if (!h) return;
 
-                if (horarios.length > 0) {
-                    const horario = horarios[0];
-                    lugarInput.value = horario.lugar || '';
-                    diaInput.value = horario.dia || '';
-                    horaInput.value = horario.hora_inicio && horario.hora_fin
-                        ? `${horario.hora_inicio} - ${horario.hora_fin}`
-                        : '';
-                }
-            })
-            .catch(error => {
-                console.error('Error al cargar datos de clase:', error);
+                lugar.value = h.lugar || '';
+                dia.value = h.dia || '';
+                hora.value = h.hora_inicio + ' - ' + h.hora_fin;
             });
-    }
-
-    if (catequistaSelect) {
-        catequistaSelect.addEventListener('change', function () {
-            cargarGrupos(this.value);
-        });
-    }
-
-    if (grupoSelect) {
-        grupoSelect.addEventListener('change', function () {
-            cargarDatosClase(this.value);
-        });
-    }
-
-    const catequistaActual = catequistaSelect ? catequistaSelect.value : '';
-    const grupoActual = grupoSelect ? grupoSelect.value : '';
-
-    if (catequistaActual) {
-        cargarGrupos(catequistaActual, grupoActual);
-    }
+    });
 });
 </script>
+
+{% endblock %}
