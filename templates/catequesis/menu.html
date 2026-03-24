@@ -4,52 +4,165 @@
 {% block header %}Catequesis{% endblock %}
 
 {% block content %}
+
 <style>
     .section-box {
-        margin-bottom: 30px;
-        border: 1px solid #e4e9e3;
-        border-radius: 14px;
-        padding: 18px;
-        background: #fafcf9;
+        margin-bottom: 28px;
+        border: 1px solid var(--gris-borde);
+        border-radius: 16px;
+        padding: 20px;
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
     }
 
     .section-top {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 12px;
+        margin-bottom: 18px;
         flex-wrap: wrap;
-        margin-bottom: 16px;
+        gap: 10px;
     }
 
     .section-title-small {
         margin: 0;
-        color: var(--verde-principal);
-        font-size: 22px;
+        font-size: 20px;
+        color: var(--azul-principal);
+        font-weight: 700;
+    }
+
+    .btn-add {
+        background: var(--azul-principal);
+        color: white;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .btn-add:hover {
+        background: #152c4a;
     }
 
     .table-wrapper {
         overflow-x: auto;
     }
 
-    .acciones a {
-        margin-right: 10px;
-        white-space: nowrap;
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 700px;
+    }
+
+    th {
+        background: #f3f6fb;
+        color: var(--azul-principal);
+        font-size: 13px;
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--gris-borde);
+    }
+
+    td {
+        padding: 12px;
+        border-bottom: 1px solid #eef2f6;
+        font-size: 14px;
+    }
+
+    tr:nth-child(even) {
+        background: #fafcff;
+    }
+
+    tr:hover {
+        background: #f4f7fb;
+    }
+
+    .acciones {
+        display: flex;
+        gap: 6px;
+    }
+
+    .btn-action {
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .edit {
+        background: rgba(31, 53, 87, 0.10);
+        color: var(--azul-principal);
+    }
+
+    .delete {
+        background: rgba(179, 58, 58, 0.10);
+        color: #a13232;
     }
 
     .empty-msg {
-        color: #666;
-        padding: 10px 0;
+        color: #888;
+        padding: 14px 0;
     }
+
+    .summary {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    .summary-card {
+        background: #f6f8fc;
+        border: 1px solid var(--gris-borde);
+        border-radius: 12px;
+        padding: 14px 16px;
+        min-width: 160px;
+    }
+
+    .summary-card .label {
+        font-size: 12px;
+        color: #666;
+    }
+
+    .summary-card .value {
+        font-size: 22px;
+        font-weight: bold;
+        color: var(--azul-principal);
+    }
+
 </style>
 
 <h1 class="page-title">Módulo de Catequesis</h1>
 
+<p style="margin-bottom:20px; color:#666;">
+    Administración de catequistas, grupos y horarios asignados.
+</p>
+
+<!-- RESUMEN -->
+<div class="summary">
+    <div class="summary-card">
+        <div class="label">Catequistas</div>
+        <div class="value">{{ catequistas|length }}</div>
+    </div>
+
+    <div class="summary-card">
+        <div class="label">Grupos</div>
+        <div class="value">{{ grupos|length }}</div>
+    </div>
+
+    <div class="summary-card">
+        <div class="label">Horarios</div>
+        <div class="value">{{ horarios|length }}</div>
+    </div>
+</div>
+
 <!-- CATEQUISTAS -->
 <div class="section-box">
     <div class="section-top">
-        <h2 class="section-title-small">Catequistas</h2>
-        <a href="{% url 'crear_catequista' %}" class="btn btn-primary">Nuevo catequista</a>
+        <h2 class="section-title-small">1. Catequistas</h2>
+        <a href="{% url 'crear_catequista' %}" class="btn-add">+ Agregar</a>
     </div>
 
     <div class="table-wrapper">
@@ -63,18 +176,18 @@
             </thead>
             <tbody>
                 {% for item in catequistas %}
-                    <tr>
-                        <td>{{ item.id }}</td>
-                        <td>{{ item.nombre }}</td>
-                        <td class="acciones">
-                            <a href="{% url 'editar_catequista' item.id %}">Editar</a>
-                            <a href="{% url 'eliminar_catequista' item.id %}">Eliminar</a>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.nombre }}</td>
+                    <td class="acciones">
+                        <a href="{% url 'editar_catequista' item.id %}" class="btn-action edit">Editar</a>
+                        <a href="{% url 'eliminar_catequista' item.id %}" class="btn-action delete">Eliminar</a>
+                    </td>
+                </tr>
                 {% empty %}
-                    <tr>
-                        <td colspan="3" class="empty-msg">No hay catequistas registrados.</td>
-                    </tr>
+                <tr>
+                    <td colspan="3" class="empty-msg">No hay catequistas registrados.</td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -84,8 +197,8 @@
 <!-- GRUPOS -->
 <div class="section-box">
     <div class="section-top">
-        <h2 class="section-title-small">Grupos</h2>
-        <a href="{% url 'crear_grupo' %}" class="btn btn-primary">Nuevo grupo</a>
+        <h2 class="section-title-small">2. Grupos</h2>
+        <a href="{% url 'crear_grupo' %}" class="btn-add">+ Agregar</a>
     </div>
 
     <div class="table-wrapper">
@@ -93,30 +206,36 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Número de grupo</th>
+                    <th>Grupo</th>
                     <th>Catequista</th>
                     <th>Lugar</th>
                     <th>Día</th>
+                    <th>Resumen</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 {% for item in grupos %}
-                    <tr>
-                        <td>{{ item.id }}</td>
-                        <td>{{ item.numero_grupo }}</td>
-                        <td>{{ item.catequista.nombre }}</td>
-                        <td>{{ item.lugar }}</td>
-                        <td>{{ item.dia }}</td>
-                        <td class="acciones">
-                            <a href="{% url 'editar_grupo' item.id %}">Editar</a>
-                            <a href="{% url 'eliminar_grupo' item.id %}">Eliminar</a>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.numero_grupo }}</td>
+                    <td>{{ item.catequista.nombre }}</td>
+                    <td>{{ item.lugar }}</td>
+                    <td>{{ item.dia }}</td>
+
+                    <td>
+                        {{ item.dia }} · {{ item.lugar }}
+                    </td>
+
+                    <td class="acciones">
+                        <a href="{% url 'editar_grupo' item.id %}" class="btn-action edit">Editar</a>
+                        <a href="{% url 'eliminar_grupo' item.id %}" class="btn-action delete">Eliminar</a>
+                    </td>
+                </tr>
                 {% empty %}
-                    <tr>
-                        <td colspan="6" class="empty-msg">No hay grupos registrados.</td>
-                    </tr>
+                <tr>
+                    <td colspan="7" class="empty-msg">No hay grupos registrados.</td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -126,8 +245,8 @@
 <!-- HORARIOS -->
 <div class="section-box">
     <div class="section-top">
-        <h2 class="section-title-small">Horarios</h2>
-        <a href="{% url 'crear_horario' %}" class="btn btn-primary">Nuevo horario</a>
+        <h2 class="section-title-small">3. Horarios</h2>
+        <a href="{% url 'crear_horario' %}" class="btn-add">+ Agregar</a>
     </div>
 
     <div class="table-wrapper">
@@ -138,28 +257,35 @@
                     <th>Grupo</th>
                     <th>Hora inicio</th>
                     <th>Hora fin</th>
+                    <th>Resumen</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 {% for item in horarios %}
-                    <tr>
-                        <td>{{ item.id }}</td>
-                        <td>{{ item.grupo.numero_grupo }}</td>
-                        <td>{{ item.hora_inicio|time:"H:i" }}</td>
-                        <td>{{ item.hora_fin|time:"H:i" }}</td>
-                        <td class="acciones">
-                            <a href="{% url 'editar_horario' item.id %}">Editar</a>
-                            <a href="{% url 'eliminar_horario' item.id %}">Eliminar</a>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.grupo.numero_grupo }}</td>
+                    <td>{{ item.hora_inicio|time:"H:i" }}</td>
+                    <td>{{ item.hora_fin|time:"H:i" }}</td>
+
+                    <td>
+                        {{ item.grupo.numero_grupo }} · {{ item.hora_inicio|time:"H:i" }} - {{ item.hora_fin|time:"H:i" }}
+                    </td>
+
+                    <td class="acciones">
+                        <a href="{% url 'editar_horario' item.id %}" class="btn-action edit">Editar</a>
+                        <a href="{% url 'eliminar_horario' item.id %}" class="btn-action delete">Eliminar</a>
+                    </td>
+                </tr>
                 {% empty %}
-                    <tr>
-                        <td colspan="5" class="empty-msg">No hay horarios registrados.</td>
-                    </tr>
+                <tr>
+                    <td colspan="6" class="empty-msg">No hay horarios registrados.</td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
 {% endblock %}
