@@ -160,14 +160,6 @@
                 {{ form.nombre_madrina }}
                 {{ form.nombre_madrina.errors }}
             </div>
-
-            {% if form.nombre_novio %}
-            <div class="field">
-                <label for="{{ form.nombre_novio.id_for_label }}">Nombre novia(o)</label>
-                {{ form.nombre_novio }}
-                {{ form.nombre_novio.errors }}
-            </div>
-            {% endif %}
         </div>
     </div>
 
@@ -272,11 +264,13 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch(`/catequesis/api/grupos-por-catequista/?catequista_id=${catequistaId}`)
             .then(response => response.json())
             .then(data => {
-                data.forEach(grupo => {
+                const grupos = data.grupos || [];
+
+                grupos.forEach(grupo => {
                     const option = document.createElement('option');
                     option.value = grupo.id;
                     option.textContent = grupo.nombre;
-                    if (grupoSeleccionado && grupo.id == grupoSeleccionado) {
+                    if (grupoSeleccionado && String(grupo.id) === String(grupoSeleccionado)) {
                         option.selected = true;
                     }
                     grupoSelect.appendChild(option);
@@ -285,6 +279,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (grupoSeleccionado) {
                     cargarDatosClase(grupoSeleccionado);
                 }
+            })
+            .catch(error => {
+                console.error('Error al cargar grupos:', error);
             });
     }
 
@@ -296,29 +293,39 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch(`/catequesis/api/horarios-por-grupo/?grupo_id=${grupoId}`)
             .then(response => response.json())
             .then(data => {
-                if (data.length > 0) {
-                    const horario = data[0];
+                const horarios = data.horarios || [];
+
+                if (horarios.length > 0) {
+                    const horario = horarios[0];
                     lugarInput.value = horario.lugar || '';
                     diaInput.value = horario.dia || '';
-                    horaInput.value = horario.hora || '';
+                    horaInput.value = horario.hora_inicio && horario.hora_fin
+                        ? `${horario.hora_inicio} - ${horario.hora_fin}`
+                        : '';
                 }
+            })
+            .catch(error => {
+                console.error('Error al cargar datos de clase:', error);
             });
     }
 
-    catequistaSelect.addEventListener('change', function () {
-        cargarGrupos(this.value);
-    });
+    if (catequistaSelect) {
+        catequistaSelect.addEventListener('change', function () {
+            cargarGrupos(this.value);
+        });
+    }
 
-    grupoSelect.addEventListener('change', function () {
-        cargarDatosClase(this.value);
-    });
+    if (grupoSelect) {
+        grupoSelect.addEventListener('change', function () {
+            cargarDatosClase(this.value);
+        });
+    }
 
-    const catequistaActual = catequistaSelect.value;
-    const grupoActual = grupoSelect.value;
+    const catequistaActual = catequistaSelect ? catequistaSelect.value : '';
+    const grupoActual = grupoSelect ? grupoSelect.value : '';
 
     if (catequistaActual) {
         cargarGrupos(catequistaActual, grupoActual);
     }
 });
 </script>
-{% endblock %}
