@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -13,7 +14,6 @@
             --azul-principal: #1f3557;
             --azul-hover: #2a4a78;
             --dorado: #c9a34a;
-            --dorado-suave: #e7cc84;
 
             --fondo: #f4f6fb;
             --blanco: #ffffff;
@@ -131,6 +131,41 @@
             color: var(--azul-principal);
         }
 
+        /* USUARIO */
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--dorado);
+        }
+
+        .user-name {
+            font-size: 14px;
+            color: var(--texto-suave);
+        }
+
+        .logout-btn {
+            padding: 7px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(201, 163, 74, 0.5);
+            background: transparent;
+            color: var(--azul-principal);
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(201, 163, 74, 0.15);
+        }
+
         /* CONTENT */
         .content {
             margin-top: var(--topbar-height);
@@ -207,6 +242,7 @@
 <body>
     <div class="layout">
 
+        <!-- SIDEBAR -->
         <aside class="sidebar">
             <h2>Santísima Trinidad</h2>
             <div class="subtitle">Sistema parroquial</div>
@@ -223,25 +259,30 @@
             </div>
 
             <div class="nav-section">
-                <div class="nav-section-title">Sesión</div>
-                <form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="nav-link">Cerrar sesión</button>
-                </form>
-            </div>
-
-            <div class="nav-section">
                 <div class="nav-section-title">Catequesis</div>
                 <a class="nav-link" href="/catequesis/">Módulo catequesis</a>
             </div>
-
         </aside>
 
+        <!-- MAIN -->
         <main class="main">
 
             <div class="topbar">
                 <div class="topbar-title">{% block header %}Sistema Parroquial{% endblock %}</div>
-                <div>Usuario: {{ request.user.username }}</div>
+
+                <div class="user-section">
+
+                    <!-- Imagen de usuario (por ahora fija) -->
+                    <img src="{% static 'img/user_default.jpg' %}" class="user-avatar" alt="Usuario">
+
+                    <span class="user-name">{{ request.user.username }}</span>
+
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="logout-btn">Salir</button>
+                    </form>
+
+                </div>
             </div>
 
             <div class="content">
