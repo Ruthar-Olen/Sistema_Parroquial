@@ -1,0 +1,568 @@
+{% extends 'base.html' %} <!-- Hereda la estructura general del sistema -->
+
+{% block title %}Oficio parroquial{% endblock %} <!-- Título de la pestaña del navegador -->
+{% block header %}Oficio parroquial{% endblock %} <!-- Título visible en la parte superior -->
+
+{% block content %}
+
+<style>
+    /* ===== CONTENEDOR GENERAL DEL MÓDULO ===== */
+    .oficios-layout {
+        display: grid; /* Divide la pantalla en dos columnas */
+        grid-template-columns: 380px 1fr; /* Columna izquierda fija para formulario y derecha flexible para vista previa */
+        gap: 24px; /* Espacio entre columnas */
+        align-items: start; /* Alinea ambos bloques hacia arriba */
+    }
+
+    /* ===== PANEL IZQUIERDO: FORMULARIO ===== */
+    .editor-panel {
+        background: #ffffff; /* Fondo blanco */
+        border: 1px solid var(--gris-borde); /* Borde suave */
+        border-radius: 16px; /* Bordes redondeados */
+        padding: 20px; /* Espacio interno */
+        box-shadow: 0 4px 14px rgba(0,0,0,0.05); /* Sombra ligera */
+        position: sticky; /* Se queda visible al hacer scroll */
+        top: 18px; /* Separación desde arriba */
+    }
+
+    .editor-panel h2 {
+        margin: 0 0 8px 0; /* Espaciado inferior */
+        color: var(--azul-principal); /* Color principal */
+        font-size: 1.35rem; /* Tamaño del título */
+    }
+
+    .editor-panel p {
+        margin: 0 0 18px 0; /* Espacio inferior */
+        color: var(--texto-suave); /* Color de texto secundario */
+        font-size: 0.95rem; /* Tamaño del texto */
+        line-height: 1.4; /* Altura de línea */
+    }
+
+    .field-group {
+        margin-bottom: 14px; /* Espacio entre campos */
+    }
+
+    .field-group label {
+        display: block; /* Hace que la etiqueta ocupe toda la línea */
+        margin-bottom: 6px; /* Espacio entre etiqueta y campo */
+        font-weight: 600; /* Seminegrita */
+        color: var(--texto); /* Color principal del texto */
+        font-size: 0.93rem; /* Tamaño de etiqueta */
+    }
+
+    .field-group input,
+    .field-group select,
+    .field-group textarea {
+        width: 100%; /* Ocupa todo el ancho disponible */
+        border: 1px solid var(--gris-borde); /* Borde suave */
+        border-radius: 10px; /* Bordes redondeados */
+        padding: 10px 12px; /* Espacio interno */
+        font-size: 0.95rem; /* Tamaño del texto */
+        font-family: inherit; /* Usa la tipografía del sistema */
+        background: #fff; /* Fondo blanco */
+    }
+
+    .field-group textarea {
+        min-height: 120px; /* Altura mínima de las áreas de texto */
+        resize: vertical; /* Permite cambiar altura verticalmente */
+        line-height: 1.5; /* Altura de línea del texto */
+    }
+
+    .field-inline-2 {
+        display: grid; /* Crea una grilla */
+        grid-template-columns: 1fr 1fr; /* Dos columnas iguales */
+        gap: 12px; /* Espacio entre columnas */
+    }
+
+    .helper-text {
+        font-size: 0.82rem; /* Texto pequeño */
+        color: var(--texto-suave); /* Color secundario */
+        margin-top: 4px; /* Pequeño espacio superior */
+    }
+
+    .editor-actions {
+        display: flex; /* Coloca botones en fila */
+        gap: 10px; /* Espacio entre botones */
+        flex-wrap: wrap; /* Permite bajar de línea */
+        margin-top: 18px; /* Espacio arriba de las acciones */
+    }
+
+    /* ===== PANEL DERECHO: VISTA PREVIA ===== */
+    .preview-panel {
+        display: flex; /* Centra la hoja visualmente */
+        justify-content: center; /* Centrado horizontal */
+        align-items: flex-start; /* Alineado arriba */
+    }
+
+    .preview-shell {
+        width: 100%; /* Toma el ancho disponible */
+        overflow-x: auto; /* Permite scroll horizontal si es necesario */
+        padding: 10px; /* Espacio interior */
+        background: linear-gradient(180deg, #f7f9fc, #eef3f8); /* Fondo sutil */
+        border: 1px solid var(--gris-borde); /* Borde suave */
+        border-radius: 16px; /* Bordes redondeados */
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.6); /* Luz interior suave */
+    }
+
+    /* ===== HOJA VISUAL ===== */
+    .document-sheet {
+        position: relative; /* Permite posicionar la marca de agua dentro */
+        margin: 0 auto; /* Centra la hoja */
+        background: white; /* Hoja blanca */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.12); /* Sombra de hoja */
+        overflow: hidden; /* Recorta contenido sobrante */
+        transition: width 0.2s ease, min-height 0.2s ease; /* Suaviza cambios de tamaño */
+    }
+
+    /* Tamaños simulados de hoja */
+    .sheet-carta {
+        width: 816px; /* Aproximación visual carta */
+        min-height: 1056px; /* Alto aproximado carta */
+    }
+
+    .sheet-oficio {
+        width: 816px; /* Mismo ancho visual aproximado */
+        min-height: 1344px; /* Más alta que carta */
+    }
+
+    .sheet-a4 {
+        width: 794px; /* Aproximación visual A4 */
+        min-height: 1123px; /* Alto aproximado A4 */
+    }
+
+    /* ===== MÁRGENES INTERNOS DEL DOCUMENTO ===== */
+    .sheet-inner {
+        position: relative; /* Contenedor interno */
+        padding: 70px 70px 60px 70px; /* Márgenes simulados del documento */
+        min-height: inherit; /* Hereda alto mínimo */
+        z-index: 2; /* Mantiene el contenido sobre la marca de agua */
+    }
+
+    /* ===== MARCA DE AGUA ===== */
+    .watermark {
+        position: absolute; /* Se posiciona dentro de la hoja */
+        top: 50%; /* Centra verticalmente */
+        left: 50%; /* Centra horizontalmente */
+        transform: translate(-50%, -50%) rotate(-24deg); /* La centra y gira */
+        font-size: 78px; /* Tamaño grande */
+        font-family: 'Cormorant Garamond', serif; /* Tipografía elegante */
+        color: rgba(31, 53, 87, 0.07); /* Muy tenue */
+        white-space: nowrap; /* Una sola línea */
+        pointer-events: none; /* No interfiere con clics */
+        user-select: none; /* No se selecciona */
+        z-index: 1; /* Debajo del contenido */
+    }
+
+    .watermark.hidden {
+        display: none; /* Oculta la marca de agua si se desactiva */
+    }
+
+    /* ===== MEMBRETE ===== */
+    .letterhead {
+        text-align: center; /* Centra contenido del membrete */
+        border-bottom: 2px solid rgba(31, 53, 87, 0.18); /* Línea institucional */
+        padding-bottom: 16px; /* Espacio inferior */
+        margin-bottom: 28px; /* Espacio hacia el contenido */
+    }
+
+    .letterhead img {
+        width: 86px; /* Tamaño del logo */
+        height: 86px; /* Alto del logo */
+        object-fit: cover; /* Ajuste correcto de la imagen */
+        border-radius: 50%; /* Redondo */
+        border: 2px solid rgba(201, 163, 74, 0.55); /* Borde dorado */
+        margin-bottom: 10px; /* Espacio debajo del logo */
+    }
+
+    .letterhead h1 {
+        margin: 0; /* Quita margen */
+        font-family: 'Cormorant Garamond', serif; /* Tipografía elegante */
+        font-size: 2rem; /* Tamaño del nombre parroquial */
+        color: var(--azul-profundo); /* Color principal */
+        line-height: 1; /* Compacta el título */
+    }
+
+    .letterhead p {
+        margin: 6px 0 0 0; /* Espaciado superior ligero */
+        color: var(--texto-suave); /* Color secundario */
+        font-size: 0.95rem; /* Tamaño del subtítulo */
+    }
+
+    /* ===== CONTENIDO DEL OFICIO ===== */
+    .doc-meta {
+        display: flex; /* Alinea número y fecha */
+        justify-content: space-between; /* Separa izquierda y derecha */
+        gap: 16px; /* Espacio entre ambos */
+        flex-wrap: wrap; /* Permite bajar líneas si no caben */
+        margin-bottom: 28px; /* Espacio antes del destinatario */
+        font-size: 0.98rem; /* Tamaño del meta */
+        color: var(--texto); /* Color principal */
+    }
+
+    .doc-block {
+        margin-bottom: 18px; /* Espacio entre bloques del documento */
+        color: var(--texto); /* Color principal del texto */
+        line-height: 1.75; /* Altura de línea de lectura */
+        font-size: 1rem; /* Tamaño base */
+    }
+
+    .doc-label {
+        font-weight: 700; /* Resalta etiquetas */
+        color: var(--azul-profundo); /* Color principal */
+    }
+
+    .doc-subject {
+        margin: 24px 0; /* Separación vertical */
+        padding: 10px 12px; /* Espacio interno */
+        border-left: 4px solid var(--dorado); /* Línea dorada lateral */
+        background: rgba(201, 163, 74, 0.08); /* Fondo suave */
+        font-weight: 600; /* Resaltado */
+    }
+
+    .doc-body {
+        white-space: pre-line; /* Respeta saltos de línea del textarea */
+        text-align: justify; /* Justifica el cuerpo */
+    }
+
+    .doc-signature {
+        margin-top: 46px; /* Espacio hacia la firma */
+        text-align: center; /* Centra la firma */
+    }
+
+    .signature-line {
+        width: 250px; /* Largo de la línea de firma */
+        border-top: 1px solid #444; /* Línea horizontal */
+        margin: 0 auto 10px auto; /* Centra y separa */
+    }
+
+    .doc-signature .name {
+        font-weight: 700; /* Nombre del firmante en negrita */
+        color: var(--texto); /* Color principal */
+    }
+
+    .doc-signature .role {
+        color: var(--texto-suave); /* Cargo más tenue */
+        font-size: 0.94rem; /* Tamaño menor */
+        margin-top: 4px; /* Separación del nombre */
+    }
+
+    .doc-footer {
+        margin-top: 54px; /* Espacio antes del pie */
+        text-align: center; /* Centrado */
+        font-size: 0.86rem; /* Tamaño menor */
+        color: var(--texto-suave); /* Color secundario */
+        border-top: 1px solid rgba(31, 53, 87, 0.12); /* Línea superior */
+        padding-top: 12px; /* Espacio después de línea */
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1200px) {
+        .oficios-layout {
+            grid-template-columns: 1fr; /* Apila formulario y preview */
+        }
+
+        .editor-panel {
+            position: relative; /* Ya no sticky en pantallas más chicas */
+            top: 0; /* Reinicia posición */
+        }
+    }
+
+    @media (max-width: 900px) {
+        .field-inline-2 {
+            grid-template-columns: 1fr; /* Pasa a una sola columna */
+        }
+
+        .sheet-carta,
+        .sheet-oficio,
+        .sheet-a4 {
+            width: 100%; /* Hoja usa todo el ancho en móvil */
+            min-height: auto; /* El alto se adapta */
+        }
+
+        .sheet-inner {
+            padding: 34px 22px 34px 22px; /* Márgenes internos más compactos */
+        }
+
+        .watermark {
+            font-size: 42px; /* Reduce la marca de agua */
+        }
+
+        .letterhead h1 {
+            font-size: 1.5rem; /* Reduce tamaño del título */
+        }
+
+        .doc-meta {
+            flex-direction: column; /* Mete número y fecha uno debajo del otro */
+        }
+    }
+</style>
+
+<div class="oficios-layout"> <!-- Contenedor principal del módulo -->
+
+    <!-- ===== FORMULARIO DE CAPTURA ===== -->
+    <section class="editor-panel"> <!-- Panel izquierdo -->
+        <h2>Redacción del oficio</h2> <!-- Título del formulario -->
+        <p>
+            Captura los datos del oficio y observa en tiempo real cómo quedará el documento con membrete digital.
+        </p> <!-- Texto guía -->
+
+        <div class="field-inline-2"> <!-- Primera fila de dos columnas -->
+            <div class="field-group">
+                <label for="tipo_hoja">Tamaño de hoja</label> <!-- Etiqueta del tamaño -->
+                <select id="tipo_hoja">
+                    <option value="carta">Carta</option> <!-- Opción carta -->
+                    <option value="oficio">Oficio</option> <!-- Opción oficio -->
+                    <option value="a4">A4</option> <!-- Opción A4 -->
+                </select>
+                <div class="helper-text">Cambia el tamaño visual del documento.</div> <!-- Texto de ayuda -->
+            </div>
+
+            <div class="field-group">
+                <label for="marca_agua">Marca de agua</label> <!-- Etiqueta marca de agua -->
+                <select id="marca_agua">
+                    <option value="si">Mostrar</option> <!-- Mostrar marca -->
+                    <option value="no">Ocultar</option> <!-- Ocultar marca -->
+                </select>
+                <div class="helper-text">Ideal para oficios impresos en hoja blanca.</div> <!-- Texto de ayuda -->
+            </div>
+        </div>
+
+        <div class="field-inline-2"> <!-- Segunda fila de dos columnas -->
+            <div class="field-group">
+                <label for="numero_oficio">Número de oficio</label> <!-- Etiqueta número -->
+                <input type="text" id="numero_oficio" placeholder="Ej. PST-OF-014/2026"> <!-- Campo número -->
+            </div>
+
+            <div class="field-group">
+                <label for="fecha_oficio">Fecha</label> <!-- Etiqueta fecha -->
+                <input type="text" id="fecha_oficio" placeholder="Ej. 25 de marzo de 2026"> <!-- Campo fecha -->
+            </div>
+        </div>
+
+        <div class="field-group">
+            <label for="destinatario">Destinatario</label> <!-- Etiqueta destinatario -->
+            <input type="text" id="destinatario" placeholder="Nombre completo del destinatario"> <!-- Campo destinatario -->
+        </div>
+
+        <div class="field-group">
+            <label for="cargo_destinatario">Cargo del destinatario</label> <!-- Etiqueta cargo -->
+            <input type="text" id="cargo_destinatario" placeholder="Ej. Director(a), Coordinador(a), Pbro."> <!-- Campo cargo -->
+        </div>
+
+        <div class="field-group">
+            <label for="institucion_destino">Institución / comunidad / parroquia</label> <!-- Etiqueta institución -->
+            <input type="text" id="institucion_destino" placeholder="Ej. Colegio..., Parroquia..., Diócesis..."> <!-- Campo institución -->
+        </div>
+
+        <div class="field-group">
+            <label for="asunto">Asunto</label> <!-- Etiqueta asunto -->
+            <input type="text" id="asunto" placeholder="Ej. Solicitud de apoyo, invitación, constancia..."> <!-- Campo asunto -->
+        </div>
+
+        <div class="field-group">
+            <label for="saludo">Saludo inicial</label> <!-- Etiqueta saludo -->
+            <input type="text" id="saludo" value="Presente."> <!-- Campo saludo -->
+        </div>
+
+        <div class="field-group">
+            <label for="cuerpo_oficio">Cuerpo del oficio</label> <!-- Etiqueta cuerpo -->
+            <textarea id="cuerpo_oficio" placeholder="Escribe aquí el contenido principal del oficio..."></textarea> <!-- Área de texto cuerpo -->
+            <div class="helper-text">Puedes escribir en varios párrafos y se respetarán los saltos de línea.</div> <!-- Ayuda -->
+        </div>
+
+        <div class="field-group">
+            <label for="despedida">Despedida</label> <!-- Etiqueta despedida -->
+            <textarea id="despedida">Sin más por el momento, reciba un cordial saludo en Cristo.</textarea> <!-- Área de texto despedida -->
+        </div>
+
+        <div class="field-inline-2"> <!-- Fila de firma -->
+            <div class="field-group">
+                <label for="firmante_nombre">Nombre del firmante</label> <!-- Etiqueta firmante -->
+                <input type="text" id="firmante_nombre" placeholder="Nombre del sacerdote o responsable"> <!-- Campo nombre firmante -->
+            </div>
+
+            <div class="field-group">
+                <label for="firmante_cargo">Cargo del firmante</label> <!-- Etiqueta cargo firmante -->
+                <input type="text" id="firmante_cargo" placeholder="Ej. Párroco, Vicario, Coordinador"> <!-- Campo cargo firmante -->
+            </div>
+        </div>
+
+        <div class="editor-actions"> <!-- Botones del panel -->
+            <button type="button" class="btn btn-primary" onclick="window.print()">Imprimir vista previa</button> <!-- Botón imprimir -->
+            <button type="button" class="btn btn-secondary" id="btn_limpiar">Limpiar campos</button> <!-- Botón limpiar -->
+        </div>
+    </section>
+
+    <!-- ===== VISTA PREVIA ===== -->
+    <section class="preview-panel"> <!-- Panel derecho -->
+        <div class="preview-shell"> <!-- Fondo del contenedor de la hoja -->
+            <div class="document-sheet sheet-carta" id="document_sheet"> <!-- Hoja visual inicial en tamaño carta -->
+
+                <div class="watermark" id="watermark_preview">Parroquia Santísima Trinidad</div> <!-- Marca de agua -->
+
+                <div class="sheet-inner"> <!-- Área útil del documento -->
+
+                    <div class="letterhead"> <!-- Membrete -->
+                        <img src="{% static 'img/logo_parroquia.jpg' %}" alt="Logo parroquia"> <!-- Logo parroquial -->
+                        <h1>Parroquia Santísima Trinidad</h1> <!-- Nombre de la parroquia -->
+                        <p>Oficio parroquial con membrete institucional</p> <!-- Subtítulo -->
+                    </div>
+
+                    <div class="doc-meta"> <!-- Datos rápidos arriba del oficio -->
+                        <div><span class="doc-label">Oficio:</span> <span id="preview_numero">—</span></div> <!-- Número -->
+                        <div><span class="doc-label">Fecha:</span> <span id="preview_fecha">—</span></div> <!-- Fecha -->
+                    </div>
+
+                    <div class="doc-block"> <!-- Bloque destinatario -->
+                        <div id="preview_destinatario"><strong>Nombre del destinatario</strong></div> <!-- Nombre destino -->
+                        <div id="preview_cargo">Cargo del destinatario</div> <!-- Cargo destino -->
+                        <div id="preview_institucion">Institución / comunidad / parroquia</div> <!-- Institución destino -->
+                        <div id="preview_saludo" style="margin-top: 8px;">Presente.</div> <!-- Saludo -->
+                    </div>
+
+                    <div class="doc-subject"> <!-- Bloque asunto -->
+                        <span class="doc-label">Asunto:</span>
+                        <span id="preview_asunto">Asunto del oficio</span> <!-- Asunto dinámico -->
+                    </div>
+
+                    <div class="doc-block doc-body" id="preview_cuerpo"> <!-- Cuerpo del documento -->
+                        Aquí se mostrará el contenido principal del oficio.
+                    </div>
+
+                    <div class="doc-block" id="preview_despedida"> <!-- Despedida -->
+                        Sin más por el momento, reciba un cordial saludo en Cristo.
+                    </div>
+
+                    <div class="doc-signature"> <!-- Firma -->
+                        <div class="signature-line"></div> <!-- Línea de firma -->
+                        <div class="name" id="preview_firmante_nombre">Nombre del firmante</div> <!-- Nombre firmante -->
+                        <div class="role" id="preview_firmante_cargo">Cargo del firmante</div> <!-- Cargo firmante -->
+                    </div>
+
+                    <div class="doc-footer"> <!-- Pie del documento -->
+                        Documento generado desde el sistema parroquial
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    // ===== REFERENCIAS A CAMPOS DEL FORMULARIO =====
+    const tipoHoja = document.getElementById('tipo_hoja'); // Selector de tamaño de hoja
+    const marcaAgua = document.getElementById('marca_agua'); // Selector de marca de agua
+    const numeroOficio = document.getElementById('numero_oficio'); // Campo número de oficio
+    const fechaOficio = document.getElementById('fecha_oficio'); // Campo fecha
+    const destinatario = document.getElementById('destinatario'); // Campo destinatario
+    const cargoDestinatario = document.getElementById('cargo_destinatario'); // Campo cargo destinatario
+    const institucionDestino = document.getElementById('institucion_destino'); // Campo institución
+    const asunto = document.getElementById('asunto'); // Campo asunto
+    const saludo = document.getElementById('saludo'); // Campo saludo
+    const cuerpoOficio = document.getElementById('cuerpo_oficio'); // Campo cuerpo
+    const despedida = document.getElementById('despedida'); // Campo despedida
+    const firmanteNombre = document.getElementById('firmante_nombre'); // Campo nombre firmante
+    const firmanteCargo = document.getElementById('firmante_cargo'); // Campo cargo firmante
+    const btnLimpiar = document.getElementById('btn_limpiar'); // Botón limpiar
+
+    // ===== REFERENCIAS A LA VISTA PREVIA =====
+    const documentSheet = document.getElementById('document_sheet'); // Hoja visual
+    const watermarkPreview = document.getElementById('watermark_preview'); // Marca de agua
+    const previewNumero = document.getElementById('preview_numero'); // Número del oficio en preview
+    const previewFecha = document.getElementById('preview_fecha'); // Fecha en preview
+    const previewDestinatario = document.getElementById('preview_destinatario'); // Destinatario en preview
+    const previewCargo = document.getElementById('preview_cargo'); // Cargo en preview
+    const previewInstitucion = document.getElementById('preview_institucion'); // Institución en preview
+    const previewSaludo = document.getElementById('preview_saludo'); // Saludo en preview
+    const previewAsunto = document.getElementById('preview_asunto'); // Asunto en preview
+    const previewCuerpo = document.getElementById('preview_cuerpo'); // Cuerpo en preview
+    const previewDespedida = document.getElementById('preview_despedida'); // Despedida en preview
+    const previewFirmanteNombre = document.getElementById('preview_firmante_nombre'); // Nombre firmante en preview
+    const previewFirmanteCargo = document.getElementById('preview_firmante_cargo'); // Cargo firmante en preview
+
+    // ===== FUNCIÓN PARA ACTUALIZAR LA HOJA SEGÚN TAMAÑO =====
+    function actualizarHoja() {
+        documentSheet.classList.remove('sheet-carta', 'sheet-oficio', 'sheet-a4'); // Quita tamaños previos
+        documentSheet.classList.add(`sheet-${tipoHoja.value}`); // Agrega el tamaño seleccionado
+    }
+
+    // ===== FUNCIÓN PARA MOSTRAR U OCULTAR LA MARCA DE AGUA =====
+    function actualizarMarcaAgua() {
+        if (marcaAgua.value === 'si') { // Si el usuario quiere marca de agua
+            watermarkPreview.classList.remove('hidden'); // La muestra
+        } else {
+            watermarkPreview.classList.add('hidden'); // La oculta
+        }
+    }
+
+    // ===== FUNCIÓN PRINCIPAL DE ACTUALIZACIÓN DEL PREVIEW =====
+    function actualizarPreview() {
+        previewNumero.textContent = numeroOficio.value.trim() || '—'; // Muestra número o guion
+        previewFecha.textContent = fechaOficio.value.trim() || '—'; // Muestra fecha o guion
+
+        previewDestinatario.innerHTML = destinatario.value.trim()
+            ? `<strong>${destinatario.value.trim()}</strong>` // Si hay nombre, lo muestra en negrita
+            : '<strong>Nombre del destinatario</strong>'; // Texto por defecto
+
+        previewCargo.textContent = cargoDestinatario.value.trim() || 'Cargo del destinatario'; // Cargo por defecto si está vacío
+        previewInstitucion.textContent = institucionDestino.value.trim() || 'Institución / comunidad / parroquia'; // Institución por defecto
+        previewSaludo.textContent = saludo.value.trim() || 'Presente.'; // Saludo por defecto
+        previewAsunto.textContent = asunto.value.trim() || 'Asunto del oficio'; // Asunto por defecto
+
+        previewCuerpo.textContent = cuerpoOficio.value.trim()
+            || 'Aquí se mostrará el contenido principal del oficio.'; // Cuerpo por defecto
+
+        previewDespedida.textContent = despedida.value.trim()
+            || 'Sin más por el momento, reciba un cordial saludo en Cristo.'; // Despedida por defecto
+
+        previewFirmanteNombre.textContent = firmanteNombre.value.trim() || 'Nombre del firmante'; // Nombre firmante por defecto
+        previewFirmanteCargo.textContent = firmanteCargo.value.trim() || 'Cargo del firmante'; // Cargo firmante por defecto
+
+        actualizarHoja(); // Actualiza tamaño de hoja
+        actualizarMarcaAgua(); // Actualiza visibilidad de marca de agua
+    }
+
+    // ===== LISTENER PARA TODOS LOS CAMPOS =====
+    [
+        tipoHoja,
+        marcaAgua,
+        numeroOficio,
+        fechaOficio,
+        destinatario,
+        cargoDestinatario,
+        institucionDestino,
+        asunto,
+        saludo,
+        cuerpoOficio,
+        despedida,
+        firmanteNombre,
+        firmanteCargo
+    ].forEach(campo => {
+        campo.addEventListener('input', actualizarPreview); // Actualiza preview al escribir
+        campo.addEventListener('change', actualizarPreview); // Actualiza preview al cambiar select
+    });
+
+    // ===== BOTÓN LIMPIAR =====
+    btnLimpiar.addEventListener('click', function () {
+        numeroOficio.value = ''; // Limpia número
+        fechaOficio.value = ''; // Limpia fecha
+        destinatario.value = ''; // Limpia destinatario
+        cargoDestinatario.value = ''; // Limpia cargo destinatario
+        institucionDestino.value = ''; // Limpia institución
+        asunto.value = ''; // Limpia asunto
+        saludo.value = 'Presente.'; // Reinicia saludo
+        cuerpoOficio.value = ''; // Limpia cuerpo
+        despedida.value = 'Sin más por el momento, reciba un cordial saludo en Cristo.'; // Reinicia despedida
+        firmanteNombre.value = ''; // Limpia nombre firmante
+        firmanteCargo.value = ''; // Limpia cargo firmante
+        tipoHoja.value = 'carta'; // Regresa a carta
+        marcaAgua.value = 'si'; // Marca de agua activa por defecto
+        actualizarPreview(); // Refresca preview
+    });
+
+    // ===== CARGA INICIAL =====
+    actualizarPreview(); // Inicializa la vista previa al cargar la página
+</script>
+
+{% endblock %}

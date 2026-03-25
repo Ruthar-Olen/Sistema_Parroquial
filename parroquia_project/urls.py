@@ -7,4 +7,5 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls')),
     path('sacramentos/', include('sacramentos.urls')),
     path('catequesis/', include('catequesis.urls')),
+    path('oficios/', include('oficios.urls')),
 ]

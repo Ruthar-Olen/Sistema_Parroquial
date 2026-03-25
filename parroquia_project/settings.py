@@ -34,6 +34,8 @@ INSTALLED_APPS = [
     'dashboard',
     'sacramentos',
     'catequesis',
+    'oficios',
+    
 ]
 
 MIDDLEWARE = [
