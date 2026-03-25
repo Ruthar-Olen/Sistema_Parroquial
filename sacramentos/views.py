@@ -538,20 +538,20 @@ def exportar_reporte_grupos_pdf(request):
     inscripciones = inscripciones.order_by(
         'grupo_catequesis__numero_grupo',  # Ordena por grupo
         'nombre_completo'  # Luego por nombre
-    )  # Esto ayuda a mantener el reporte ordenado
+    )  # Mantiene orden lógico para el reporte
 
-    grupos = agrupar_inscripciones_por_grupo(inscripciones)  # Agrupa por grupo
+    grupos = agrupar_inscripciones_por_grupo(inscripciones)  # Agrupa registros por grupo
 
-    response = HttpResponse(content_type='application/pdf')  # Tipo de respuesta PDF
+    response = HttpResponse(content_type='application/pdf')  # Define respuesta PDF
     response['Content-Disposition'] = 'attachment; filename="reporte_inscripciones_por_grupo.pdf"'  # Nombre del archivo
 
     doc = SimpleDocTemplate(
-        response,  # La respuesta será el archivo
-        pagesize=landscape(letter),  # Hoja horizontal
-        rightMargin=10 * mm,  # Margen derecho
-        leftMargin=10 * mm,  # Margen izquierdo
-        topMargin=10 * mm,  # Margen superior
-        bottomMargin=10 * mm,  # Margen inferior
+        response,  # La salida será el archivo descargable
+        pagesize=landscape(letter),  # Fuerza hoja horizontal
+        rightMargin=6 * mm,  # Margen derecho pequeño para aprovechar ancho
+        leftMargin=6 * mm,  # Margen izquierdo pequeño
+        topMargin=8 * mm,  # Margen superior
+        bottomMargin=8 * mm,  # Margen inferior
     )
 
     elementos = []  # Lista de elementos del PDF
@@ -561,130 +561,163 @@ def exportar_reporte_grupos_pdf(request):
         'TituloReporteFormal',
         parent=styles['Title'],
         fontName='Helvetica-Bold',
-        fontSize=16,
+        fontSize=15,
         textColor=colors.HexColor('#1f3557'),
         alignment=1,
-        spaceAfter=4,
-    )  # Título principal centrado
+        spaceAfter=3,
+    )  # Estilo del título principal
 
     estilo_subtitulo = ParagraphStyle(
         'SubtituloReporteFormal',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=9,
+        fontSize=8,
         textColor=colors.HexColor('#555555'),
         alignment=1,
-        spaceAfter=8,
-    )  # Subtítulo centrado
+        spaceAfter=6,
+    )  # Estilo del subtítulo y filtros
 
     estilo_grupo = ParagraphStyle(
         'EstiloGrupo',
         parent=styles['Heading2'],
         fontName='Helvetica-Bold',
-        fontSize=10,
+        fontSize=9,
         textColor=colors.HexColor('#1f3557'),
-        spaceBefore=8,
-        spaceAfter=5,
-    )  # Estilo para títulos de grupo
+        spaceBefore=6,
+        spaceAfter=4,
+    )  # Estilo para encabezado de cada grupo
 
-    ruta_logo = os.path.join(settings.BASE_DIR, 'static', 'img', 'logo_parroquia.jpg')  # Ruta del logo
+    estilo_celda = ParagraphStyle(
+        'EstiloCeldaCompacta',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=6.5,
+        leading=7.2,
+        textColor=colors.black,
+    )  # Estilo de celdas para permitir saltos de línea
+
+    estilo_celda_bold = ParagraphStyle(
+        'EstiloCeldaBold',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=6.5,
+        leading=7.2,
+        textColor=colors.white,
+        alignment=1,
+    )  # Estilo para encabezados centrados
+
+    ruta_logo = os.path.join(settings.BASE_DIR, 'static', 'img', 'logo_parroquia.jpg')  # Ruta física del logo
 
     if os.path.exists(ruta_logo):
-        logo = Image(ruta_logo, width=22 * mm, height=22 * mm)  # Carga logo
-        logo.hAlign = 'CENTER'  # Centra logo
-        elementos.append(logo)  # Agrega logo
-        elementos.append(Spacer(1, 3))  # Espacio inferior
+        logo = Image(ruta_logo, width=18 * mm, height=18 * mm)  # Logo más compacto
+        logo.hAlign = 'CENTER'  # Centra el logo
+        elementos.append(logo)  # Agrega logo al PDF
+        elementos.append(Spacer(1, 2))  # Espacio debajo del logo
 
-    elementos.append(Paragraph('Parroquia Santísima Trinidad', estilo_titulo))  # Encabezado parroquial
-    elementos.append(Paragraph('Reporte formal de inscripciones agrupado por grupo', estilo_subtitulo))  # Subtítulo
+    elementos.append(Paragraph('Parroquia Santísima Trinidad', estilo_titulo))  # Nombre de la parroquia
+    elementos.append(Paragraph('Reporte formal de inscripciones agrupado por grupo', estilo_subtitulo))  # Título del documento
 
-    texto_filtros = f'Filtro nombre: {query if query else "Sin filtro"} | Sacramento: {tipo if tipo else "Todos"} | Total: {inscripciones.count()}'  # Texto resumen
+    texto_filtros = (
+        f'Filtro nombre: {query if query else "Sin filtro"}'
+        f' | Sacramento: {tipo if tipo else "Todos"}'
+        f' | Total: {inscripciones.count()}'
+    )  # Texto de filtros activos
     elementos.append(Paragraph(texto_filtros, estilo_subtitulo))  # Agrega filtros
-    elementos.append(Spacer(1, 4))  # Espacio antes de grupos
+    elementos.append(Spacer(1, 3))  # Espacio antes de grupos
 
-    for nombre_grupo, registros in grupos.items():  # Recorre cada grupo
+    # Anchos de columna ajustados para que TODO quepa en horizontal carta
+    anchos_columnas = [
+        10 * mm,  # ID
+        16 * mm,  # Tipo
+        16 * mm,  # Fecha
+        34 * mm,  # Nombre
+        20 * mm,  # Teléfono
+        9 * mm,   # Edad
+        26 * mm,  # Catequista
+        20 * mm,  # Lugar
+        14 * mm,  # Día
+        16 * mm,  # Hora
+        7 * mm,   # B
+        7 * mm,   # E
+        7 * mm,   # C
+        9 * mm,   # Acta
+        7 * mm,   # INE
+        20 * mm,  # Otros
+    ]  # Reparto compacto del ancho
+
+    for nombre_grupo, registros in grupos.items():
         elementos.append(Paragraph(f'Grupo: {nombre_grupo}', estilo_grupo))  # Título del grupo
+        elementos.append(Paragraph(f'Registros en este grupo: {len(registros)}', estilo_subtitulo))  # Cantidad del grupo
 
         encabezados = [[
-            'ID',
-            'Tipo',
-            'Fecha',
-            'Nombre',
-            'Teléfono',
-            'Edad',
-            'Catequista',
-            'Lugar',
-            'Día',
-            'Hora',
-            'B',
-            'E',
-            'C',
-            'Acta',
-            'INE',
-        ]]  # Encabezados de la tabla del grupo
+            Paragraph('ID', estilo_celda_bold),  # Encabezado ID
+            Paragraph('Tipo', estilo_celda_bold),  # Encabezado Tipo
+            Paragraph('Fecha', estilo_celda_bold),  # Encabezado Fecha
+            Paragraph('Nombre', estilo_celda_bold),  # Encabezado Nombre
+            Paragraph('Teléfono', estilo_celda_bold),  # Encabezado Teléfono
+            Paragraph('Edad', estilo_celda_bold),  # Encabezado Edad
+            Paragraph('Catequista', estilo_celda_bold),  # Encabezado Catequista
+            Paragraph('Lugar', estilo_celda_bold),  # Encabezado Lugar
+            Paragraph('Día', estilo_celda_bold),  # Encabezado Día
+            Paragraph('Hora', estilo_celda_bold),  # Encabezado Hora
+            Paragraph('B', estilo_celda_bold),  # Bautizo
+            Paragraph('E', estilo_celda_bold),  # Eucaristía
+            Paragraph('C', estilo_celda_bold),  # Confirmación
+            Paragraph('Acta', estilo_celda_bold),  # Acta
+            Paragraph('INE', estilo_celda_bold),  # INE
+            Paragraph('Otros', estilo_celda_bold),  # Otros documentos
+        ]]  # Encabezados de tabla
 
-        filas = []  # Lista de filas de ese grupo
+        filas = []  # Contenedor de filas
 
-        for ins in registros:  # Recorre registros del grupo
+        for ins in registros:
             filas.append([
-                str(ins.id),
-                ins.get_tipo_display(),
-                ins.fecha.strftime('%d/%m/%Y') if ins.fecha else '-',
-                ins.nombre_completo or '-',
-                ins.telefono or '-',
-                str(ins.edad or '-'),
-                str(ins.catequista) if ins.catequista else '-',
-                ins.lugar_clases or '-',
-                ins.dia_clases or '-',
-                ins.hora_clases or '-',
-                'Sí' if ins.bautizo else 'No',
-                'Sí' if ins.eucaristia else 'No',
-                'Sí' if ins.confirmacion else 'No',
-                'Sí' if ins.acta_nacimiento else 'No',
-                'Sí' if ins.ine else 'No',
-            ])  # Agrega una fila por inscripción
+                Paragraph(str(ins.id), estilo_celda),  # ID
+                Paragraph(ins.get_tipo_display() or '-', estilo_celda),  # Tipo
+                Paragraph(ins.fecha.strftime('%d/%m/%Y') if ins.fecha else '-', estilo_celda),  # Fecha
+                Paragraph(ins.nombre_completo or '-', estilo_celda),  # Nombre completo
+                Paragraph(ins.telefono or '-', estilo_celda),  # Teléfono
+                Paragraph(str(ins.edad or '-'), estilo_celda),  # Edad
+                Paragraph(str(ins.catequista) if ins.catequista else '-', estilo_celda),  # Catequista
+                Paragraph(ins.lugar_clases or '-', estilo_celda),  # Lugar
+                Paragraph(ins.dia_clases or '-', estilo_celda),  # Día
+                Paragraph(ins.hora_clases or '-', estilo_celda),  # Hora
+                Paragraph('Sí' if ins.bautizo else 'No', estilo_celda),  # Bautizo
+                Paragraph('Sí' if ins.eucaristia else 'No', estilo_celda),  # Eucaristía
+                Paragraph('Sí' if ins.confirmacion else 'No', estilo_celda),  # Confirmación
+                Paragraph('Sí' if ins.acta_nacimiento else 'No', estilo_celda),  # Acta
+                Paragraph('Sí' if ins.ine else 'No', estilo_celda),  # INE
+                Paragraph(ins.otros_documentos or '-', estilo_celda),  # Otros documentos
+            ])  # Fila completa por inscripción
 
         tabla = Table(
-            encabezados + filas,  # Une encabezados y datos
-            repeatRows=1,  # Repite encabezado si la tabla se parte
-            colWidths=[
-                12 * mm,  # ID
-                22 * mm,  # Tipo
-                20 * mm,  # Fecha
-                48 * mm,  # Nombre
-                28 * mm,  # Teléfono
-                12 * mm,  # Edad
-                32 * mm,  # Catequista
-                28 * mm,  # Lugar
-                20 * mm,  # Día
-                25 * mm,  # Hora
-                10 * mm,  # B
-                10 * mm,  # E
-                10 * mm,  # C
-                15 * mm,  # Acta
-                12 * mm,  # INE
-            ]
-        )  # Tabla formal del grupo
+            encabezados + filas,  # Une encabezados y contenido
+            repeatRows=1,  # Repite encabezado si parte página
+            colWidths=anchos_columnas,  # Usa anchos compactos definidos arriba
+        )
 
         tabla.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1f3557')),  # Fondo encabezado
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),  # Texto blanco en encabezado
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Encabezado en negrita
-            ('FONTSIZE', (0, 0), (-1, 0), 8),  # Tamaño encabezado
-            ('FONTSIZE', (0, 1), (-1, -1), 7.5),  # Tamaño de datos
-            ('GRID', (0, 0), (-1, -1), 0.35, colors.HexColor('#cfd8e3')),  # Cuadrícula
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1f3557')),  # Fondo azul en encabezado
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),  # Texto blanco encabezado
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Negrita encabezado
+            ('FONTSIZE', (0, 0), (-1, 0), 6.5),  # Tamaño encabezado
+            ('FONTSIZE', (0, 1), (-1, -1), 6.5),  # Tamaño filas
+            ('GRID', (0, 0), (-1, -1), 0.3, colors.HexColor('#cfd8e3')),  # Cuadrícula suave
             ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8fafc')]),  # Zebra
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),  # Alineación arriba
-            ('LEFTPADDING', (0, 0), (-1, -1), 3),  # Padding izquierdo
-            ('RIGHTPADDING', (0, 0), (-1, -1), 3),  # Padding derecho
-            ('TOPPADDING', (0, 0), (-1, -1), 3),  # Padding superior
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),  # Padding inferior
-        ]))  # Estilos de la tabla
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),  # Alinea arriba
+            ('ALIGN', (0, 0), (0, -1), 'CENTER'),  # Centra ID
+            ('ALIGN', (4, 0), (5, -1), 'CENTER'),  # Centra teléfono y edad
+            ('ALIGN', (10, 0), (14, -1), 'CENTER'),  # Centra checks
+            ('LEFTPADDING', (0, 0), (-1, -1), 2.5),  # Padding izquierdo reducido
+            ('RIGHTPADDING', (0, 0), (-1, -1), 2.5),  # Padding derecho reducido
+            ('TOPPADDING', (0, 0), (-1, -1), 2),  # Padding superior reducido
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 2),  # Padding inferior reducido
+        ]))  # Estilos generales de tabla
 
-        elementos.append(tabla)  # Agrega tabla del grupo
-        elementos.append(Spacer(1, 7))  # Espacio entre grupos
+        elementos.append(tabla)  # Agrega tabla del grupo al documento
+        elementos.append(Spacer(1, 5))  # Espacio entre grupos
 
-    elementos.append(Spacer(1, 6))  # Espacio antes del pie
+    elementos.append(Spacer(1, 4))  # Espacio antes del pie
     elementos.append(Paragraph(
         'Documento generado por el sistema parroquial.',
         ParagraphStyle(
@@ -695,7 +728,7 @@ def exportar_reporte_grupos_pdf(request):
             textColor=colors.HexColor('#666666'),
             alignment=2,
         )
-    ))  # Pie del reporte
+    ))  # Pie del documento
 
-    doc.build(elementos)  # Construye el PDF final
-    return response  # Devuelve el archivo PDF
+    doc.build(elementos)  # Construye PDF final
+    return response  # Devuelve archivo PDF
