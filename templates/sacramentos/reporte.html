@@ -1,159 +1,231 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} <!-- Hereda layout base -->
 
-{% block title %}Reporte completo de inscripciones{% endblock %}
-{% block header %}Reporte de inscripciones{% endblock %}
+{% block title %}Reporte completo de inscripciones{% endblock %} <!-- Título del navegador -->
+{% block header %}Reporte de inscripciones{% endblock %} <!-- Título superior -->
 
 {% block content %}
 
 <style>
     .report-toolbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
+        display: flex; /* Coloca acciones en fila */
+        justify-content: space-between; /* Separa izquierda y derecha */
+        align-items: center; /* Centra verticalmente */
+        gap: 12px; /* Espacio entre bloques */
+        margin-bottom: 15px; /* Espacio inferior */
+        flex-wrap: wrap; /* Permite salto en pantallas pequeñas */
     }
 
     .report-meta {
-        display: flex;
-        gap: 14px;
-        flex-wrap: wrap;
-        margin-bottom: 20px;
+        display: flex; /* Coloca cajas informativas en fila */
+        gap: 10px; /* Espacio entre cajas */
+        flex-wrap: wrap; /* Permite varias líneas */
+        margin-bottom: 15px; /* Espacio inferior */
     }
 
     .meta-box {
-        background: #f6f8fc;
-        border: 1px solid var(--gris-borde);
-        border-radius: 12px;
-        padding: 14px 16px;
-        min-width: 180px;
+        background: #f6f8fc; /* Fondo claro */
+        border: 1px solid var(--gris-borde); /* Borde suave */
+        border-radius: 10px; /* Esquinas redondeadas */
+        padding: 10px 12px; /* Espacio interno */
+        min-width: 160px; /* Ancho mínimo */
     }
 
     .meta-box .label {
-        font-size: 12px;
-        color: var(--texto-suave);
-        margin-bottom: 4px;
+        font-size: 11px; /* Tamaño pequeño para etiqueta */
+        color: var(--texto-suave); /* Color suave */
     }
 
     .meta-box .value {
-        font-size: 15px;
-        font-weight: 700;
-        color: var(--azul-principal);
+        font-size: 14px; /* Tamaño del valor */
+        font-weight: 700; /* Negrita */
+        color: var(--azul-principal); /* Color principal */
+    }
+
+    .group-block {
+        margin-bottom: 18px; /* Separación entre grupos */
+        border: 1px solid var(--gris-borde); /* Borde general */
+        border-radius: 12px; /* Esquinas redondeadas */
+        overflow: hidden; /* Recorta bordes internos */
+        background: white; /* Fondo blanco */
+    }
+
+    .group-header {
+        background: #eef3fa; /* Fondo del encabezado del grupo */
+        padding: 10px 14px; /* Espacio interno */
+        border-bottom: 1px solid var(--gris-borde); /* Línea inferior */
+    }
+
+    .group-title {
+        margin: 0; /* Quita margen */
+        font-size: 15px; /* Tamaño del título */
+        color: var(--azul-principal); /* Color principal */
+        font-weight: 700; /* Negrita */
+    }
+
+    .group-subtitle {
+        margin-top: 3px; /* Espacio superior */
+        font-size: 12px; /* Tamaño pequeño */
+        color: var(--texto-suave); /* Color suave */
     }
 
     .report-wrapper {
-        overflow-x: auto;
-        border: 1px solid var(--gris-borde);
-        border-radius: 14px;
-        background: #fff;
+        overflow-x: auto; /* Scroll horizontal si se necesita */
+        background: #fff; /* Fondo blanco */
     }
 
     .report-table {
-        width: 100%;
-        min-width: 2200px;
-        border-collapse: collapse;
-        font-size: 13px;
+        width: 100%; /* Ocupa ancho disponible */
+        min-width: 1650px; /* Ancho mínimo más compacto */
+        border-collapse: collapse; /* Une bordes */
+        font-size: 13px; /* Tamaño base */
     }
 
     .report-table th {
-        background: #f3f6fb;
-        color: var(--azul-principal);
-        padding: 12px 10px;
-        border-bottom: 1px solid var(--gris-borde);
-        text-align: left;
-        white-space: nowrap;
+        background: #f8fafd; /* Fondo del encabezado */
+        color: var(--azul-principal); /* Color texto */
+        padding: 10px 8px; /* Espacio interno */
+        border-bottom: 1px solid var(--gris-borde); /* Línea inferior */
+        text-align: left; /* Alineado a la izquierda */
+        white-space: nowrap; /* No partir encabezados */
+        font-size: 12px; /* Texto compacto */
     }
 
     .report-table td {
-        padding: 11px 10px;
-        border-bottom: 1px solid #edf1f6;
-        vertical-align: top;
-        white-space: nowrap;
+        padding: 8px 8px; /* Espacio interno */
+        border-bottom: 1px solid #edf1f6; /* Línea inferior */
+        vertical-align: top; /* Alinea arriba */
+        white-space: nowrap; /* Mantiene una línea */
+        font-size: 12px; /* Texto compacto */
     }
 
     .report-table tbody tr:nth-child(even) {
-        background: #fbfcfe;
+        background: #fbfcfe; /* Zebra suave */
     }
 
     .yes {
-        font-weight: 700;
-        color: #2d7a39;
+        font-weight: 700; /* Negrita */
+        color: #2d7a39; /* Verde */
     }
 
     .no {
-        color: #9aa3af;
+        color: #9aa3af; /* Gris */
     }
 
     .report-title {
-        margin: 0 0 16px 0;
-        color: var(--azul-principal);
-        font-size: 28px;
+        margin: 0 0 12px 0; /* Espacio inferior */
+        color: var(--azul-principal); /* Color principal */
+        font-size: 22px; /* Tamaño del título */
+    }
+
+    .empty {
+        background: #f8fafc; /* Fondo suave */
+        border: 1px solid var(--gris-borde); /* Borde */
+        border-radius: 12px; /* Bordes redondeados */
+        padding: 22px; /* Espacio interno */
+        color: var(--texto-suave); /* Color texto */
+        text-align: center; /* Centrado */
     }
 
     @media print {
         body {
-            background: white !important;
+            background: white !important; /* Fondo blanco */
         }
 
         .sidebar,
         .topbar,
         .report-toolbar {
-            display: none !important;
+            display: none !important; /* Oculta interfaz */
         }
 
         .main,
         .content,
         .card {
-            margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
-            box-shadow: none !important;
-            background: white !important;
-            overflow: visible !important;
-            height: auto !important;
+            margin: 0 !important; /* Quita márgenes */
+            padding: 0 !important; /* Quita padding */
+            width: 100% !important; /* Usa ancho completo */
+            box-shadow: none !important; /* Sin sombra */
+            background: white !important; /* Fondo blanco */
+        }
+
+        .group-block {
+            border: 1px solid #cfcfcf !important; /* Borde simple para papel */
+            margin-bottom: 8px !important; /* Menos espacio entre grupos */
+            break-inside: avoid; /* Evita partir bloque feo */
+            page-break-inside: avoid; /* Compatibilidad */
+        }
+
+        .group-header {
+            padding: 6px 8px; /* Compacta encabezado */
+            background: #f2f2f2 !important; /* Fondo gris claro */
+        }
+
+        .group-title {
+            font-size: 11px; /* Más pequeño */
+        }
+
+        .group-subtitle {
+            font-size: 8px; /* Más pequeño */
+            margin-top: 1px; /* Menos espacio */
         }
 
         .report-wrapper {
-            border: none !important;
-            overflow: visible !important;
+            border: none !important; /* Quita borde externo */
+            overflow: visible !important; /* Sin scroll */
         }
 
         .report-table {
-            min-width: 100% !important;
-            font-size: 10px;
+            min-width: 100% !important; /* Usa todo el ancho */
+            font-size: 9px; /* Compacta texto */
         }
 
         .report-table th,
         .report-table td {
-            white-space: normal;
-            padding: 6px 5px;
+            white-space: normal; /* Permite saltos */
+            padding: 4px 4px; /* Compacta celdas */
+            font-size: 8px; /* Texto pequeño */
+        }
+
+        .report-title {
+            font-size: 14px; /* Título compacto */
+            margin-bottom: 6px; /* Menos espacio */
+        }
+
+        .meta-box {
+            padding: 6px 8px; /* Compacta cajas */
+        }
+
+        .meta-box .label {
+            font-size: 8px; /* Etiqueta pequeña */
+        }
+
+        .meta-box .value {
+            font-size: 9px; /* Valor pequeño */
         }
 
         @page {
-            size: landscape;
-            margin: 10mm;
+            size: landscape; /* Horizontal */
+            margin: 8mm; /* Márgenes reducidos */
         }
     }
 </style>
 
-<h1 class="report-title">Reporte completo de inscripciones</h1>
+<h1 class="report-title">Reporte completo de inscripciones por grupo</h1> <!-- Título principal -->
 
-<div class="report-meta">
-    <div class="meta-box">
-        <div class="label">Total resultados</div>
-        <div class="value">{{ inscripciones|length }}</div>
+<div class="report-meta"> <!-- Contenedor de resumen -->
+    <div class="meta-box"> <!-- Caja 1 -->
+        <div class="label">Total resultados</div> <!-- Etiqueta -->
+        <div class="value">{{ inscripciones|length }}</div> <!-- Total -->
     </div>
 
-    <div class="meta-box">
-        <div class="label">Filtro por nombre</div>
+    <div class="meta-box"> <!-- Caja 2 -->
+        <div class="label">Filtro por nombre</div> <!-- Etiqueta -->
         <div class="value">
-            {% if query %}{{ query }}{% else %}Sin filtro{% endif %}
+            {% if query %}{{ query }}{% else %}Sin filtro{% endif %} <!-- Muestra filtro -->
         </div>
     </div>
 
-    <div class="meta-box">
-        <div class="label">Sacramento</div>
+    <div class="meta-box"> <!-- Caja 3 -->
+        <div class="label">Sacramento</div> <!-- Etiqueta -->
         <div class="value">
             {% if tipo == 'comunion' %}
                 Primera Comunión
@@ -161,96 +233,122 @@
                 Confirmación
             {% else %}
                 Todos
-            {% endif %}
+            {% endif %} <!-- Muestra tipo filtrado -->
         </div>
     </div>
 </div>
 
-<div class="report-toolbar">
+<div class="report-toolbar"> <!-- Barra de acciones -->
     <div>
         <a href="{% url 'lista_inscripciones' %}?q={{ query|urlencode }}&tipo={{ tipo|urlencode }}" class="btn btn-secondary">
             Volver a lista
-        </a>
+        </a> <!-- Regresa a lista -->
     </div>
 
-    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <div style="display:flex; gap:10px; flex-wrap:wrap;"> <!-- Botones de exportación -->
         <a href="{% url 'exportar_inscripciones_csv' %}?q={{ query|urlencode }}&tipo={{ tipo|urlencode }}" class="btn btn-secondary">
-            Descargar CSV
-        </a>
+            CSV
+        </a> <!-- Descarga CSV -->
         <a href="{% url 'exportar_inscripciones_excel' %}?q={{ query|urlencode }}&tipo={{ tipo|urlencode }}" class="btn btn-secondary">
-            Descargar Excel
-        </a>
+            Excel
+        </a> <!-- Descarga Excel -->
         <button type="button" class="btn btn-primary" onclick="window.print()">
             Imprimir
-        </button>
+        </button> <!-- Imprime -->
     </div>
 </div>
 
-{% if inscripciones %}
-    <div class="report-wrapper">
-        <table class="report-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Tipo</th>
-                    <th>Fecha</th>
-                    <th>Nombre completo</th>
-                    <th>Teléfono</th>
-                    <th>Edad</th>
-                    <th>Padre</th>
-                    <th>Madre</th>
-                    <th>Padrino</th>
-                    <th>Madrina</th>
-                    <th>Catequista</th>
-                    <th>Grupo</th>
-                    <th>Lugar</th>
-                    <th>Día</th>
-                    <th>Hora</th>
-                    <th>Bautizo</th>
-                    <th>Eucaristía</th>
-                    <th>Confirmación</th>
-                    <th>Matrimonio</th>
-                    <th>Acta nac.</th>
-                    <th>B. Bautizo</th>
-                    <th>B. Confirmación</th>
-                    <th>INE</th>
-                    <th>Otros documentos</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ins in inscripciones %}
-                    <tr>
-                        <td>{{ ins.id }}</td>
-                        <td>{{ ins.get_tipo_display }}</td>
-                        <td>{{ ins.fecha|date:"d/m/Y" }}</td>
-                        <td>{{ ins.nombre_completo }}</td>
-                        <td>{{ ins.telefono|default:"-" }}</td>
-                        <td>{{ ins.edad|default:"-" }}</td>
-                        <td>{{ ins.nombre_padre|default:"-" }}</td>
-                        <td>{{ ins.nombre_madre|default:"-" }}</td>
-                        <td>{{ ins.nombre_padrino|default:"-" }}</td>
-                        <td>{{ ins.nombre_madrina|default:"-" }}</td>
-                        <td>{{ ins.catequista|default:"-" }}</td>
-                        <td>{{ ins.grupo_catequesis|default:"-" }}</td>
-                        <td>{{ ins.lugar_clases|default:"-" }}</td>
-                        <td>{{ ins.dia_clases|default:"-" }}</td>
-                        <td>{{ ins.hora_clases|default:"-" }}</td>
+{% if inscripciones %} <!-- Si hay registros -->
 
-                        <td>{% if ins.bautizo %}<span class="yes">Sí</span>{% else %}<span class="no">No</span>{% endif %}</td>
-                        <td>{% if ins.eucaristia %}<span class="yes">Sí</span>{% else %}<span class="no">No</span>{% endif %}</td>
-                        <td>{% if ins.confirmacion %}<span class="yes">Sí</span>{% else %}<span class="no">No</span>{% endif %}</td>
-                        <td>{% if ins.matrimonio %}<span class="yes">Sí</span>{% else %}<span class="no">No</span>{% endif %}</td>
-                        <td>{% if ins.acta_nacimiento %}<span class="yes">Sí</span>{% else %}<span class="no">No</span>{% endif %}</td>
-                        <td>{% if ins.boleta_bautizo %}<span class="yes">Sí</span>{% else %}<span class="no">No</span>{% endif %}</td>
-                        <td>{% if ins.boleta_confirmacion %}<span class="yes">Sí</span>{% else %}<span class="no">No</span>{% endif %}</td>
-                        <td>{% if ins.ine %}<span class="yes">Sí</span>{% else %}<span class="no">No</span>{% endif %}</td>
-                        <td>{{ ins.otros_documentos|default:"-" }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-{% else %}
+    {% regroup inscripciones by grupo_catequesis as grupos_agrupados %} <!-- Agrupa por grupo -->
+
+    {% for grupo in grupos_agrupados %} <!-- Recorre cada grupo -->
+
+        <div class="group-block"> <!-- Bloque visual del grupo -->
+
+            <div class="group-header"> <!-- Encabezado del grupo -->
+                <h2 class="group-title">
+                    Grupo:
+                    {% if grupo.grouper %}
+                        {{ grupo.grouper }}
+                    {% else %}
+                        Sin grupo asignado
+                    {% endif %}
+                </h2> <!-- Nombre del grupo -->
+
+                <div class="group-subtitle">
+                    Registros en este grupo: {{ grupo.list|length }}
+                </div> <!-- Cantidad dentro del grupo -->
+            </div>
+
+            <div class="report-wrapper"> <!-- Contenedor con scroll si hace falta -->
+                <table class="report-table"> <!-- Tabla del grupo -->
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tipo</th>
+                            <th>Fecha</th>
+                            <th>Nombre</th>
+                            <th>Teléfono</th>
+                            <th>Edad</th>
+                            <th>Padre</th>
+                            <th>Madre</th>
+                            <th>Padrino</th>
+                            <th>Madrina</th>
+                            <th>Catequista</th>
+                            <th>Lugar</th>
+                            <th>Día</th>
+                            <th>Hora</th>
+                            <th>B</th>
+                            <th>E</th>
+                            <th>C</th>
+                            <th>M</th>
+                            <th>Acta</th>
+                            <th>Bautizo</th>
+                            <th>Confirm</th>
+                            <th>INE</th>
+                            <th>Otros</th>
+                        </tr> <!-- Encabezados -->
+                    </thead>
+
+                    <tbody>
+                        {% for ins in grupo.list %} <!-- Recorre inscripciones del grupo -->
+                        <tr>
+                            <td>{{ ins.id }}</td>
+                            <td>{{ ins.get_tipo_display }}</td>
+                            <td>{{ ins.fecha|date:"d/m/Y" }}</td>
+                            <td>{{ ins.nombre_completo }}</td>
+                            <td>{{ ins.telefono|default:"-" }}</td>
+                            <td>{{ ins.edad|default:"-" }}</td>
+                            <td>{{ ins.nombre_padre|default:"-" }}</td>
+                            <td>{{ ins.nombre_madre|default:"-" }}</td>
+                            <td>{{ ins.nombre_padrino|default:"-" }}</td>
+                            <td>{{ ins.nombre_madrina|default:"-" }}</td>
+                            <td>{{ ins.catequista|default:"-" }}</td>
+                            <td>{{ ins.lugar_clases|default:"-" }}</td>
+                            <td>{{ ins.dia_clases|default:"-" }}</td>
+                            <td>{{ ins.hora_clases|default:"-" }}</td>
+
+                            <td>{% if ins.bautizo %}<span class="yes">✓</span>{% else %}<span class="no">–</span>{% endif %}</td>
+                            <td>{% if ins.eucaristia %}<span class="yes">✓</span>{% else %}<span class="no">–</span>{% endif %}</td>
+                            <td>{% if ins.confirmacion %}<span class="yes">✓</span>{% else %}<span class="no">–</span>{% endif %}</td>
+                            <td>{% if ins.matrimonio %}<span class="yes">✓</span>{% else %}<span class="no">–</span>{% endif %}</td>
+                            <td>{% if ins.acta_nacimiento %}<span class="yes">✓</span>{% else %}<span class="no">–</span>{% endif %}</td>
+                            <td>{% if ins.boleta_bautizo %}<span class="yes">✓</span>{% else %}<span class="no">–</span>{% endif %}</td>
+                            <td>{% if ins.boleta_confirmacion %}<span class="yes">✓</span>{% else %}<span class="no">–</span>{% endif %}</td>
+                            <td>{% if ins.ine %}<span class="yes">✓</span>{% else %}<span class="no">–</span>{% endif %}</td>
+                            <td>{{ ins.otros_documentos|default:"-" }}</td>
+                        </tr> <!-- Fila de inscripción -->
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+{% else %} <!-- Si no hay registros -->
     <div class="empty">
         No hay inscripciones para mostrar con los filtros actuales.
     </div>
