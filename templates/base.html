@@ -1,13 +1,14 @@
-{% load static %} <!-- Carga la etiqueta static de Django para usar archivos estáticos -->
+{% load static %} <!-- Carga archivos estáticos -->
+{% load access_tags %} <!-- Carga filtro personalizado para revisar grupos -->
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8"> <!-- Define codificación UTF-8 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Hace responsive la página -->
-    <title>{% block title %}Sistema Parroquial{% endblock %}</title> <!-- Título dinámico por página -->
+    <title>{% block title %}Sistema Parroquial{% endblock %}</title> <!-- Título dinámico -->
 
-    <!-- Importa tipografías desde Google Fonts -->
+    <!-- Importa tipografías -->
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
@@ -17,16 +18,15 @@
             --azul-hover: #2a4a78; /* Azul para hover */
             --dorado: #c9a34a; /* Dorado de acento */
 
-            --fondo: #f4f6fb; /* Fondo general del sistema */
+            --fondo: #f4f6fb; /* Fondo general */
             --blanco: #ffffff; /* Blanco base */
-            --gris-borde: #e1e6ef; /* Gris para bordes */
-            --texto: #243041; /* Color principal de texto */
+            --gris-borde: #e1e6ef; /* Gris de bordes */
+            --texto: #243041; /* Texto principal */
             --texto-suave: #6e7785; /* Texto secundario */
 
             --sombra: 0 10px 30px rgba(0,0,0,0.08); /* Sombra general */
-            --radio: 16px; /* Radio de bordes */
-
-            --sidebar-width: 260px; /* Ancho de la barra lateral */
+            --radio: 16px; /* Bordes redondeados */
+            --sidebar-width: 260px; /* Ancho del menú lateral */
             --topbar-height: 72px; /* Alto de la barra superior */
         }
 
@@ -35,15 +35,15 @@
         }
 
         body {
-            margin: 0; /* Quita margen por defecto */
+            margin: 0; /* Quita márgenes por defecto */
             font-family: 'Inter', sans-serif; /* Fuente principal */
             background: var(--fondo); /* Fondo general */
-            color: var(--texto); /* Color base del texto */
+            color: var(--texto); /* Color de texto */
         }
 
         .layout {
             display: flex; /* Hace layout horizontal */
-            height: 100vh; /* Ocupa toda la altura de la ventana */
+            height: 100vh; /* Ocupa toda la pantalla */
         }
 
         /* ===== SIDEBAR ===== */
@@ -51,169 +51,169 @@
             width: var(--sidebar-width); /* Ancho fijo */
             background: linear-gradient(180deg, #0f1c31, #1f3557); /* Fondo degradado */
             color: white; /* Texto blanco */
-            padding: 24px 18px; /* Espaciado interior */
-            position: fixed; /* Fijo al lado izquierdo */
-            top: 0; /* Pegado arriba */
-            left: 0; /* Pegado a la izquierda */
+            padding: 24px 18px; /* Espaciado interno */
+            position: fixed; /* Fijo a la izquierda */
+            top: 0; /* Arriba */
+            left: 0; /* Izquierda */
             bottom: 0; /* Hasta abajo */
-            overflow-y: auto; /* Scroll vertical si se necesita */
+            overflow-y: auto; /* Scroll si hace falta */
         }
 
         .sidebar h2 {
             margin: 0; /* Sin margen */
             font-family: 'Cormorant Garamond', serif; /* Fuente elegante */
-            font-size: 22px; /* Tamaño del nombre */
+            font-size: 22px; /* Tamaño */
         }
 
         .sidebar .subtitle {
-            font-size: 13px; /* Subtítulo pequeño */
-            opacity: 0.7; /* Suaviza el color */
+            font-size: 13px; /* Texto pequeño */
+            opacity: 0.7; /* Más suave */
             margin-bottom: 28px; /* Espacio inferior */
         }
 
         .nav-section {
-            margin-bottom: 22px; /* Espacio entre secciones del menú */
+            margin-bottom: 22px; /* Espacio entre secciones */
         }
 
         .nav-section-title {
             font-size: 11px; /* Tamaño pequeño */
             text-transform: uppercase; /* Mayúsculas */
-            letter-spacing: 1px; /* Espaciado de letras */
+            letter-spacing: 1px; /* Espaciado */
             opacity: 0.6; /* Más tenue */
             margin-bottom: 10px; /* Espacio inferior */
         }
 
         .nav-link {
-            display: block; /* Cada link ocupa una línea */
+            display: block; /* Ocupa línea completa */
             color: white; /* Texto blanco */
             text-decoration: none; /* Sin subrayado */
-            padding: 10px 12px; /* Espaciado interior */
+            padding: 10px 12px; /* Espacio interno */
             border-radius: 10px; /* Bordes redondeados */
             margin-bottom: 6px; /* Espacio entre links */
-            transition: 0.2s; /* Transición suave */
+            transition: 0.2s; /* Animación suave */
         }
 
         .nav-link:hover {
-            background: rgba(255,255,255,0.08); /* Fondo tenue al pasar mouse */
+            background: rgba(255,255,255,0.08); /* Fondo tenue */
             padding-left: 16px; /* Se recorre ligeramente */
         }
 
         /* ===== MAIN ===== */
         .main {
-            margin-left: var(--sidebar-width); /* Deja espacio para sidebar */
-            width: calc(100% - var(--sidebar-width)); /* Resta el ancho de sidebar */
-            display: flex; /* Usa flex vertical */
+            margin-left: var(--sidebar-width); /* Deja espacio al sidebar */
+            width: calc(100% - var(--sidebar-width)); /* Ancho restante */
+            display: flex; /* Layout vertical */
             flex-direction: column; /* Apila topbar y contenido */
         }
 
         /* ===== TOPBAR ===== */
         .topbar {
             background: var(--blanco); /* Fondo blanco */
-            padding: 18px 28px; /* Espaciado */
+            padding: 18px 28px; /* Espaciado interno */
             border-bottom: 1px solid var(--gris-borde); /* Línea inferior */
-            position: fixed; /* Se mantiene arriba */
-            top: 0; /* Pegada arriba */
-            left: var(--sidebar-width); /* Empieza después del sidebar */
-            right: 0; /* Llega hasta la derecha */
-            height: var(--topbar-height); /* Altura fija */
-            display: flex; /* Alinea en fila */
-            justify-content: space-between; /* Separa izquierda y derecha */
+            position: fixed; /* Fija arriba */
+            top: 0; /* Arriba */
+            left: var(--sidebar-width); /* Después del sidebar */
+            right: 0; /* Hasta la derecha */
+            height: var(--topbar-height); /* Alto fijo */
+            display: flex; /* Fila */
+            justify-content: space-between; /* Separa extremos */
             align-items: center; /* Centrado vertical */
             box-shadow: var(--sombra); /* Sombra */
-            z-index: 1000; /* Queda encima del contenido */
+            z-index: 1000; /* Encima del contenido */
         }
 
         .topbar-title {
             font-size: 22px; /* Tamaño del título */
-            font-weight: 600; /* Peso seminegrita */
-            color: var(--azul-principal); /* Color principal */
+            font-weight: 600; /* Peso */
+            color: var(--azul-principal); /* Color */
         }
 
         /* ===== USUARIO EN TOPBAR ===== */
         .user-section {
-            display: flex; /* Elementos en fila */
+            display: flex; /* Fila */
             align-items: center; /* Centrado vertical */
-            gap: 12px; /* Espacio entre elementos */
+            gap: 12px; /* Espacio */
         }
 
         .user-avatar {
-            width: 38px; /* Ancho de avatar */
-            height: 38px; /* Alto de avatar */
+            width: 38px; /* Ancho avatar */
+            height: 38px; /* Alto avatar */
             border-radius: 50%; /* Redondo */
             object-fit: cover; /* Ajusta imagen */
             border: 2px solid var(--dorado); /* Borde dorado */
         }
 
         .user-name {
-            font-size: 14px; /* Tamaño texto usuario */
-            color: var(--texto-suave); /* Color suave */
+            font-size: 14px; /* Tamaño texto */
+            color: var(--texto-suave); /* Color secundario */
         }
 
         .logout-btn {
-            padding: 7px 12px; /* Espaciado interno */
-            border-radius: 8px; /* Bordes redondeados */
+            padding: 7px 12px; /* Espaciado */
+            border-radius: 8px; /* Bordes */
             border: 1px solid rgba(201, 163, 74, 0.5); /* Borde dorado suave */
             background: transparent; /* Fondo transparente */
             color: var(--azul-principal); /* Texto azul */
-            font-size: 13px; /* Tamaño texto */
+            font-size: 13px; /* Tamaño */
             cursor: pointer; /* Cursor mano */
-            transition: 0.2s; /* Transición suave */
+            transition: 0.2s; /* Transición */
         }
 
         .logout-btn:hover {
-            background: rgba(201, 163, 74, 0.15); /* Fondo tenue en hover */
+            background: rgba(201, 163, 74, 0.15); /* Hover suave */
         }
 
         /* ===== CONTENT ===== */
         .content {
-            margin-top: var(--topbar-height); /* Deja espacio para topbar */
+            margin-top: var(--topbar-height); /* Espacio por topbar */
             padding: 30px; /* Espaciado interno */
-            background: var(--fondo); /* Fondo general */
-            height: calc(100vh - var(--topbar-height)); /* Altura disponible */
+            background: var(--fondo); /* Fondo */
+            height: calc(100vh - var(--topbar-height)); /* Altura restante */
             overflow-y: auto; /* Scroll vertical */
         }
 
         .card {
             background: var(--blanco); /* Fondo blanco */
-            border-radius: var(--radio); /* Bordes redondeados */
+            border-radius: var(--radio); /* Bordes */
             box-shadow: var(--sombra); /* Sombra */
             padding: 26px; /* Espaciado interno */
         }
 
         .page-title {
             margin: 0 0 20px 0; /* Espacio inferior */
-            color: var(--azul-principal); /* Color principal */
-            font-size: 26px; /* Tamaño del título */
+            color: var(--azul-principal); /* Color */
+            font-size: 26px; /* Tamaño */
         }
 
         /* ===== BOTONES GENERALES ===== */
         .btn {
-            padding: 12px 18px; /* Espaciado interno */
-            border-radius: 10px; /* Bordes redondeados */
+            padding: 12px 18px; /* Espaciado */
+            border-radius: 10px; /* Bordes */
             border: none; /* Sin borde */
-            cursor: pointer; /* Cursor mano */
-            font-weight: 600; /* Peso texto */
-            font-size: 14px; /* Tamaño texto */
+            cursor: pointer; /* Cursor */
+            font-weight: 600; /* Peso */
+            font-size: 14px; /* Tamaño */
             text-decoration: none; /* Sin subrayado */
-            display: inline-flex; /* Se comporta como botón */
+            display: inline-flex; /* Tipo botón */
             align-items: center; /* Centrado vertical */
             justify-content: center; /* Centrado horizontal */
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--azul-profundo), var(--azul-principal)); /* Fondo azul elegante */
+            background: linear-gradient(135deg, var(--azul-profundo), var(--azul-principal)); /* Azul */
             color: white; /* Texto blanco */
         }
 
         .btn-secondary {
-            background: #eef2f8; /* Fondo gris azul claro */
+            background: #eef2f8; /* Fondo suave */
             color: var(--texto); /* Texto oscuro */
         }
 
         /* ===== TABLAS GENERALES ===== */
         table {
-            width: 100%; /* Tabla ocupa todo el ancho */
-            border-collapse: collapse; /* Bordes unidos */
+            width: 100%; /* Ocupa todo el ancho */
+            border-collapse: collapse; /* Une bordes */
         }
 
         th, td {
@@ -223,20 +223,20 @@
 
         th {
             background: #f0f4fa; /* Fondo encabezado */
-            color: var(--azul-principal); /* Texto encabezado */
+            color: var(--azul-principal); /* Color texto */
         }
 
         /* ===== FORMULARIOS GENERALES ===== */
         input, select, textarea {
             padding: 10px; /* Espaciado interno */
-            border-radius: 10px; /* Bordes redondeados */
+            border-radius: 10px; /* Bordes */
             border: 1px solid var(--gris-borde); /* Borde suave */
-            width: 100%; /* Ocupa todo el ancho */
+            width: 100%; /* Todo el ancho */
         }
 
         input:focus, select:focus, textarea:focus {
             border-color: var(--dorado); /* Borde dorado al enfocar */
-            outline: none; /* Quita outline default */
+            outline: none; /* Quita borde por defecto */
         }
     </style>
 </head>
@@ -248,26 +248,39 @@
             <h2>Santísima Trinidad</h2> <!-- Nombre parroquia -->
             <div class="subtitle">Sistema parroquial</div> <!-- Subtítulo -->
 
+            <!-- 1. INICIO -->
             <div class="nav-section">
-                <div class="nav-section-title">Principal</div> <!-- Sección principal -->
+                <div class="nav-section-title">Inicio</div> <!-- Sección principal -->
                 <a class="nav-link" href="/dashboard/usuario/">Inicio</a> <!-- Link dashboard -->
             </div>
 
+            <!-- 2. DOCUMENTOS -->
             <div class="nav-section">
-                <div class="nav-section-title">Sacramentos</div> <!-- Sección sacramentos -->
+                <div class="nav-section-title">Documentos</div> <!-- Sección documentos -->
+                <a class="nav-link" href="/oficios/">Oficio parroquial</a> <!-- Link módulo oficios -->
+            </div>
+
+            <!-- 3. EUCARISTÍA Y CONFIRMACIÓN -->
+            <div class="nav-section">
+                <div class="nav-section-title">Eucaristía y Confirmación</div> <!-- Nuevo título -->
                 <a class="nav-link" href="/sacramentos/nueva/">Nueva inscripción</a> <!-- Crear inscripción -->
-                <a class="nav-link" href="/sacramentos/lista/">Lista de inscripciones</a> <!-- Lista inscripciones -->
+                <a class="nav-link" href="/sacramentos/lista/">Lista de inscripciones</a> <!-- Lista de inscripciones -->
             </div>
 
+            <!-- 4. INVENTARIO -->
             <div class="nav-section">
-                <div class="nav-section-title">Catequesis</div> <!-- Sección catequesis -->
-                <a class="nav-link" href="/catequesis/">Módulo catequesis</a> <!-- Link catequesis -->
+                <div class="nav-section-title">Inventario</div> <!-- Nueva sección inventario -->
+                <a class="nav-link" href="/inventario/">Lista de bienes</a> <!-- Lista inventario -->
+                <a class="nav-link" href="/inventario/nuevo/">Nuevo bien</a> <!-- Alta manual -->
             </div>
 
-            <div class="nav-section">
-                <div class="nav-section-title">Documentos</div> <!-- Nueva sección de documentos -->
-                <a class="nav-link" href="/oficios/">Oficio parroquial</a> <!-- Link al módulo de oficios -->
-            </div>
+            <!-- 5. CONTROL DE GRUPOS -->
+            {% if request.user.is_superuser or request.user|has_group:"Direccion Parroquial" or request.user|has_group:"Secretaria Parroquial" or request.user|has_group:"Coordinacion Catequesis" %}
+                <div class="nav-section">
+                    <div class="nav-section-title">Control de grupos</div> <!-- Nuevo título para catequesis -->
+                    <a class="nav-link" href="/catequesis/">Módulo catequesis</a> <!-- Link a catequesis -->
+                </div>
+            {% endif %}
         </aside>
 
         <!-- ===== MAIN ===== -->
@@ -278,17 +291,13 @@
                 <div class="topbar-title">{% block header %}Sistema Parroquial{% endblock %}</div> <!-- Título dinámico -->
 
                 <div class="user-section"> <!-- Sección de usuario -->
-
-                    <!-- Imagen de usuario por defecto -->
-                    <img src="{% static 'img/user_default.jpg' %}" class="user-avatar" alt="Usuario">
-
+                    <img src="{% static 'img/user_default.jpg' %}" class="user-avatar" alt="Usuario"> <!-- Avatar -->
                     <span class="user-name">{{ request.user.username }}</span> <!-- Nombre del usuario -->
 
                     <form method="post" action="{% url 'logout' %}"> <!-- Formulario logout -->
                         {% csrf_token %} <!-- Token CSRF -->
                         <button type="submit" class="logout-btn">Salir</button> <!-- Botón salir -->
                     </form>
-
                 </div>
             </div>
 
@@ -300,7 +309,6 @@
             </div>
 
         </main>
-
     </div>
 </body>
 </html>
