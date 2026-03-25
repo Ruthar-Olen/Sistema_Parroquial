@@ -1,10 +1,25 @@
-from django.shortcuts import render, redirect, get_object_or_404  # Funciones base para renderizar, redirigir y buscar objetos
-from django.contrib.auth.decorators import login_required, user_passes_test  # Decoradores para proteger vistas
+from django.shortcuts import render, redirect, get_object_or_404  # Funciones base para vistas
+from django.contrib.auth.decorators import login_required, user_passes_test  # Decoradores de permisos
 from django.http import HttpResponse  # Respuesta HTTP para exportaciones
+from django.conf import settings  # Acceso a configuración del proyecto
 from .forms import InscripcionForm  # Formulario de inscripciones
 from .models import Inscripcion  # Modelo principal
-import csv  # Librería para exportar CSV
-from openpyxl import Workbook  # Librería para exportar Excel
+import csv  # Librería para CSV
+import os  # Librería para rutas de archivos
+from openpyxl import Workbook  # Librería para Excel
+
+from reportlab.lib import colors  # Colores para PDF
+from reportlab.lib.pagesizes import letter  # Tamaño carta
+from reportlab.lib.units import mm  # Unidad milímetros
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle  # Estilos de texto
+from reportlab.platypus import (  # Componentes para construir PDF
+    SimpleDocTemplate,
+    Paragraph,
+    Spacer,
+    Table,
+    TableStyle,
+    Image,
+)
 
 
 # ==============================
@@ -12,16 +27,16 @@ from openpyxl import Workbook  # Librería para exportar Excel
 # ==============================
 
 def es_direccion(user):
-    return user.groups.filter(name='Direccion Parroquial').exists()  # Verifica si el usuario pertenece a Dirección
+    return user.groups.filter(name='Direccion Parroquial').exists()  # Verifica grupo Dirección
 
 def es_secretaria(user):
-    return user.groups.filter(name='Secretaria Parroquial').exists()  # Verifica si el usuario pertenece a Secretaría
+    return user.groups.filter(name='Secretaria Parroquial').exists()  # Verifica grupo Secretaría
 
 def es_catequesis(user):
-    return user.groups.filter(name='Coordinacion Catequesis').exists()  # Verifica si el usuario pertenece a Catequesis
+    return user.groups.filter(name='Coordinacion Catequesis').exists()  # Verifica grupo Catequesis
 
 def es_consulta(user):
-    return user.groups.filter(name='Consulta').exists()  # Verifica si el usuario pertenece a Consulta
+    return user.groups.filter(name='Consulta').exists()  # Verifica grupo Consulta
 
 
 def puede_ver(user):
@@ -31,7 +46,7 @@ def puede_ver(user):
         or es_secretaria(user)
         or es_catequesis(user)
         or es_consulta(user)
-    )  # Permiso para ver información
+    )  # Permiso de visualización
 
 def puede_crear_editar(user):
     return (
@@ -52,10 +67,10 @@ def puede_eliminar(user):
 # ==============================
 
 def obtener_inscripciones_filtradas(request):
-    query = request.GET.get('q', '')  # Obtiene texto de búsqueda
-    tipo = request.GET.get('tipo', '')  # Obtiene filtro de tipo/sacramento
+    query = request.GET.get('q', '')  # Toma filtro de búsqueda por nombre
+    tipo = request.GET.get('tipo', '')  # Toma filtro por sacramento
 
-    inscripciones = Inscripcion.objects.all().order_by('-id')  # Lista base ordenada por ID descendente
+    inscripciones = Inscripcion.objects.all().order_by('-id')  # Consulta base ordenada
 
     if query:
         inscripciones = inscripciones.filter(nombre_completo__icontains=query)  # Filtra por nombre
@@ -63,34 +78,34 @@ def obtener_inscripciones_filtradas(request):
     if tipo:
         inscripciones = inscripciones.filter(tipo=tipo)  # Filtra por tipo
 
-    return inscripciones, query, tipo  # Regresa queryset filtrado y filtros usados
+    return inscripciones, query, tipo  # Devuelve resultados y filtros usados
 
 
 # ==============================
-# 📌 VISTAS
+# 📌 VISTAS PRINCIPALES
 # ==============================
 
 @login_required
 @user_passes_test(puede_crear_editar)
 def crear_inscripcion(request):
     if request.method == 'POST':
-        form = InscripcionForm(request.POST)  # Crea formulario con datos enviados
+        form = InscripcionForm(request.POST)  # Carga formulario con datos enviados
         if form.is_valid():
-            form.save()  # Guarda inscripción
-            return redirect('lista_inscripciones')  # Regresa a la lista
+            form.save()  # Guarda el registro
+            return redirect('lista_inscripciones')  # Redirige a la lista
     else:
-        form = InscripcionForm()  # Formulario vacío
+        form = InscripcionForm()  # Crea formulario vacío
 
     return render(request, 'sacramentos/crear.html', {
         'form': form,
         'modo': 'crear'
-    })  # Renderiza pantalla de creación
+    })  # Renderiza la vista de creación
 
 
 @login_required
 @user_passes_test(puede_ver)
 def lista_inscripciones(request):
-    inscripciones, query, tipo = obtener_inscripciones_filtradas(request)  # Obtiene datos filtrados
+    inscripciones, query, tipo = obtener_inscripciones_filtradas(request)  # Obtiene filtros aplicados
 
     return render(request, 'sacramentos/lista.html', {
         'inscripciones': inscripciones,
@@ -98,7 +113,7 @@ def lista_inscripciones(request):
         'tipo': tipo,
         'puede_editar': puede_crear_editar(request.user),
         'puede_eliminar': puede_eliminar(request.user),
-    })  # Renderiza lista operativa
+    })  # Renderiza lista principal
 
 
 @login_required
@@ -107,9 +122,9 @@ def reporte_inscripciones(request):
     inscripciones, query, tipo = obtener_inscripciones_filtradas(request)  # Obtiene datos filtrados
 
     inscripciones = inscripciones.order_by(
-        'grupo_catequesis__numero_grupo',  # Ordena primero por número de grupo
-        'nombre_completo'  # Después por nombre
-    )  # Este orden permite agrupar correctamente en el template
+        'grupo_catequesis__numero_grupo',  # Ordena primero por grupo
+        'nombre_completo'  # Luego por nombre
+    )
 
     return render(request, 'sacramentos/reporte.html', {
         'inscripciones': inscripciones,
@@ -124,43 +139,43 @@ def editar_inscripcion(request, pk):
     inscripcion = get_object_or_404(Inscripcion, pk=pk)  # Busca inscripción existente
 
     if request.method == 'POST':
-        form = InscripcionForm(request.POST, instance=inscripcion)  # Formulario con instancia
+        form = InscripcionForm(request.POST, instance=inscripcion)  # Carga datos enviados sobre instancia actual
         if form.is_valid():
             form.save()  # Guarda cambios
-            return redirect('lista_inscripciones')  # Regresa a la lista
+            return redirect('lista_inscripciones')  # Regresa a lista
     else:
-        form = InscripcionForm(instance=inscripcion)  # Carga datos actuales
+        form = InscripcionForm(instance=inscripcion)  # Muestra datos actuales
 
     return render(request, 'sacramentos/crear.html', {
         'form': form,
         'modo': 'editar',
         'inscripcion': inscripcion
-    })  # Renderiza pantalla de edición
+    })  # Renderiza formulario de edición
 
 
 @login_required
 @user_passes_test(puede_eliminar)
 def eliminar_inscripcion(request, pk):
-    inscripcion = get_object_or_404(Inscripcion, pk=pk)  # Busca inscripción a eliminar
+    inscripcion = get_object_or_404(Inscripcion, pk=pk)  # Busca el registro
 
     if request.method == 'POST':
-        inscripcion.delete()  # Elimina registro
+        inscripcion.delete()  # Elimina el registro
         return redirect('lista_inscripciones')  # Regresa a lista
 
     return render(request, 'sacramentos/eliminar.html', {
         'inscripcion': inscripcion
-    })  # Pide confirmación
+    })  # Renderiza confirmación de borrado
 
 
 @login_required
 @user_passes_test(puede_ver)
 def detalle_inscripcion(request, pk):
-    inscripcion = get_object_or_404(Inscripcion, pk=pk)  # Busca expediente por ID
+    inscripcion = get_object_or_404(Inscripcion, pk=pk)  # Busca expediente individual
 
     return render(request, 'sacramentos/detalle.html', {
         'inscripcion': inscripcion,
         'puede_editar': puede_crear_editar(request.user),
-    })  # Renderiza expediente individual
+    })  # Renderiza vista detalle
 
 
 # ==============================
@@ -170,13 +185,13 @@ def detalle_inscripcion(request, pk):
 @login_required
 @user_passes_test(puede_ver)
 def exportar_inscripciones_csv(request):
-    inscripciones, query, tipo = obtener_inscripciones_filtradas(request)  # Obtiene datos filtrados
+    inscripciones, query, tipo = obtener_inscripciones_filtradas(request)  # Obtiene lista filtrada
 
-    response = HttpResponse(content_type='text/csv; charset=utf-8')  # Respuesta tipo CSV
+    response = HttpResponse(content_type='text/csv; charset=utf-8')  # Define tipo CSV
     response['Content-Disposition'] = 'attachment; filename="inscripciones.csv"'  # Nombre del archivo
 
-    response.write('\ufeff')  # BOM para que Excel respete acentos
-    writer = csv.writer(response)  # Escritor CSV
+    response.write('\ufeff')  # BOM para compatibilidad con Excel
+    writer = csv.writer(response)  # Crea escritor CSV
 
     writer.writerow([
         'ID',
@@ -203,7 +218,7 @@ def exportar_inscripciones_csv(request):
         'Boleta confirmacion',
         'INE',
         'Otros documentos',
-    ])  # Encabezados
+    ])  # Escribe encabezados
 
     for ins in inscripciones:
         writer.writerow([
@@ -231,9 +246,9 @@ def exportar_inscripciones_csv(request):
             'Sí' if ins.boleta_confirmacion else 'No',
             'Sí' if ins.ine else 'No',
             ins.otros_documentos,
-        ])  # Datos por fila
+        ])  # Escribe cada fila
 
-    return response  # Devuelve archivo
+    return response  # Devuelve archivo CSV
 
 
 # ==============================
@@ -243,11 +258,11 @@ def exportar_inscripciones_csv(request):
 @login_required
 @user_passes_test(puede_ver)
 def exportar_inscripciones_excel(request):
-    inscripciones, query, tipo = obtener_inscripciones_filtradas(request)  # Obtiene datos filtrados
+    inscripciones, query, tipo = obtener_inscripciones_filtradas(request)  # Obtiene lista filtrada
 
     wb = Workbook()  # Crea libro Excel
     ws = wb.active  # Selecciona hoja activa
-    ws.title = 'Inscripciones'  # Nombre de la hoja
+    ws.title = 'Inscripciones'  # Nombra la hoja
 
     encabezados = [
         'ID',
@@ -304,12 +319,216 @@ def exportar_inscripciones_excel(request):
             'Sí' if ins.boleta_confirmacion else 'No',
             'Sí' if ins.ine else 'No',
             ins.otros_documentos,
-        ])  # Inserta cada inscripción
+        ])  # Inserta cada registro
 
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )  # Tipo de respuesta Excel
+    )  # Tipo de archivo Excel
     response['Content-Disposition'] = 'attachment; filename="inscripciones.xlsx"'  # Nombre del archivo
 
-    wb.save(response)  # Guarda libro en la respuesta
-    return response  # Devuelve archivo
+    wb.save(response)  # Guarda el libro en la respuesta
+    return response  # Devuelve archivo Excel
+
+
+# ==============================
+# 📤 PDF BONITO DE EXPEDIENTE
+# ==============================
+
+@login_required
+@user_passes_test(puede_ver)
+def exportar_expediente_pdf(request, pk):
+    inscripcion = get_object_or_404(Inscripcion, pk=pk)  # Busca la inscripción por ID
+
+    response = HttpResponse(content_type='application/pdf')  # Define respuesta PDF
+    response['Content-Disposition'] = f'attachment; filename="expediente_{inscripcion.id}.pdf"'  # Nombre del archivo
+
+    doc = SimpleDocTemplate(
+        response,  # La respuesta será el archivo final
+        pagesize=letter,  # Tamaño carta vertical
+        rightMargin=14 * mm,  # Margen derecho
+        leftMargin=14 * mm,  # Margen izquierdo
+        topMargin=12 * mm,  # Margen superior
+        bottomMargin=12 * mm,  # Margen inferior
+    )
+
+    elementos = []  # Lista de elementos del PDF
+    styles = getSampleStyleSheet()  # Estilos base de reportlab
+
+    estilo_titulo = ParagraphStyle(
+        'TituloParroquia',
+        parent=styles['Title'],
+        fontName='Helvetica-Bold',
+        fontSize=18,
+        textColor=colors.HexColor('#1f3557'),
+        spaceAfter=6,
+        alignment=1,
+    )  # Estilo para título principal
+
+    estilo_subtitulo = ParagraphStyle(
+        'SubtituloParroquia',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=10,
+        textColor=colors.HexColor('#555555'),
+        spaceAfter=10,
+        alignment=1,
+    )  # Estilo para subtítulo
+
+    estilo_seccion = ParagraphStyle(
+        'SeccionParroquia',
+        parent=styles['Heading2'],
+        fontName='Helvetica-Bold',
+        fontSize=11,
+        textColor=colors.HexColor('#1f3557'),
+        spaceBefore=8,
+        spaceAfter=6,
+    )  # Estilo para encabezados de sección
+
+    estilo_celda = ParagraphStyle(
+        'CeldaParroquia',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=9,
+        leading=11,
+        textColor=colors.black,
+    )  # Estilo para contenido de celdas
+
+    # ===== LOGO =====
+    ruta_logo = os.path.join(settings.BASE_DIR, 'static', 'img', 'logo_parroquia.jpg')  # Construye ruta física del logo
+
+    if os.path.exists(ruta_logo):
+        logo = Image(ruta_logo, width=28 * mm, height=28 * mm)  # Carga el logo si existe
+        logo.hAlign = 'CENTER'  # Centra el logo
+        elementos.append(logo)  # Agrega el logo al PDF
+        elementos.append(Spacer(1, 4))  # Espacio debajo del logo
+
+    # ===== ENCABEZADO =====
+    elementos.append(Paragraph('Parroquia Santísima Trinidad', estilo_titulo))  # Nombre de parroquia
+    elementos.append(Paragraph('Expediente de inscripción sacramental', estilo_subtitulo))  # Subtítulo
+    elementos.append(Spacer(1, 4))  # Espacio adicional
+
+    # ===== DATOS GENERALES =====
+    elementos.append(Paragraph('Datos generales', estilo_seccion))  # Título de sección
+
+    tabla_generales = Table([
+        ['ID', str(inscripcion.id), 'Fecha', inscripcion.fecha.strftime('%d/%m/%Y') if inscripcion.fecha else '-'],
+        ['Nombre completo', inscripcion.nombre_completo or '-', 'Sacramento', inscripcion.get_tipo_display()],
+        ['Teléfono', inscripcion.telefono or '-', 'Edad', str(inscripcion.edad or '-')],
+    ], colWidths=[35 * mm, 55 * mm, 35 * mm, 50 * mm])  # Tabla de datos generales
+
+    tabla_generales.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#fbfcfe')),  # Fondo claro
+        ('BOX', (0, 0), (-1, -1), 0.6, colors.HexColor('#cfd8e3')),  # Borde externo
+        ('INNERGRID', (0, 0), (-1, -1), 0.4, colors.HexColor('#dfe6ef')),  # Líneas internas
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),  # Fuente base
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),  # Etiquetas columna 1
+        ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),  # Etiquetas columna 3
+        ('FONTSIZE', (0, 0), (-1, -1), 9),  # Tamaño de letra
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),  # Alineación arriba
+        ('PADDING', (0, 0), (-1, -1), 6),  # Padding interno
+    ]))  # Estilo de tabla general
+
+    elementos.append(tabla_generales)  # Agrega tabla al PDF
+
+    # ===== FAMILIA =====
+    elementos.append(Paragraph('Familia y vínculos', estilo_seccion))  # Título sección familia
+
+    tabla_familia = Table([
+        ['Padre', inscripcion.nombre_padre or '-', 'Madre', inscripcion.nombre_madre or '-'],
+        ['Padrino', inscripcion.nombre_padrino or '-', 'Madrina', inscripcion.nombre_madrina or '-'],
+    ], colWidths=[35 * mm, 55 * mm, 35 * mm, 50 * mm])  # Tabla de familia
+
+    tabla_familia.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.white),  # Fondo blanco
+        ('BOX', (0, 0), (-1, -1), 0.6, colors.HexColor('#cfd8e3')),  # Borde externo
+        ('INNERGRID', (0, 0), (-1, -1), 0.4, colors.HexColor('#dfe6ef')),  # Líneas internas
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),  # Etiquetas izquierda
+        ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),  # Etiquetas derecha
+        ('FONTSIZE', (0, 0), (-1, -1), 9),  # Tamaño de letra
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),  # Alineación vertical
+        ('PADDING', (0, 0), (-1, -1), 6),  # Espaciado interno
+    ]))  # Estilo de tabla familia
+
+    elementos.append(tabla_familia)  # Agrega tabla familia
+
+    # ===== CATEQUESIS =====
+    elementos.append(Paragraph('Catequesis', estilo_seccion))  # Título sección catequesis
+
+    tabla_catequesis = Table([
+        ['Catequista', str(inscripcion.catequista) if inscripcion.catequista else '-', 'Grupo', str(inscripcion.grupo_catequesis) if inscripcion.grupo_catequesis else '-'],
+        ['Lugar', inscripcion.lugar_clases or '-', 'Día', inscripcion.dia_clases or '-'],
+        ['Hora', inscripcion.hora_clases or '-', '', ''],
+    ], colWidths=[35 * mm, 55 * mm, 35 * mm, 50 * mm])  # Tabla catequesis
+
+    tabla_catequesis.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#fbfcfe')),  # Fondo suave
+        ('BOX', (0, 0), (-1, -1), 0.6, colors.HexColor('#cfd8e3')),  # Borde externo
+        ('INNERGRID', (0, 0), (-1, -1), 0.4, colors.HexColor('#dfe6ef')),  # Líneas internas
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),  # Etiquetas izquierda
+        ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),  # Etiquetas derecha
+        ('FONTSIZE', (0, 0), (-1, -1), 9),  # Tamaño de texto
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),  # Alineación vertical
+        ('PADDING', (0, 0), (-1, -1), 6),  # Padding
+    ]))  # Estilo de tabla catequesis
+
+    elementos.append(tabla_catequesis)  # Agrega tabla catequesis
+
+    # ===== HISTORIAL SACRAMENTAL =====
+    elementos.append(Paragraph('Historial sacramental', estilo_seccion))  # Título historial
+
+    tabla_historial = Table([
+        ['Bautizo', 'Sí' if inscripcion.bautizo else 'No', 'Eucaristía', 'Sí' if inscripcion.eucaristia else 'No'],
+        ['Confirmación', 'Sí' if inscripcion.confirmacion else 'No', 'Matrimonio', 'Sí' if inscripcion.matrimonio else 'No'],
+    ], colWidths=[35 * mm, 20 * mm, 35 * mm, 20 * mm])  # Tabla historial
+
+    tabla_historial.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.white),  # Fondo blanco
+        ('BOX', (0, 0), (-1, -1), 0.6, colors.HexColor('#cfd8e3')),  # Borde externo
+        ('INNERGRID', (0, 0), (-1, -1), 0.4, colors.HexColor('#dfe6ef')),  # Líneas internas
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),  # Etiquetas columna 1
+        ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),  # Etiquetas columna 3
+        ('FONTSIZE', (0, 0), (-1, -1), 9),  # Tamaño texto
+        ('PADDING', (0, 0), (-1, -1), 6),  # Padding
+    ]))  # Estilo historial
+
+    elementos.append(tabla_historial)  # Agrega historial
+
+    # ===== DOCUMENTOS =====
+    elementos.append(Paragraph('Documentos entregados', estilo_seccion))  # Título documentos
+
+    tabla_documentos = Table([
+        ['Acta de nacimiento', 'Sí' if inscripcion.acta_nacimiento else 'No'],
+        ['Boleta de bautizo', 'Sí' if inscripcion.boleta_bautizo else 'No'],
+        ['Boleta de confirmación', 'Sí' if inscripcion.boleta_confirmacion else 'No'],
+        ['INE', 'Sí' if inscripcion.ine else 'No'],
+        ['Otros documentos', inscripcion.otros_documentos or '-'],
+    ], colWidths=[55 * mm, 120 * mm])  # Tabla de documentos
+
+    tabla_documentos.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#fbfcfe')),  # Fondo claro
+        ('BOX', (0, 0), (-1, -1), 0.6, colors.HexColor('#cfd8e3')),  # Borde externo
+        ('INNERGRID', (0, 0), (-1, -1), 0.4, colors.HexColor('#dfe6ef')),  # Líneas internas
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),  # Etiquetas en negrita
+        ('FONTSIZE', (0, 0), (-1, -1), 9),  # Tamaño texto
+        ('PADDING', (0, 0), (-1, -1), 6),  # Padding
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),  # Alineación
+    ]))  # Estilo documentos
+
+    elementos.append(tabla_documentos)  # Agrega documentos
+    elementos.append(Spacer(1, 10))  # Espacio final
+
+    # ===== PIE =====
+    elementos.append(Paragraph(
+        f'Folio interno: {inscripcion.id}',
+        ParagraphStyle(
+            'PieDocumento',
+            parent=styles['Normal'],
+            fontName='Helvetica-Oblique',
+            fontSize=8,
+            textColor=colors.HexColor('#666666'),
+            alignment=2,
+        )
+    ))  # Pie del PDF alineado a la derecha
+
+    doc.build(elementos)  # Construye PDF completo
+    return response  # Devuelve el archivo PDF

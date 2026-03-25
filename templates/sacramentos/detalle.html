@@ -1,273 +1,154 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} <!-- Hereda estructura base -->
 
-{% block title %}Expediente de inscripción{% endblock %}
-{% block header %}Expediente{% endblock %}
+{% block title %}Expediente de inscripción{% endblock %} <!-- Título navegador -->
+{% block header %}Expediente{% endblock %} <!-- Título superior -->
 
 {% block content %}
 <style>
     @page {
-        size: letter;
-        margin: 10mm;
+        size: letter; /* Tamaño de hoja carta */
+        margin: 10mm; /* Márgenes de impresión */
     }
 
     .expediente-container {
-        max-width: 1100px;
-        margin: 0 auto;
+        max-width: 1100px; /* Ancho máximo visual */
+        margin: 0 auto; /* Centra contenedor */
     }
 
     .print-head {
-        display: none;
+        display: none; /* Encabezado especial solo para impresión */
     }
 
     .expediente-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 20px;
-        margin-bottom: 18px;
-        flex-wrap: wrap;
+        display: flex; /* Organiza cabecera en fila */
+        justify-content: space-between; /* Separa izquierda y derecha */
+        align-items: flex-start; /* Alinea arriba */
+        gap: 20px; /* Espacio entre bloques */
+        margin-bottom: 18px; /* Separación inferior */
+        flex-wrap: wrap; /* Baja elementos si no caben */
     }
 
     .expediente-title {
-        margin: 0 0 8px 0;
-        font-size: 2rem;
-        color: var(--azul-principal);
-        line-height: 1.1;
+        margin: 0 0 8px 0; /* Margen inferior */
+        font-size: 2rem; /* Tamaño del título */
+        color: var(--azul-principal); /* Color principal */
+        line-height: 1.1; /* Altura de línea */
     }
 
     .expediente-meta {
-        display: grid;
-        grid-template-columns: repeat(3, auto);
-        gap: 10px 24px;
-        color: var(--texto-suave);
-        font-size: 14px;
+        display: grid; /* Usa grilla */
+        grid-template-columns: repeat(3, auto); /* Tres columnas automáticas */
+        gap: 10px 24px; /* Espaciado entre columnas y filas */
+        color: var(--texto-suave); /* Texto suave */
+        font-size: 14px; /* Tamaño base */
     }
 
     .expediente-meta strong {
-        color: var(--texto);
+        color: var(--texto); /* Resalta etiquetas */
     }
 
     .acciones-expediente {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
+        display: flex; /* Botones en fila */
+        gap: 10px; /* Espacio entre botones */
+        flex-wrap: wrap; /* Permite bajar líneas */
     }
 
     .section-title-exp {
-        margin: 22px 0 10px 0;
-        font-size: 1.25rem;
-        color: var(--azul-profundo);
-        border-bottom: 1px solid var(--gris-borde);
-        padding-bottom: 6px;
+        margin: 22px 0 10px 0; /* Márgenes del título de sección */
+        font-size: 1.25rem; /* Tamaño sección */
+        color: var(--azul-profundo); /* Color */
+        border-bottom: 1px solid var(--gris-borde); /* Línea inferior */
+        padding-bottom: 6px; /* Espacio bajo línea */
     }
 
     .expediente-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px 12px;
+        display: grid; /* Grilla de datos */
+        grid-template-columns: repeat(3, 1fr); /* Tres columnas iguales */
+        gap: 10px 12px; /* Separación */
     }
 
     .expediente-grid-2 {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px 12px;
+        display: grid; /* Grilla */
+        grid-template-columns: repeat(2, 1fr); /* Dos columnas */
+        gap: 10px 12px; /* Separación */
     }
 
     .dato {
-        border: 1px solid var(--gris-borde);
-        border-radius: 10px;
-        padding: 10px 12px;
-        background: #fbfcfe;
-        min-height: 64px;
+        border: 1px solid var(--gris-borde); /* Borde de cada dato */
+        border-radius: 10px; /* Esquinas redondeadas */
+        padding: 10px 12px; /* Espacio interno */
+        background: #fbfcfe; /* Fondo suave */
+        min-height: 64px; /* Altura mínima */
     }
 
     .dato-full {
-        grid-column: 1 / -1;
+        grid-column: 1 / -1; /* Hace que el bloque use todo el ancho */
     }
 
     .dato-label {
-        font-size: 11px;
-        text-transform: uppercase;
-        color: var(--texto-suave);
-        margin-bottom: 4px;
-        letter-spacing: 0.4px;
-        font-weight: 700;
+        font-size: 11px; /* Etiqueta pequeña */
+        text-transform: uppercase; /* Todo mayúsculas */
+        color: var(--texto-suave); /* Color suave */
+        margin-bottom: 4px; /* Separación */
+        letter-spacing: 0.4px; /* Espaciado de letras */
+        font-weight: 700; /* Negrita */
     }
 
     .dato-valor {
-        font-size: 15px;
-        color: var(--texto);
-        line-height: 1.25;
-        font-weight: 500;
-        word-break: break-word;
+        font-size: 15px; /* Texto principal */
+        color: var(--texto); /* Color texto */
+        line-height: 1.25; /* Altura de línea */
+        font-weight: 500; /* Peso medio */
+        word-break: break-word; /* Rompe texto largo */
     }
 
     .estado-si {
-        color: #2f8f46;
-        font-weight: 700;
+        color: #2f8f46; /* Verde */
+        font-weight: 700; /* Negrita */
     }
 
     .estado-no {
-        color: #8b95a3;
-        font-weight: 500;
+        color: #8b95a3; /* Gris */
+        font-weight: 500; /* Peso medio */
     }
 
     @media (max-width: 900px) {
         .expediente-grid,
         .expediente-grid-2,
         .expediente-meta {
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr; /* Todo en una columna en móvil */
         }
 
         .expediente-title {
-            font-size: 1.6rem;
-        }
-    }
-
-    @media print {
-        .sidebar,
-        .topbar,
-        .acciones-expediente,
-        .no-print {
-            display: none !important;
-        }
-
-        html, body {
-            background: white !important;
-        }
-
-        .main,
-        .content,
-        .card {
-            margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            background: white !important;
-            box-shadow: none !important;
-            border: none !important;
-            overflow: visible !important;
-            height: auto !important;
-        }
-
-        .expediente-container {
-            max-width: 100% !important;
-            margin: 0 !important;
-        }
-
-        .print-head {
-            display: block !important;
-            margin-bottom: 10px;
-        }
-
-        .print-head h1 {
-            margin: 0 0 3px 0;
-            font-size: 16px;
-            color: #222;
-            text-align: center;
-        }
-
-        .print-head p {
-            margin: 0;
-            font-size: 10px;
-            color: #444;
-            text-align: center;
-        }
-
-        .expediente-header {
-            margin-bottom: 10px;
-            gap: 8px;
-        }
-
-        .expediente-title {
-            font-size: 14px !important;
-            color: #222 !important;
-            margin: 0 0 5px 0 !important;
-        }
-
-        .expediente-meta {
-            grid-template-columns: repeat(3, auto);
-            gap: 4px 14px;
-            font-size: 10px;
-            color: #333;
-        }
-
-        .section-title-exp {
-            margin: 10px 0 6px 0;
-            padding-bottom: 3px;
-            font-size: 12px;
-            color: #222;
-            border-bottom: 1px solid #bbb;
-            page-break-after: avoid;
-        }
-
-        .expediente-grid,
-        .expediente-grid-2 {
-            gap: 6px 8px;
-        }
-
-        .expediente-grid {
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        .expediente-grid-2 {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .dato {
-            background: white !important;
-            border: 1px solid #cfcfcf;
-            border-radius: 6px;
-            padding: 6px 8px;
-            min-height: auto;
-            break-inside: avoid;
-            page-break-inside: avoid;
-        }
-
-        .dato-label {
-            font-size: 8px;
-            margin-bottom: 2px;
-            color: #555;
-            letter-spacing: 0.3px;
-        }
-
-        .dato-valor {
-            font-size: 10px;
-            line-height: 1.2;
-            color: #111;
-            font-weight: 500;
+            font-size: 1.6rem; /* Reduce título */
         }
     }
 </style>
 
-<div class="expediente-container">
+<div class="expediente-container"> <!-- Contenedor principal -->
 
-    <div class="print-head">
-        <h1>Parroquia de la Santísima Trinidad</h1>
-        <p>Expediente de inscripción</p>
-    </div>
-
-    <div class="expediente-header">
+    <div class="expediente-header"> <!-- Cabecera -->
         <div>
-            <h1 class="expediente-title">Expediente de {{ inscripcion.nombre_completo }}</h1>
+            <h1 class="expediente-title">Expediente de {{ inscripcion.nombre_completo }}</h1> <!-- Título -->
 
-            <div class="expediente-meta">
+            <div class="expediente-meta"> <!-- Datos rápidos -->
                 <div><strong>ID:</strong> {{ inscripcion.id }}</div>
                 <div><strong>Tipo:</strong> {{ inscripcion.get_tipo_display }}</div>
                 <div><strong>Fecha:</strong> {{ inscripcion.fecha|date:"d/m/Y" }}</div>
             </div>
         </div>
 
-        <div class="acciones-expediente">
+        <div class="acciones-expediente"> <!-- Botones -->
             {% if request.user.is_superuser or puede_editar %}
                 <a href="{% url 'editar_inscripcion' inscripcion.id %}" class="btn btn-primary">Editar</a>
             {% endif %}
             <a href="{% url 'lista_inscripciones' %}" class="btn btn-secondary">Volver a la lista</a>
             <button type="button" class="btn btn-secondary" onclick="window.print()">Imprimir expediente</button>
+            <a href="{% url 'exportar_expediente_pdf' inscripcion.id %}" class="btn btn-primary">Descargar PDF</a>
         </div>
     </div>
 
-    <h2 class="section-title-exp">Datos generales</h2>
+    <h2 class="section-title-exp">Datos generales</h2> <!-- Título sección -->
     <div class="expediente-grid">
         <div class="dato dato-full">
             <div class="dato-label">Nombre completo</div>
