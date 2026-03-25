@@ -293,7 +293,7 @@
         }
     }
 
-    /* ===== IMPRESIÓN: SOLO LA HOJA ===== */
+        /* ===== IMPRESIÓN: SOLO LA HOJA ===== */
     @media print {
         html,
         body {
@@ -304,9 +304,8 @@
 
         .sidebar,
         .topbar,
-        .editor-panel,
-        .preview-shell {
-            display: none !important; /* Oculta interfaz y contenedor exterior */
+        .editor-panel {
+            display: none !important; /* Oculta sidebar, topbar y formulario */
         }
 
         .layout,
@@ -329,17 +328,45 @@
             margin-left: 0 !important; /* Quita espacio del sidebar */
         }
 
+        .preview-panel {
+            justify-content: flex-start !important; /* Alinea la hoja al inicio */
+            align-items: flex-start !important; /* Arriba */
+        }
+
+        .preview-shell {
+            display: block !important; /* IMPORTANTE: no ocultar */
+            width: 100% !important; /* Ocupa todo el ancho */
+            margin: 0 !important; /* Sin margen */
+            padding: 0 !important; /* Sin padding */
+            border: none !important; /* Sin borde */
+            border-radius: 0 !important; /* Sin esquinas redondeadas */
+            background: white !important; /* Fondo blanco */
+            box-shadow: none !important; /* Sin sombra */
+            overflow: visible !important; /* Sin scroll */
+        }
+
         .document-sheet {
             width: 100% !important; /* La hoja ocupa todo el ancho imprimible */
             min-height: auto !important; /* Alto automático */
             margin: 0 !important; /* Sin margen */
             box-shadow: none !important; /* Sin sombra */
             border: none !important; /* Sin borde */
+            background: white !important; /* Fondo blanco */
+            overflow: visible !important; /* Sin recorte */
             page-break-inside: avoid; /* Evita cortes feos */
         }
 
         .sheet-inner {
             padding: 14mm 14mm 12mm 14mm !important; /* Márgenes reales de impresión */
+            min-height: auto !important; /* Alto automático */
+        }
+
+        .watermark {
+            display: block !important; /* Mantiene visible la marca de agua si está activa */
+        }
+
+        .watermark.hidden {
+            display: none !important; /* Respeta si el usuario la ocultó */
         }
 
         .letterhead img {
