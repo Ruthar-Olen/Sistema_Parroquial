@@ -1,7 +1,10 @@
 {% extends 'base.html' %} <!-- Hereda la estructura principal del sistema -->
 
-{% block title %}Nuevo bien de inventario{% endblock %} <!-- Título del navegador -->
-{% block header %}Inventario{% endblock %} <!-- Título superior de la página -->
+{% block title %}
+    {% if modo == 'editar' %}Editar bien de inventario{% else %}Nuevo bien de inventario{% endif %}
+{% endblock %} <!-- Título dinámico del navegador -->
+
+{% block header %}Inventario{% endblock %} <!-- Título superior -->
 
 {% block content %}
 
@@ -31,6 +34,58 @@
         box-shadow: 0 6px 18px rgba(0,0,0,0.05); /* Sombra ligera */
     }
 
+    .info-strip {
+        display: grid; /* Grilla para datos informativos */
+        grid-template-columns: 1fr 220px; /* Dos columnas */
+        gap: 18px; /* Espacio entre bloques */
+        margin-bottom: 22px; /* Espacio inferior */
+        align-items: start; /* Alinea arriba */
+    }
+
+    .info-box {
+        padding: 16px; /* Espacio interno */
+        border: 1px solid var(--gris-borde); /* Borde suave */
+        border-radius: 12px; /* Bordes redondeados */
+        background: #fafcff; /* Fondo suave */
+    }
+
+    .info-box .label {
+        font-size: 12px; /* Texto pequeño */
+        color: var(--texto-suave); /* Color tenue */
+        margin-bottom: 4px; /* Espacio inferior */
+    }
+
+    .info-box .value {
+        font-size: 16px; /* Tamaño del valor */
+        font-weight: 700; /* Negrita */
+        color: var(--azul-principal); /* Color principal */
+        word-break: break-word; /* Rompe texto largo si hace falta */
+    }
+
+    .foto-actual {
+        width: 100%; /* Ocupa todo el ancho de su columna */
+        max-width: 220px; /* Límite máximo */
+        height: 180px; /* Alto fijo */
+        object-fit: cover; /* Ajuste de imagen */
+        border-radius: 12px; /* Bordes redondeados */
+        border: 1px solid var(--gris-borde); /* Borde */
+        background: white; /* Fondo */
+    }
+
+    .sin-foto-actual {
+        width: 100%; /* Ancho completo */
+        max-width: 220px; /* Límite */
+        height: 180px; /* Alto fijo */
+        display: flex; /* Permite centrar */
+        align-items: center; /* Centra vertical */
+        justify-content: center; /* Centra horizontal */
+        border-radius: 12px; /* Bordes redondeados */
+        border: 1px dashed var(--gris-borde); /* Borde punteado */
+        color: var(--texto-suave); /* Texto suave */
+        background: #fafcff; /* Fondo suave */
+        font-size: 13px; /* Texto pequeño */
+    }
+
     .form-grid {
         display: grid; /* Usa grid para acomodar campos */
         grid-template-columns: 1fr 1fr; /* Dos columnas iguales */
@@ -43,7 +98,7 @@
     }
 
     .field-group.full {
-        grid-column: 1 / -1; /* Hace que el campo ocupe todo el ancho del grid */
+        grid-column: 1 / -1; /* Hace que el campo ocupe todo el ancho */
     }
 
     .field-group label {
@@ -77,15 +132,15 @@
 
     .errorlist {
         margin: 6px 0 0 0; /* Margen superior */
-        padding-left: 18px; /* Sangría de lista */
-        color: #b33a3a; /* Color rojo de error */
+        padding-left: 18px; /* Sangría */
+        color: #b33a3a; /* Color de error */
         font-size: 13px; /* Tamaño del error */
     }
 
     .actions-row {
         display: flex; /* Botones en fila */
         gap: 12px; /* Espacio entre botones */
-        flex-wrap: wrap; /* Permite bajar línea si no caben */
+        flex-wrap: wrap; /* Permite bajar línea */
         margin-top: 24px; /* Espacio superior */
     }
 
@@ -94,7 +149,7 @@
         padding: 16px; /* Espacio interior */
         border: 1px dashed var(--gris-borde); /* Borde punteado */
         border-radius: 12px; /* Bordes redondeados */
-        background: #fafcff; /* Fondo muy suave */
+        background: #fafcff; /* Fondo suave */
     }
 
     .preview-box h3 {
@@ -111,79 +166,118 @@
     }
 
     @media (max-width: 900px) {
+        .info-strip,
         .form-grid {
-            grid-template-columns: 1fr; /* En móvil pasa a una sola columna */
+            grid-template-columns: 1fr; /* Pasa a una sola columna */
         }
     }
 </style>
 
 <div class="inventario-form-container"> <!-- Contenedor principal -->
 
-    <h1 class="inventario-title">Alta de bien de inventario</h1> <!-- Título principal -->
-    <p class="inventario-subtitle">
-        Registra un nuevo bien parroquial. El código se generará automáticamente según el área y la fecha de alta.
-    </p> <!-- Texto explicativo -->
+    <h1 class="inventario-title">
+        {% if modo == 'editar' %}Editar bien de inventario{% else %}Alta de bien de inventario{% endif %}
+    </h1> <!-- Título dinámico -->
 
-    <div class="form-card"> <!-- Tarjeta principal del formulario -->
+    <p class="inventario-subtitle">
+        {% if modo == 'editar' %}
+            Actualiza los datos del bien inventariado. El código ya generado se conserva.
+        {% else %}
+            Registra un nuevo bien parroquial. El código se generará automáticamente según el área y la fecha de alta.
+        {% endif %}
+    </p> <!-- Subtítulo dinámico -->
+
+    <div class="form-card"> <!-- Tarjeta principal -->
+
+        {% if modo == 'editar' and bien %}
+            <div class="info-strip"> <!-- Franja informativa -->
+                <div class="info-box">
+                    <div class="label">Código del bien</div> <!-- Etiqueta -->
+                    <div class="value">{{ bien.codigo }}</div> <!-- Muestra el código generado -->
+                </div>
+
+                <div>
+                    {% if bien.fotografia %}
+                        <img src="{{ bien.fotografia.url }}" alt="Foto actual del bien" class="foto-actual">
+                        <!-- Muestra foto actual si existe -->
+                    {% else %}
+                        <div class="sin-foto-actual">Sin fotografía actual</div>
+                        <!-- Caja si no hay foto -->
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
 
         <form method="post" enctype="multipart/form-data"> <!-- Formulario con soporte para archivos -->
-            {% csrf_token %} <!-- Token de seguridad de Django -->
+            {% csrf_token %} <!-- Token CSRF -->
 
             <div class="form-grid"> <!-- Grid de campos -->
 
                 <div class="field-group">
-                    <label for="{{ form.area.id_for_label }}">{{ form.area.label }}</label> <!-- Etiqueta del área -->
-                    {{ form.area }} <!-- Campo área -->
-                    {{ form.area.errors }} <!-- Errores del campo -->
-                    <div class="field-help">Selecciona el área para generar el prefijo del código.</div> <!-- Ayuda -->
+                    <label for="{{ form.area.id_for_label }}">{{ form.area.label }}</label>
+                    {{ form.area }}
+                    {{ form.area.errors }}
+                    <div class="field-help">Selecciona el área a la que pertenece el bien.</div>
                 </div>
 
                 <div class="field-group">
-                    <label for="{{ form.estado.id_for_label }}">{{ form.estado.label }}</label> <!-- Etiqueta del estado -->
-                    {{ form.estado }} <!-- Campo estado -->
-                    {{ form.estado.errors }} <!-- Errores -->
-                    <div class="field-help">Selecciona el estado actual del bien.</div> <!-- Ayuda -->
+                    <label for="{{ form.estado.id_for_label }}">{{ form.estado.label }}</label>
+                    {{ form.estado }}
+                    {{ form.estado.errors }}
+                    <div class="field-help">Selecciona el estado actual del bien.</div>
                 </div>
 
                 <div class="field-group full">
-                    <label for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label> <!-- Etiqueta descripción -->
-                    {{ form.descripcion }} <!-- Campo descripción -->
-                    {{ form.descripcion.errors }} <!-- Errores -->
+                    <label for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
+                    {{ form.descripcion }}
+                    {{ form.descripcion.errors }}
                 </div>
 
                 <div class="field-group">
-                    <label for="{{ form.cantidad.id_for_label }}">{{ form.cantidad.label }}</label> <!-- Etiqueta cantidad -->
-                    {{ form.cantidad }} <!-- Campo cantidad -->
-                    {{ form.cantidad.errors }} <!-- Errores -->
+                    <label for="{{ form.cantidad.id_for_label }}">{{ form.cantidad.label }}</label>
+                    {{ form.cantidad }}
+                    {{ form.cantidad.errors }}
                 </div>
 
                 <div class="field-group">
-                    <label for="{{ form.fotografia.id_for_label }}">{{ form.fotografia.label }}</label> <!-- Etiqueta foto -->
-                    {{ form.fotografia }} <!-- Campo fotografía -->
-                    {{ form.fotografia.errors }} <!-- Errores -->
-                    <div class="field-help">Puedes cargar una sola fotografía por bien en esta primera versión.</div> <!-- Ayuda -->
+                    <label for="{{ form.fotografia.id_for_label }}">{{ form.fotografia.label }}</label>
+                    {{ form.fotografia }}
+                    {{ form.fotografia.errors }}
+                    <div class="field-help">
+                        {% if modo == 'editar' %}
+                            Si seleccionas una nueva imagen, reemplazará la actual.
+                        {% else %}
+                            Puedes cargar una sola fotografía por bien en esta primera versión.
+                        {% endif %}
+                    </div>
                 </div>
 
                 <div class="field-group full">
-                    <label for="{{ form.observaciones.id_for_label }}">{{ form.observaciones.label }}</label> <!-- Etiqueta observaciones -->
-                    {{ form.observaciones }} <!-- Campo observaciones -->
-                    {{ form.observaciones.errors }} <!-- Errores -->
+                    <label for="{{ form.observaciones.id_for_label }}">{{ form.observaciones.label }}</label>
+                    {{ form.observaciones }}
+                    {{ form.observaciones.errors }}
                 </div>
 
             </div>
 
-            <div class="preview-box"> <!-- Caja informativa -->
-                <h3>Generación automática del código</h3> <!-- Título caja -->
+            <div class="preview-box">
+                <h3>Generación automática del código</h3>
                 <p>
-                    El sistema generará el código con este formato:
-                    <strong>PREFIJO-AAAAMM-CONSECUTIVO</strong>.
-                    Ejemplo: <strong>SAL1-202603-001</strong>.
-                </p> <!-- Explicación del formato -->
+                    {% if modo == 'editar' %}
+                        Este bien ya cuenta con un código asignado. Al editarlo, el sistema conservará el código actual.
+                    {% else %}
+                        El sistema generará el código con este formato:
+                        <strong>PREFIJO-AAAAMM-CONSECUTIVO</strong>.
+                        Ejemplo: <strong>SAL1-202603-001</strong>.
+                    {% endif %}
+                </p>
             </div>
 
-            <div class="actions-row"> <!-- Botones -->
-                <button type="submit" class="btn btn-primary">Guardar bien</button> <!-- Botón guardar -->
-                <a href="{% url 'lista_bienes' %}" class="btn btn-secondary">Cancelar</a> <!-- Botón cancelar -->
+            <div class="actions-row">
+                <button type="submit" class="btn btn-primary">
+                    {% if modo == 'editar' %}Guardar cambios{% else %}Guardar bien{% endif %}
+                </button>
+                <a href="{% url 'lista_bienes' %}" class="btn btn-secondary">Cancelar</a>
             </div>
 
         </form>

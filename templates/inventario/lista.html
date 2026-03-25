@@ -1,37 +1,304 @@
 {% extends 'base.html' %} <!-- Usa la base del sistema -->
 
 {% block title %}Inventario{% endblock %} <!-- Título del navegador -->
-{% block header %}Inventario{% endblock %} <!-- Título en la barra superior -->
+{% block header %}Inventario{% endblock %} <!-- Título superior -->
 
 {% block content %}
 
-<h2 class="page-title">Inventario parroquial</h2>
+<style>
+    .inventario-toolbar {
+        display: flex; /* Organiza filtros y botón en una fila */
+        justify-content: space-between; /* Separa izquierda y derecha */
+        align-items: flex-start; /* Alinea arriba */
+        gap: 16px; /* Espacio entre bloques */
+        flex-wrap: wrap; /* Permite varias líneas en pantallas chicas */
+        margin-bottom: 22px; /* Espacio debajo */
+    }
 
-<table>
-    <thead>
-        <tr>
-            <th>Código</th> <!-- Código del bien -->
-            <th>Área</th> <!-- Área asignada -->
-            <th>Descripción</th> <!-- Descripción -->
-            <th>Cantidad</th> <!-- Cantidad -->
-            <th>Estado</th> <!-- Estado -->
-        </tr>
-    </thead>
-    <tbody>
-        {% for bien in bienes %}
-        <tr>
-            <td>{{ bien.codigo }}</td>
-            <td>{{ bien.area.nombre }}</td>
-            <td>{{ bien.descripcion }}</td>
-            <td>{{ bien.cantidad }}</td>
-            <td>{{ bien.estado.nombre }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="5">No hay bienes registrados.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    .inventario-filtros {
+        display: flex; /* Filtros en fila */
+        gap: 10px; /* Espacio entre campos */
+        flex-wrap: wrap; /* Permite varias líneas */
+        align-items: center; /* Centrado vertical */
+    }
+
+    .inventario-filtros input,
+    .inventario-filtros select {
+        max-width: 230px; /* Ancho máximo de campos */
+    }
+
+    .summary-strip {
+        display: flex; /* Tarjetas resumen en fila */
+        gap: 14px; /* Espacio entre tarjetas */
+        flex-wrap: wrap; /* Permite varias líneas */
+        margin-bottom: 18px; /* Espacio debajo */
+    }
+
+    .summary-card {
+        background: #f6f8fc; /* Fondo suave */
+        border: 1px solid var(--gris-borde); /* Borde suave */
+        border-radius: 12px; /* Bordes redondeados */
+        padding: 14px 16px; /* Espacio interno */
+        min-width: 170px; /* Ancho mínimo */
+    }
+
+    .summary-card .label {
+        font-size: 12px; /* Tamaño de etiqueta */
+        color: var(--texto-suave); /* Color secundario */
+        margin-bottom: 4px; /* Espacio inferior */
+    }
+
+    .summary-card .value {
+        font-size: 22px; /* Tamaño del valor */
+        font-weight: 700; /* Negrita */
+        color: var(--azul-principal); /* Color principal */
+    }
+
+    .table-wrapper {
+        overflow-x: auto; /* Permite scroll horizontal si hace falta */
+        background: var(--blanco); /* Fondo blanco */
+        border: 1px solid var(--gris-borde); /* Borde suave */
+        border-radius: 14px; /* Bordes redondeados */
+    }
+
+    .data-table {
+        width: 100%; /* Ocupa todo el ancho */
+        min-width: 1100px; /* Ancho mínimo para no romper columnas */
+        border-collapse: collapse; /* Une bordes */
+    }
+
+    .data-table thead th {
+        background: #f3f6fb; /* Fondo de encabezado */
+        color: var(--azul-principal); /* Color del texto */
+        font-size: 13px; /* Tamaño de texto */
+        font-weight: 700; /* Negrita */
+        padding: 14px 12px; /* Espacio interno */
+        border-bottom: 1px solid var(--gris-borde); /* Línea inferior */
+        white-space: nowrap; /* Evita salto */
+    }
+
+    .data-table tbody td {
+        padding: 14px 12px; /* Espacio interno */
+        border-bottom: 1px solid #edf1f6; /* Línea inferior */
+        vertical-align: middle; /* Centrado vertical */
+        font-size: 14px; /* Tamaño de texto */
+    }
+
+    .data-table tbody tr:nth-child(even) {
+        background: #fbfcfe; /* Zebra suave */
+    }
+
+    .data-table tbody tr:hover {
+        background: #f5f8fc; /* Hover suave */
+    }
+
+    .miniatura {
+        width: 58px; /* Ancho miniatura */
+        height: 58px; /* Alto miniatura */
+        object-fit: cover; /* Ajusta imagen */
+        border-radius: 10px; /* Bordes redondeados */
+        border: 1px solid var(--gris-borde); /* Borde */
+        background: #fff; /* Fondo */
+    }
+
+    .sin-foto {
+        width: 58px; /* Ancho */
+        height: 58px; /* Alto */
+        display: flex; /* Centra el texto */
+        align-items: center; /* Centrado vertical */
+        justify-content: center; /* Centrado horizontal */
+        border-radius: 10px; /* Bordes */
+        border: 1px dashed var(--gris-borde); /* Borde punteado */
+        color: var(--texto-suave); /* Texto suave */
+        font-size: 11px; /* Texto pequeño */
+        background: #fafcff; /* Fondo suave */
+    }
+
+    .estado-badge {
+        display: inline-block; /* Badge en línea */
+        padding: 6px 10px; /* Espacio interno */
+        border-radius: 999px; /* Forma pill */
+        font-size: 12px; /* Texto pequeño */
+        font-weight: 700; /* Negrita */
+        background: rgba(31, 53, 87, 0.10); /* Fondo suave */
+        color: var(--azul-principal); /* Texto principal */
+    }
+
+    .acciones {
+        display: flex; /* Acciones en fila */
+        gap: 8px; /* Espacio entre acciones */
+        flex-wrap: wrap; /* Permite varias líneas */
+    }
+
+    .action-link {
+        display: inline-flex; /* Botón en línea */
+        align-items: center; /* Centrado vertical */
+        justify-content: center; /* Centrado horizontal */
+        padding: 7px 10px; /* Espacio interno */
+        border-radius: 8px; /* Bordes */
+        font-size: 12px; /* Tamaño pequeño */
+        font-weight: 600; /* Negrita */
+        text-decoration: none; /* Sin subrayado */
+        white-space: nowrap; /* No rompe línea */
+    }
+
+    .action-edit {
+        background: rgba(201, 163, 74, 0.15); /* Fondo dorado suave */
+        color: #8a6a1f; /* Texto dorado oscuro */
+    }
+
+    .action-baja {
+        background: rgba(179, 58, 58, 0.10); /* Fondo rojo suave */
+        color: #a13232; /* Texto rojo */
+    }
+
+    .empty {
+        background: #f8fafc; /* Fondo suave */
+        border: 1px solid var(--gris-borde); /* Borde */
+        border-radius: 14px; /* Bordes */
+        padding: 26px; /* Espacio interno */
+        text-align: center; /* Centrado */
+        color: var(--texto-suave); /* Texto secundario */
+    }
+
+    @media (max-width: 900px) {
+        .inventario-toolbar {
+            flex-direction: column; /* Apila bloques */
+            align-items: stretch; /* Ocupa todo el ancho */
+        }
+
+        .inventario-filtros {
+            flex-direction: column; /* Apila filtros */
+            align-items: stretch; /* Ocupa ancho completo */
+        }
+
+        .inventario-filtros input,
+        .inventario-filtros select,
+        .inventario-filtros button,
+        .inventario-filtros a {
+            width: 100%; /* Todo el ancho */
+            max-width: 100%; /* Sin límite */
+            text-align: center; /* Texto centrado */
+        }
+    }
+</style>
+
+<h1 class="page-title">Inventario parroquial</h1> <!-- Título principal -->
+
+<div class="summary-strip"> <!-- Resumen visual -->
+    <div class="summary-card">
+        <div class="label">Bienes activos</div>
+        <div class="value">{{ bienes|length }}</div>
+    </div>
+
+    <div class="summary-card">
+        <div class="label">Filtro por área</div>
+        <div class="value" style="font-size:16px;">
+            {% if area_id %}
+                Seleccionada
+            {% else %}
+                Todas
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="summary-card">
+        <div class="label">Filtro por estado</div>
+        <div class="value" style="font-size:16px;">
+            {% if estado_id %}
+                Seleccionado
+            {% else %}
+                Todos
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="inventario-toolbar"> <!-- Barra superior -->
+
+    <form method="get" class="inventario-filtros"> <!-- Formulario de filtros -->
+        <input
+            type="text"
+            name="q"
+            value="{{ query }}"
+            placeholder="Buscar por descripción..."
+        >
+
+        <select name="area">
+            <option value="">Todas las áreas</option>
+            {% for area in areas %}
+                <option value="{{ area.id }}" {% if area_id == area.id|stringformat:"s" %}selected{% endif %}>
+                    {{ area.nombre }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <select name="estado">
+            <option value="">Todos los estados</option>
+            {% for estado in estados %}
+                <option value="{{ estado.id }}" {% if estado_id == estado.id|stringformat:"s" %}selected{% endif %}>
+                    {{ estado.nombre }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a href="{% url 'lista_bienes' %}" class="btn btn-secondary">Limpiar</a>
+    </form>
+
+    <div>
+        <a href="{% url 'crear_bien' %}" class="btn btn-primary">Nuevo bien</a>
+    </div>
+</div>
+
+{% if bienes %}
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Foto</th>
+                    <th>Código</th>
+                    <th>Área</th>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                    <th>Estado</th>
+                    <th>Observaciones</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bien in bienes %}
+                    <tr>
+                        <td>
+                            {% if bien.fotografia %}
+                                <img src="{{ bien.fotografia.url }}" alt="Foto del bien" class="miniatura">
+                            {% else %}
+                                <div class="sin-foto">Sin foto</div>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ bien.codigo }}</td>
+                        <td>{{ bien.area.nombre }}</td>
+                        <td>{{ bien.descripcion }}</td>
+                        <td>{{ bien.cantidad }}</td>
+                        <td><span class="estado-badge">{{ bien.estado.nombre }}</span></td>
+                        <td>{{ bien.observaciones|default:"-" }}</td>
+
+                        <td>
+                            <div class="acciones">
+                                <a href="{% url 'editar_bien' bien.id %}" class="action-link action-edit">Editar</a>
+                                <a href="{% url 'baja_bien' bien.id %}" class="action-link action-baja">Dar de baja</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty">
+        No hay bienes registrados con los filtros seleccionados.
+    </div>
+{% endif %}
 
 {% endblock %}

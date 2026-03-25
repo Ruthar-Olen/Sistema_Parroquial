@@ -1,0 +1,94 @@
+{% extends 'base.html' %} <!-- Hereda la estructura principal del sistema -->
+
+{% block title %}Dar de baja bien{% endblock %} <!-- Título del navegador -->
+{% block header %}Inventario{% endblock %} <!-- Título superior -->
+
+{% block content %}
+
+<style>
+    .baja-container {
+        max-width: 760px; /* Limita el ancho */
+        margin: 0 auto; /* Centra el contenedor */
+    }
+
+    .baja-card {
+        background: var(--blanco); /* Fondo blanco */
+        border: 1px solid var(--gris-borde); /* Borde suave */
+        border-radius: 16px; /* Bordes redondeados */
+        padding: 26px; /* Espacio interno */
+        box-shadow: 0 6px 18px rgba(0,0,0,0.05); /* Sombra ligera */
+    }
+
+    .baja-title {
+        margin: 0 0 12px 0; /* Espacio inferior */
+        color: #a13232; /* Color rojo suave */
+        font-size: 28px; /* Tamaño del título */
+    }
+
+    .baja-text {
+        margin: 0 0 18px 0; /* Espacio inferior */
+        color: var(--texto); /* Color principal */
+        line-height: 1.6; /* Altura de línea */
+        font-size: 15px; /* Tamaño de texto */
+    }
+
+    .baja-info {
+        background: #fafcff; /* Fondo suave */
+        border: 1px solid var(--gris-borde); /* Borde */
+        border-radius: 12px; /* Bordes */
+        padding: 16px; /* Espacio interno */
+        margin-bottom: 22px; /* Espacio debajo */
+    }
+
+    .baja-info .row {
+        margin-bottom: 8px; /* Espacio entre filas */
+        color: var(--texto); /* Color texto */
+    }
+
+    .baja-info .row:last-child {
+        margin-bottom: 0; /* Quita margen en la última fila */
+    }
+
+    .baja-info strong {
+        color: var(--azul-principal); /* Resalta etiquetas */
+    }
+
+    .actions-row {
+        display: flex; /* Botones en fila */
+        gap: 12px; /* Espacio entre botones */
+        flex-wrap: wrap; /* Permite varias líneas */
+        margin-top: 14px; /* Espacio superior */
+    }
+</style>
+
+<div class="baja-container"> <!-- Contenedor principal -->
+    <div class="baja-card"> <!-- Tarjeta de confirmación -->
+
+        <h1 class="baja-title">Dar de baja bien</h1> <!-- Título -->
+
+        <p class="baja-text">
+            Estás a punto de dar de baja este bien del inventario activo.
+            El registro no se eliminará, pero dejará de aparecer en la lista principal.
+        </p> <!-- Explicación -->
+
+        <div class="baja-info"> <!-- Datos del bien -->
+            <div class="row"><strong>Código:</strong> {{ bien.codigo }}</div>
+            <div class="row"><strong>Área:</strong> {{ bien.area.nombre }}</div>
+            <div class="row"><strong>Descripción:</strong> {{ bien.descripcion }}</div>
+            <div class="row"><strong>Estado actual:</strong> {{ bien.estado.nombre }}</div>
+            <div class="row"><strong>Cantidad:</strong> {{ bien.cantidad }}</div>
+        </div>
+
+        <form method="post"> <!-- Formulario de confirmación -->
+            {% csrf_token %} <!-- Token CSRF -->
+
+            <div class="actions-row">
+                <button type="submit" class="btn btn-primary">Confirmar baja</button> <!-- Confirma la baja -->
+                <a href="{% url 'lista_bienes' %}" class="btn btn-secondary">Cancelar</a> <!-- Cancela -->
+            </div>
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}
