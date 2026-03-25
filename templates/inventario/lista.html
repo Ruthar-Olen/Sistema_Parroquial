@@ -1,0 +1,37 @@
+{% extends 'base.html' %} <!-- Usa la base del sistema -->
+
+{% block title %}Inventario{% endblock %} <!-- Título del navegador -->
+{% block header %}Inventario{% endblock %} <!-- Título en la barra superior -->
+
+{% block content %}
+
+<h2 class="page-title">Inventario parroquial</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Código</th> <!-- Código del bien -->
+            <th>Área</th> <!-- Área asignada -->
+            <th>Descripción</th> <!-- Descripción -->
+            <th>Cantidad</th> <!-- Cantidad -->
+            <th>Estado</th> <!-- Estado -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for bien in bienes %}
+        <tr>
+            <td>{{ bien.codigo }}</td>
+            <td>{{ bien.area.nombre }}</td>
+            <td>{{ bien.descripcion }}</td>
+            <td>{{ bien.cantidad }}</td>
+            <td>{{ bien.estado.nombre }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No hay bienes registrados.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

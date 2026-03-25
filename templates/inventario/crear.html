@@ -1,0 +1,193 @@
+{% extends 'base.html' %} <!-- Hereda la estructura principal del sistema -->
+
+{% block title %}Nuevo bien de inventario{% endblock %} <!-- Título del navegador -->
+{% block header %}Inventario{% endblock %} <!-- Título superior de la página -->
+
+{% block content %}
+
+<style>
+    .inventario-form-container {
+        max-width: 980px; /* Limita el ancho máximo del formulario */
+        margin: 0 auto; /* Centra el contenedor */
+    }
+
+    .inventario-title {
+        margin: 0 0 10px 0; /* Espacio inferior */
+        color: var(--azul-principal); /* Color principal */
+        font-size: 28px; /* Tamaño del título */
+    }
+
+    .inventario-subtitle {
+        margin: 0 0 24px 0; /* Espacio inferior */
+        color: var(--texto-suave); /* Color secundario */
+        font-size: 15px; /* Tamaño del texto */
+    }
+
+    .form-card {
+        background: var(--blanco); /* Fondo blanco */
+        border: 1px solid var(--gris-borde); /* Borde suave */
+        border-radius: 16px; /* Bordes redondeados */
+        padding: 24px; /* Espacio interior */
+        box-shadow: 0 6px 18px rgba(0,0,0,0.05); /* Sombra ligera */
+    }
+
+    .form-grid {
+        display: grid; /* Usa grid para acomodar campos */
+        grid-template-columns: 1fr 1fr; /* Dos columnas iguales */
+        gap: 18px; /* Espacio entre campos */
+    }
+
+    .field-group {
+        display: flex; /* Organiza label y campo en columna */
+        flex-direction: column; /* Dirección vertical */
+    }
+
+    .field-group.full {
+        grid-column: 1 / -1; /* Hace que el campo ocupe todo el ancho del grid */
+    }
+
+    .field-group label {
+        margin-bottom: 7px; /* Espacio entre etiqueta y campo */
+        font-weight: 600; /* Seminegrita */
+        color: var(--texto); /* Color del texto */
+        font-size: 14px; /* Tamaño de la etiqueta */
+    }
+
+    .field-group input,
+    .field-group select,
+    .field-group textarea {
+        width: 100%; /* Ocupa todo el ancho */
+        padding: 11px 12px; /* Espacio interno */
+        border-radius: 10px; /* Bordes redondeados */
+        border: 1px solid var(--gris-borde); /* Borde suave */
+        font-size: 14px; /* Tamaño del texto */
+        background: white; /* Fondo blanco */
+    }
+
+    .field-group textarea {
+        resize: vertical; /* Permite cambiar altura verticalmente */
+        min-height: 110px; /* Altura mínima */
+    }
+
+    .field-help {
+        margin-top: 6px; /* Espacio superior */
+        font-size: 12px; /* Texto pequeño */
+        color: var(--texto-suave); /* Color secundario */
+    }
+
+    .errorlist {
+        margin: 6px 0 0 0; /* Margen superior */
+        padding-left: 18px; /* Sangría de lista */
+        color: #b33a3a; /* Color rojo de error */
+        font-size: 13px; /* Tamaño del error */
+    }
+
+    .actions-row {
+        display: flex; /* Botones en fila */
+        gap: 12px; /* Espacio entre botones */
+        flex-wrap: wrap; /* Permite bajar línea si no caben */
+        margin-top: 24px; /* Espacio superior */
+    }
+
+    .preview-box {
+        margin-top: 22px; /* Espacio superior */
+        padding: 16px; /* Espacio interior */
+        border: 1px dashed var(--gris-borde); /* Borde punteado */
+        border-radius: 12px; /* Bordes redondeados */
+        background: #fafcff; /* Fondo muy suave */
+    }
+
+    .preview-box h3 {
+        margin: 0 0 10px 0; /* Espacio inferior */
+        color: var(--azul-principal); /* Color principal */
+        font-size: 16px; /* Tamaño del subtítulo */
+    }
+
+    .preview-box p {
+        margin: 0; /* Sin margen */
+        color: var(--texto-suave); /* Texto secundario */
+        font-size: 13px; /* Tamaño pequeño */
+        line-height: 1.5; /* Altura de línea */
+    }
+
+    @media (max-width: 900px) {
+        .form-grid {
+            grid-template-columns: 1fr; /* En móvil pasa a una sola columna */
+        }
+    }
+</style>
+
+<div class="inventario-form-container"> <!-- Contenedor principal -->
+
+    <h1 class="inventario-title">Alta de bien de inventario</h1> <!-- Título principal -->
+    <p class="inventario-subtitle">
+        Registra un nuevo bien parroquial. El código se generará automáticamente según el área y la fecha de alta.
+    </p> <!-- Texto explicativo -->
+
+    <div class="form-card"> <!-- Tarjeta principal del formulario -->
+
+        <form method="post" enctype="multipart/form-data"> <!-- Formulario con soporte para archivos -->
+            {% csrf_token %} <!-- Token de seguridad de Django -->
+
+            <div class="form-grid"> <!-- Grid de campos -->
+
+                <div class="field-group">
+                    <label for="{{ form.area.id_for_label }}">{{ form.area.label }}</label> <!-- Etiqueta del área -->
+                    {{ form.area }} <!-- Campo área -->
+                    {{ form.area.errors }} <!-- Errores del campo -->
+                    <div class="field-help">Selecciona el área para generar el prefijo del código.</div> <!-- Ayuda -->
+                </div>
+
+                <div class="field-group">
+                    <label for="{{ form.estado.id_for_label }}">{{ form.estado.label }}</label> <!-- Etiqueta del estado -->
+                    {{ form.estado }} <!-- Campo estado -->
+                    {{ form.estado.errors }} <!-- Errores -->
+                    <div class="field-help">Selecciona el estado actual del bien.</div> <!-- Ayuda -->
+                </div>
+
+                <div class="field-group full">
+                    <label for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label> <!-- Etiqueta descripción -->
+                    {{ form.descripcion }} <!-- Campo descripción -->
+                    {{ form.descripcion.errors }} <!-- Errores -->
+                </div>
+
+                <div class="field-group">
+                    <label for="{{ form.cantidad.id_for_label }}">{{ form.cantidad.label }}</label> <!-- Etiqueta cantidad -->
+                    {{ form.cantidad }} <!-- Campo cantidad -->
+                    {{ form.cantidad.errors }} <!-- Errores -->
+                </div>
+
+                <div class="field-group">
+                    <label for="{{ form.fotografia.id_for_label }}">{{ form.fotografia.label }}</label> <!-- Etiqueta foto -->
+                    {{ form.fotografia }} <!-- Campo fotografía -->
+                    {{ form.fotografia.errors }} <!-- Errores -->
+                    <div class="field-help">Puedes cargar una sola fotografía por bien en esta primera versión.</div> <!-- Ayuda -->
+                </div>
+
+                <div class="field-group full">
+                    <label for="{{ form.observaciones.id_for_label }}">{{ form.observaciones.label }}</label> <!-- Etiqueta observaciones -->
+                    {{ form.observaciones }} <!-- Campo observaciones -->
+                    {{ form.observaciones.errors }} <!-- Errores -->
+                </div>
+
+            </div>
+
+            <div class="preview-box"> <!-- Caja informativa -->
+                <h3>Generación automática del código</h3> <!-- Título caja -->
+                <p>
+                    El sistema generará el código con este formato:
+                    <strong>PREFIJO-AAAAMM-CONSECUTIVO</strong>.
+                    Ejemplo: <strong>SAL1-202603-001</strong>.
+                </p> <!-- Explicación del formato -->
+            </div>
+
+            <div class="actions-row"> <!-- Botones -->
+                <button type="submit" class="btn btn-primary">Guardar bien</button> <!-- Botón guardar -->
+                <a href="{% url 'lista_bienes' %}" class="btn btn-secondary">Cancelar</a> <!-- Botón cancelar -->
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}

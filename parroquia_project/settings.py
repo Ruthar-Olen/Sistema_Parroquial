@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     'sacramentos',
     'catequesis',
     'oficios',
+    'inventario',
+    
     
 ]
 
@@ -106,6 +108,10 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Archivos multimedia subidos por el usuario
+MEDIA_URL = '/media/'  # URL pública para acceder a archivos subidos
+MEDIA_ROOT = BASE_DIR / 'media'  # Carpeta física donde se guardarán los archivos
 
 # Auth redirects
 LOGIN_URL = 'login'
