@@ -1,7 +1,7 @@
 {% extends 'base.html' %} <!-- Hereda layout base -->
 
 {% block title %}Reporte completo de inscripciones{% endblock %} <!-- Título del navegador -->
-{% block header %}Reporte de inscripciones{% endblock %} <!-- Título superior -->
+{% block header %}Reporte de inscripciones{% endblock %} <!-- Título visible arriba -->
 
 {% block content %}
 
@@ -10,13 +10,13 @@
         display: flex; /* Coloca acciones en fila */
         justify-content: space-between; /* Separa izquierda y derecha */
         align-items: center; /* Centra verticalmente */
-        gap: 12px; /* Espacio entre bloques */
+        gap: 12px; /* Espacio entre elementos */
         margin-bottom: 15px; /* Espacio inferior */
-        flex-wrap: wrap; /* Permite salto en pantallas pequeñas */
+        flex-wrap: wrap; /* Permite salto de línea */
     }
 
     .report-meta {
-        display: flex; /* Coloca cajas informativas en fila */
+        display: flex; /* Cajas informativas en fila */
         gap: 10px; /* Espacio entre cajas */
         flex-wrap: wrap; /* Permite varias líneas */
         margin-bottom: 15px; /* Espacio inferior */
@@ -24,14 +24,14 @@
 
     .meta-box {
         background: #f6f8fc; /* Fondo claro */
-        border: 1px solid var(--gris-borde); /* Borde suave */
-        border-radius: 10px; /* Esquinas redondeadas */
+        border: 1px solid var(--gris-borde); /* Borde */
+        border-radius: 10px; /* Bordes redondeados */
         padding: 10px 12px; /* Espacio interno */
         min-width: 160px; /* Ancho mínimo */
     }
 
     .meta-box .label {
-        font-size: 11px; /* Tamaño pequeño para etiqueta */
+        font-size: 11px; /* Tamaño pequeño */
         color: var(--texto-suave); /* Color suave */
     }
 
@@ -42,15 +42,15 @@
     }
 
     .group-block {
-        margin-bottom: 18px; /* Separación entre grupos */
-        border: 1px solid var(--gris-borde); /* Borde general */
+        margin-bottom: 18px; /* Separación entre bloques */
+        border: 1px solid var(--gris-borde); /* Borde */
         border-radius: 12px; /* Esquinas redondeadas */
-        overflow: hidden; /* Recorta bordes internos */
+        overflow: hidden; /* Mantiene bordes limpios */
         background: white; /* Fondo blanco */
     }
 
     .group-header {
-        background: #eef3fa; /* Fondo del encabezado del grupo */
+        background: #eef3fa; /* Fondo encabezado grupo */
         padding: 10px 14px; /* Espacio interno */
         border-bottom: 1px solid var(--gris-borde); /* Línea inferior */
     }
@@ -74,32 +74,32 @@
     }
 
     .report-table {
-        width: 100%; /* Ocupa ancho disponible */
-        min-width: 1650px; /* Ancho mínimo más compacto */
+        width: 100%; /* Ocupa todo el ancho */
+        min-width: 1650px; /* Ancho mínimo */
         border-collapse: collapse; /* Une bordes */
         font-size: 13px; /* Tamaño base */
     }
 
     .report-table th {
-        background: #f8fafd; /* Fondo del encabezado */
-        color: var(--azul-principal); /* Color texto */
+        background: #f8fafd; /* Fondo encabezados */
+        color: var(--azul-principal); /* Color del texto */
         padding: 10px 8px; /* Espacio interno */
         border-bottom: 1px solid var(--gris-borde); /* Línea inferior */
-        text-align: left; /* Alineado a la izquierda */
-        white-space: nowrap; /* No partir encabezados */
-        font-size: 12px; /* Texto compacto */
+        text-align: left; /* Alineado izquierda */
+        white-space: nowrap; /* No corta encabezados */
+        font-size: 12px; /* Tamaño compacto */
     }
 
     .report-table td {
         padding: 8px 8px; /* Espacio interno */
         border-bottom: 1px solid #edf1f6; /* Línea inferior */
-        vertical-align: top; /* Alinea arriba */
-        white-space: nowrap; /* Mantiene una línea */
-        font-size: 12px; /* Texto compacto */
+        vertical-align: top; /* Alineación arriba */
+        white-space: nowrap; /* Evita salto */
+        font-size: 12px; /* Tamaño texto */
     }
 
     .report-table tbody tr:nth-child(even) {
-        background: #fbfcfe; /* Zebra suave */
+        background: #fbfcfe; /* Zebra */
     }
 
     .yes {
@@ -112,17 +112,17 @@
     }
 
     .report-title {
-        margin: 0 0 12px 0; /* Espacio inferior */
+        margin: 0 0 12px 0; /* Margen inferior */
         color: var(--azul-principal); /* Color principal */
-        font-size: 22px; /* Tamaño del título */
+        font-size: 22px; /* Tamaño título */
     }
 
     .empty {
         background: #f8fafc; /* Fondo suave */
         border: 1px solid var(--gris-borde); /* Borde */
-        border-radius: 12px; /* Bordes redondeados */
+        border-radius: 12px; /* Bordes */
         padding: 22px; /* Espacio interno */
-        color: var(--texto-suave); /* Color texto */
+        color: var(--texto-suave); /* Texto suave */
         text-align: center; /* Centrado */
     }
 
@@ -134,72 +134,72 @@
         .sidebar,
         .topbar,
         .report-toolbar {
-            display: none !important; /* Oculta interfaz */
+            display: none !important; /* Oculta interfaz al imprimir */
         }
 
         .main,
         .content,
         .card {
-            margin: 0 !important; /* Quita márgenes */
+            margin: 0 !important; /* Quita margen */
             padding: 0 !important; /* Quita padding */
-            width: 100% !important; /* Usa ancho completo */
+            width: 100% !important; /* Usa todo el ancho */
             box-shadow: none !important; /* Sin sombra */
             background: white !important; /* Fondo blanco */
         }
 
         .group-block {
-            border: 1px solid #cfcfcf !important; /* Borde simple para papel */
-            margin-bottom: 8px !important; /* Menos espacio entre grupos */
-            break-inside: avoid; /* Evita partir bloque feo */
+            border: 1px solid #cfcfcf !important; /* Borde simple */
+            margin-bottom: 8px !important; /* Menos espacio */
+            break-inside: avoid; /* Evita cortes feos */
             page-break-inside: avoid; /* Compatibilidad */
         }
 
         .group-header {
-            padding: 6px 8px; /* Compacta encabezado */
-            background: #f2f2f2 !important; /* Fondo gris claro */
+            padding: 6px 8px; /* Encabezado más compacto */
+            background: #f2f2f2 !important; /* Fondo gris */
         }
 
         .group-title {
-            font-size: 11px; /* Más pequeño */
+            font-size: 11px; /* Reduce título */
         }
 
         .group-subtitle {
-            font-size: 8px; /* Más pequeño */
-            margin-top: 1px; /* Menos espacio */
+            font-size: 8px; /* Reduce subtítulo */
+            margin-top: 1px; /* Menos separación */
         }
 
         .report-wrapper {
-            border: none !important; /* Quita borde externo */
+            border: none !important; /* Sin borde externo */
             overflow: visible !important; /* Sin scroll */
         }
 
         .report-table {
             min-width: 100% !important; /* Usa todo el ancho */
-            font-size: 9px; /* Compacta texto */
+            font-size: 9px; /* Más compacto */
         }
 
         .report-table th,
         .report-table td {
             white-space: normal; /* Permite saltos */
-            padding: 4px 4px; /* Compacta celdas */
+            padding: 4px 4px; /* Padding reducido */
             font-size: 8px; /* Texto pequeño */
         }
 
         .report-title {
-            font-size: 14px; /* Título compacto */
+            font-size: 14px; /* Título más pequeño */
             margin-bottom: 6px; /* Menos espacio */
         }
 
         .meta-box {
-            padding: 6px 8px; /* Compacta cajas */
+            padding: 6px 8px; /* Cajas más compactas */
         }
 
         .meta-box .label {
-            font-size: 8px; /* Etiqueta pequeña */
+            font-size: 8px; /* Texto pequeño */
         }
 
         .meta-box .value {
-            font-size: 9px; /* Valor pequeño */
+            font-size: 9px; /* Valor compacto */
         }
 
         @page {
@@ -211,21 +211,21 @@
 
 <h1 class="report-title">Reporte completo de inscripciones por grupo</h1> <!-- Título principal -->
 
-<div class="report-meta"> <!-- Contenedor de resumen -->
-    <div class="meta-box"> <!-- Caja 1 -->
-        <div class="label">Total resultados</div> <!-- Etiqueta -->
-        <div class="value">{{ inscripciones|length }}</div> <!-- Total -->
+<div class="report-meta"> <!-- Bloque de metadatos -->
+    <div class="meta-box">
+        <div class="label">Total resultados</div>
+        <div class="value">{{ inscripciones|length }}</div>
     </div>
 
-    <div class="meta-box"> <!-- Caja 2 -->
-        <div class="label">Filtro por nombre</div> <!-- Etiqueta -->
+    <div class="meta-box">
+        <div class="label">Filtro por nombre</div>
         <div class="value">
-            {% if query %}{{ query }}{% else %}Sin filtro{% endif %} <!-- Muestra filtro -->
+            {% if query %}{{ query }}{% else %}Sin filtro{% endif %}
         </div>
     </div>
 
-    <div class="meta-box"> <!-- Caja 3 -->
-        <div class="label">Sacramento</div> <!-- Etiqueta -->
+    <div class="meta-box">
+        <div class="label">Sacramento</div>
         <div class="value">
             {% if tipo == 'comunion' %}
                 Primera Comunión
@@ -233,7 +233,7 @@
                 Confirmación
             {% else %}
                 Todos
-            {% endif %} <!-- Muestra tipo filtrado -->
+            {% endif %}
         </div>
     </div>
 </div>
@@ -242,23 +242,26 @@
     <div>
         <a href="{% url 'lista_inscripciones' %}?q={{ query|urlencode }}&tipo={{ tipo|urlencode }}" class="btn btn-secondary">
             Volver a lista
-        </a> <!-- Regresa a lista -->
+        </a>
     </div>
 
-    <div style="display:flex; gap:10px; flex-wrap:wrap;"> <!-- Botones de exportación -->
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <a href="{% url 'exportar_inscripciones_csv' %}?q={{ query|urlencode }}&tipo={{ tipo|urlencode }}" class="btn btn-secondary">
             CSV
-        </a> <!-- Descarga CSV -->
+        </a>
         <a href="{% url 'exportar_inscripciones_excel' %}?q={{ query|urlencode }}&tipo={{ tipo|urlencode }}" class="btn btn-secondary">
             Excel
-        </a> <!-- Descarga Excel -->
+        </a>
+        <a href="{% url 'exportar_reporte_grupos_pdf' %}?q={{ query|urlencode }}&tipo={{ tipo|urlencode }}" class="btn btn-secondary">
+            PDF formal
+        </a>
         <button type="button" class="btn btn-primary" onclick="window.print()">
             Imprimir
-        </button> <!-- Imprime -->
+        </button>
     </div>
 </div>
 
-{% if inscripciones %} <!-- Si hay registros -->
+{% if inscripciones %} <!-- Si hay resultados -->
 
     {% regroup inscripciones by grupo_catequesis as grupos_agrupados %} <!-- Agrupa por grupo -->
 
@@ -274,14 +277,14 @@
                     {% else %}
                         Sin grupo asignado
                     {% endif %}
-                </h2> <!-- Nombre del grupo -->
+                </h2>
 
                 <div class="group-subtitle">
                     Registros en este grupo: {{ grupo.list|length }}
-                </div> <!-- Cantidad dentro del grupo -->
+                </div>
             </div>
 
-            <div class="report-wrapper"> <!-- Contenedor con scroll si hace falta -->
+            <div class="report-wrapper"> <!-- Contenedor scroll -->
                 <table class="report-table"> <!-- Tabla del grupo -->
                     <thead>
                         <tr>
@@ -308,11 +311,11 @@
                             <th>Confirm</th>
                             <th>INE</th>
                             <th>Otros</th>
-                        </tr> <!-- Encabezados -->
+                        </tr>
                     </thead>
 
                     <tbody>
-                        {% for ins in grupo.list %} <!-- Recorre inscripciones del grupo -->
+                        {% for ins in grupo.list %}
                         <tr>
                             <td>{{ ins.id }}</td>
                             <td>{{ ins.get_tipo_display }}</td>
@@ -328,7 +331,6 @@
                             <td>{{ ins.lugar_clases|default:"-" }}</td>
                             <td>{{ ins.dia_clases|default:"-" }}</td>
                             <td>{{ ins.hora_clases|default:"-" }}</td>
-
                             <td>{% if ins.bautizo %}<span class="yes">✓</span>{% else %}<span class="no">–</span>{% endif %}</td>
                             <td>{% if ins.eucaristia %}<span class="yes">✓</span>{% else %}<span class="no">–</span>{% endif %}</td>
                             <td>{% if ins.confirmacion %}<span class="yes">✓</span>{% else %}<span class="no">–</span>{% endif %}</td>
@@ -338,7 +340,7 @@
                             <td>{% if ins.boleta_confirmacion %}<span class="yes">✓</span>{% else %}<span class="no">–</span>{% endif %}</td>
                             <td>{% if ins.ine %}<span class="yes">✓</span>{% else %}<span class="no">–</span>{% endif %}</td>
                             <td>{{ ins.otros_documentos|default:"-" }}</td>
-                        </tr> <!-- Fila de inscripción -->
+                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -348,7 +350,7 @@
 
     {% endfor %}
 
-{% else %} <!-- Si no hay registros -->
+{% else %}
     <div class="empty">
         No hay inscripciones para mostrar con los filtros actuales.
     </div>
