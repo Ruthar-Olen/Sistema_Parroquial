@@ -1,0 +1,135 @@
+{% extends 'base.html' %}  <!-- Hereda la plantilla base -->
+
+{% block title %}Editar formato{% endblock %}  <!-- Título de la pestaña -->
+{% block header %}Editar formato{% endblock %}  <!-- Encabezado superior -->
+
+{% block content %}
+
+<style>
+    .form-wrapper {
+        max-width: 900px; /* Limita el ancho del formulario */
+        margin: 0 auto; /* Centra el formulario */
+    }
+
+    .form-card {
+        background: var(--blanco); /* Fondo blanco */
+        border: 1px solid var(--gris-borde); /* Borde suave */
+        border-radius: 14px; /* Bordes redondeados */
+        padding: 24px; /* Espaciado interno */
+    }
+
+    .form-group {
+        margin-bottom: 18px; /* Espacio entre campos */
+    }
+
+    .form-group label {
+        display: block; /* Label en línea completa */
+        font-weight: 600; /* Negrita */
+        margin-bottom: 6px; /* Espacio inferior */
+    }
+
+    .form-control {
+        width: 100%; /* Ocupa todo el ancho */
+        padding: 10px 12px; /* Espaciado interno */
+        border-radius: 8px; /* Bordes redondeados */
+        border: 1px solid var(--gris-borde); /* Borde suave */
+        font-size: 14px; /* Tamaño de texto */
+    }
+
+    .form-check {
+        display: flex; /* Alinea checkbox con texto */
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .acciones {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+</style>
+
+<div class="form-wrapper"> <!-- Contenedor centrado -->
+
+    <div class="form-card"> <!-- Tarjeta del formulario -->
+
+        <h2>
+            {% if modo == 'editar' %}
+                Editar formato
+            {% else %}
+                Crear formato
+            {% endif %}
+        </h2>
+
+        <hr>
+
+        <form method="post">
+            {% csrf_token %} <!-- Token de seguridad -->
+
+            <!-- Tipo -->
+            <div class="form-group">
+                <label>Tipo de formato</label>
+                {{ form.tipo }} <!-- Selector de tipo -->
+            </div>
+
+            <!-- Ciclo -->
+            <div class="form-group">
+                <label>Ciclo</label>
+                {{ form.ciclo }} <!-- Campo ciclo -->
+            </div>
+
+            <!-- Título -->
+            <div class="form-group">
+                <label>Título principal</label>
+                {{ form.titulo }} <!-- Campo título -->
+            </div>
+
+            <!-- Subtítulo -->
+            <div class="form-group">
+                <label>Subtítulo / sede</label>
+                {{ form.subtitulo }} <!-- Campo subtítulo -->
+            </div>
+
+            <!-- Texto pie -->
+            <div class="form-group">
+                <label>Texto inferior</label>
+                {{ form.texto_pie }} <!-- Campo pie -->
+            </div>
+
+            <!-- Orientación -->
+            <div class="form-group">
+                <label>Orientación</label>
+                {{ form.orientacion }} <!-- Selector orientación -->
+            </div>
+
+            <!-- Usa celdas -->
+            <div class="form-check">
+                {{ form.usa_celdas }} <!-- Checkbox -->
+                <label>Usar cuadrícula editable</label>
+            </div>
+
+            <!-- Activo -->
+            <div class="form-check">
+                {{ form.activo }} <!-- Checkbox -->
+                <label>Formato activo</label>
+            </div>
+
+            <!-- Botones -->
+            <div class="acciones">
+                <button type="submit" class="btn btn-primary">
+                    Guardar cambios
+                </button>
+
+                <a href="{% url 'lista_formatos' %}" class="btn btn-secondary">
+                    Cancelar
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

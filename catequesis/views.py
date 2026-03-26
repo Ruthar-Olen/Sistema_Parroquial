@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404  # Funciones ba
 from django.contrib.auth.decorators import login_required, user_passes_test  # Decoradores de permisos
 from django.views.decorators.cache import never_cache  # Evita cache en vistas sensibles
 from django.http import JsonResponse  # Permite responder JSON para peticiones dinámicas
+from django.templatetags.static import static  # Permite construir rutas de archivos estáticos
 
 from .models import (
     Catequista,
@@ -9,7 +10,13 @@ from .models import (
     HorarioCatequesis,
     FormatoCatequesis,
 )  # Importa los modelos del módulo catequesis
-from .forms import CatequistaForm, GrupoCatequesisForm, HorarioCatequesisForm  # Importa formularios del módulo
+
+from .forms import (
+    CatequistaForm,
+    GrupoCatequesisForm,
+    HorarioCatequesisForm,
+    FormatoCatequesisForm,
+)  # Importa formularios del módulo
 
 
 def es_catequesis(user):
@@ -326,6 +333,114 @@ def lista_formatos(request):
         'formatos': formatos
     })
     # Renderiza la lista de formatos fuera del admin
+
+
+@never_cache
+@login_required
+@user_passes_test(es_catequesis)
+def editar_formato(request, pk):
+    formato = get_object_or_404(FormatoCatequesis, pk=pk)
+    # Busca el formato por su ID o devuelve 404
+
+    if request.method == 'POST':
+        form = FormatoCatequesisForm(request.POST, instance=formato)
+        # Carga el formulario con datos enviados sobre la instancia actual
+
+        if form.is_valid():
+            form.save()
+            # Guarda los cambios del formato
+
+            return redirect('lista_formatos')
+            # Regresa a la lista de formatos
+    else:
+        form = FormatoCatequesisForm(instance=formato)
+        # Si no es POST, muestra el formulario con los datos actuales
+
+    return render(request, 'catequesis/formatos/form.html', {
+        'form': form,
+        'modo': 'editar',
+        'objeto': formato
+    })
+    # Renderiza el formulario de edición del formato
+
+
+@never_cache
+@login_required
+@user_passes_test(es_catequesis)
+def preview_formato(request, pk):
+    formato = get_object_or_404(FormatoCatequesis.objects.select_related('tipo'), pk=pk)
+    # Busca el formato por su ID y trae el tipo relacionado en la misma consulta
+
+    celdas = formato.celdas.all().order_by('fila', 'columna')
+    # Obtiene las celdas del formato ordenadas por fila y columna
+
+    max_fila = 0
+    # Inicializa el número máximo de fila
+
+    max_columna = 0
+    # Inicializa el número máximo de columna
+
+    for celda in celdas:
+        if celda.fila > max_fila:
+            max_fila = celda.fila
+            # Guarda la fila mayor encontrada
+
+        if celda.columna > max_columna:
+            max_columna = celda.columna
+            # Guarda la columna mayor encontrada
+
+    matriz_celdas = []
+    # Aquí se construirá la cuadrícula final para el preview
+
+    if formato.usa_celdas and max_fila > 0 and max_columna > 0:
+        mapa_celdas = {
+            (celda.fila, celda.columna): celda.contenido
+            for celda in celdas
+        }
+        # Convierte las celdas en un diccionario para ubicarlas por fila y columna
+
+        for fila in range(1, max_fila + 1):
+            fila_actual = []
+            # Crea una fila temporal vacía
+
+            for columna in range(1, max_columna + 1):
+                fila_actual.append(mapa_celdas.get((fila, columna), ''))
+                # Inserta el contenido correspondiente o un texto vacío si no existe
+
+            matriz_celdas.append(fila_actual)
+            # Agrega la fila completa a la matriz final
+
+    nombre_impresion = 'NOMBRE DE PRUEBA'
+    # Define un nombre de ejemplo para la vista previa
+
+    grupo_impresion = '1A'
+    # Define un grupo de ejemplo para la vista previa
+
+    template_preview = 'sacramentos/formatos/nino.html'
+    # Usa por defecto el template del formato de niño
+
+    if formato.tipo.clave.upper() == 'PAPAS':
+        template_preview = 'sacramentos/formatos/papas.html'
+        # Si el tipo es Papás usa el template correspondiente
+
+        nombre_impresion = 'PADRE DE PRUEBA Y MADRE DE PRUEBA'
+        # Cambia el nombre de prueba para el formato de papás
+
+    elif formato.tipo.clave.upper() == 'TARJETON':
+        template_preview = 'sacramentos/formatos/tarjeton.html'
+        # Si el tipo es Tarjetón usa el template correspondiente
+
+    url_logo_fondo = static('img/logo_parroquia.jpg')
+    # Construye la ruta del logo o imagen de fondo para la vista previa HTML
+
+    return render(request, template_preview, {
+        'formato': formato,
+        'nombre_impresion': nombre_impresion,
+        'grupo_impresion': grupo_impresion,
+        'matriz_celdas': matriz_celdas,
+        'url_logo_fondo': url_logo_fondo,
+    })
+    # Renderiza la vista previa del formato directamente en navegador
 
 
 # =========================

@@ -1,62 +1,62 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %}  <!-- Hereda la plantilla base del sistema -->
 
-{% block title %}Formatos de catequesis{% endblock %}
-{% block header %}Formatos de catequesis{% endblock %}
+{% block title %}Formatos de catequesis{% endblock %}  <!-- Título de la pestaña -->
+{% block header %}Formatos de catequesis{% endblock %}  <!-- Encabezado superior -->
 
 {% block content %}
 
 <style>
     .toolbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        flex-wrap: wrap;
-        margin-bottom: 20px;
+        display: flex; /* Coloca elementos en fila */
+        justify-content: space-between; /* Separa extremos */
+        align-items: center; /* Centra verticalmente */
+        gap: 12px; /* Espacio entre elementos */
+        flex-wrap: wrap; /* Permite salto en pantallas pequeñas */
+        margin-bottom: 20px; /* Espacio inferior */
     }
 
     .intro {
-        color: var(--texto-suave);
-        margin-bottom: 20px;
+        color: var(--texto-suave); /* Texto secundario */
+        margin-bottom: 20px; /* Espacio inferior */
     }
 
     .table-wrapper {
-        overflow-x: auto;
-        background: var(--blanco);
-        border: 1px solid var(--gris-borde);
-        border-radius: 14px;
+        overflow-x: auto; /* Permite scroll horizontal si hace falta */
+        background: var(--blanco); /* Fondo blanco */
+        border: 1px solid var(--gris-borde); /* Borde suave */
+        border-radius: 14px; /* Bordes redondeados */
     }
 
     .data-table {
-        width: 100%;
-        min-width: 900px;
-        border-collapse: collapse;
+        width: 100%; /* Ocupa todo el ancho */
+        min-width: 900px; /* Evita que se comprima demasiado */
+        border-collapse: collapse; /* Une bordes */
     }
 
     .data-table thead th {
-        background: #f3f6fb;
-        color: var(--azul-principal);
-        font-size: 13px;
-        font-weight: 700;
-        padding: 14px 12px;
-        border-bottom: 1px solid var(--gris-borde);
-        white-space: nowrap;
-        text-align: left;
+        background: #f3f6fb; /* Fondo del encabezado */
+        color: var(--azul-principal); /* Color del texto */
+        font-size: 13px; /* Tamaño de texto */
+        font-weight: 700; /* Negrita */
+        padding: 14px 12px; /* Espaciado interno */
+        border-bottom: 1px solid var(--gris-borde); /* Línea inferior */
+        white-space: nowrap; /* Evita saltos de línea */
+        text-align: left; /* Alinea texto a la izquierda */
     }
 
     .data-table tbody td {
-        padding: 14px 12px;
-        border-bottom: 1px solid #edf1f6;
-        vertical-align: middle;
-        font-size: 14px;
+        padding: 14px 12px; /* Espaciado interno */
+        border-bottom: 1px solid #edf1f6; /* Línea entre filas */
+        vertical-align: middle; /* Centra verticalmente */
+        font-size: 14px; /* Tamaño de texto */
     }
 
     .data-table tbody tr:nth-child(even) {
-        background: #fbfcfe;
+        background: #fbfcfe; /* Fondo alternado */
     }
 
     .data-table tbody tr:hover {
-        background: #f5f8fc;
+        background: #f5f8fc; /* Hover */
     }
 
     .badge {
@@ -115,45 +115,9 @@
         background: rgba(201, 163, 74, 0.15);
         color: #8a6a1f;
     }
-
-    .summary-strip {
-        display: flex;
-        gap: 14px;
-        flex-wrap: wrap;
-        margin-bottom: 18px;
-    }
-
-    .summary-card {
-        background: #f6f8fc;
-        border: 1px solid var(--gris-borde);
-        border-radius: 12px;
-        padding: 14px 16px;
-        min-width: 160px;
-    }
-
-    .summary-card .label {
-        font-size: 12px;
-        color: var(--texto-suave);
-        margin-bottom: 4px;
-    }
-
-    .summary-card .value {
-        font-size: 22px;
-        font-weight: 700;
-        color: var(--azul-principal);
-    }
-
-    .empty {
-        background: #f8fafc;
-        border: 1px solid var(--gris-borde);
-        border-radius: 14px;
-        padding: 26px;
-        text-align: center;
-        color: var(--texto-suave);
-    }
 </style>
 
-<h1 class="page-title">Formatos de catequesis</h1>
+<h1 class="page-title">Formatos de catequesis</h1>  <!-- Título principal -->
 
 <p class="intro">
     Aquí se muestran los formatos disponibles para cuadrículas y documentos de catequesis.
@@ -167,7 +131,9 @@
 </div>
 
 <div class="toolbar">
-    <a href="{% url 'menu_catequesis' %}" class="btn btn-secondary">Volver al módulo</a>
+    <a href="{% url 'menu_catequesis' %}" class="btn btn-secondary">
+        Volver al módulo
+    </a>
 </div>
 
 {% if formatos %}
@@ -183,15 +149,21 @@
                     <th>Orientación</th>
                     <th>Usa celdas</th>
                     <th>Estado</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
+
             <tbody>
                 {% for formato in formatos %}
                     <tr>
                         <td>{{ formato.id }}</td>
+
                         <td>{{ formato.tipo.nombre }}</td>
+
                         <td>{{ formato.ciclo }}</td>
+
                         <td>{{ formato.titulo }}</td>
+
                         <td>{{ formato.subtitulo|default:"-" }}</td>
 
                         <td>
@@ -217,9 +189,27 @@
                                 <span class="badge badge-inactivo">Inactivo</span>
                             {% endif %}
                         </td>
+
+                        <td>
+                            <div class="acciones">
+
+                                <!-- BOTÓN EDITAR -->
+                                <a href="{% url 'editar_formato' formato.id %}" class="action-link action-edit">
+                                    Editar
+                                </a>
+
+                                <!-- BOTÓN PREVIEW -->
+                                <a href="{% url 'preview_formato' formato.id %}" class="action-link action-view" target="_blank">
+                                    Vista previa
+                                </a>
+                                <!-- Abre el formato renderizado en una nueva pestaña -->
+
+                            </div>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
+
         </table>
     </div>
 {% else %}
