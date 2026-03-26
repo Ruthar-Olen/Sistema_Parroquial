@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"> <!-- Define codificación -->
+    <title>{{ formato.titulo }}</title> <!-- Título del documento -->
+
+    <style>
+        @page {
+            size: letter landscape; /* Hoja carta horizontal */
+            margin: 10mm; /* Margen */
+        }
+
+        body {
+            font-family: Arial, sans-serif; /* Fuente base */
+            font-size: 12px; /* Tamaño base */
+            margin: 0; /* Sin margen externo */
+            color: #1b1b1b; /* Color principal */
+        }
+
+        .hoja {
+            position: relative; /* Permite posicionar fondo y contenido */
+            width: 100%; /* Ocupa todo el ancho */
+            min-height: 170mm; /* Altura útil aproximada */
+        }
+
+        .marca-agua {
+            position: absolute; /* Fondo libre dentro de la hoja */
+            top: 20mm; /* Separación superior */
+            left: 50%; /* Centra base de referencia */
+            transform: translateX(-50%); /* Centra realmente */
+            width: 90mm; /* Tamaño de la imagen */
+            opacity: 0.08; /* Transparencia suave */
+            z-index: 0; /* Fondo */
+        }
+
+        .contenido {
+            position: relative; /* Mantiene contenido encima */
+            z-index: 1; /* Encima del fondo */
+            display: table; /* Permite dividir en dos columnas fijas */
+            width: 100%; /* Ocupa todo el ancho */
+            table-layout: fixed; /* Columnas iguales */
+        }
+
+        .mitad {
+            display: table-cell; /* Cada mitad funciona como columna */
+            width: 50%; /* Mitad de la hoja */
+            vertical-align: top; /* Alinea arriba */
+            border: 1px dashed #999999; /* Guía de corte temporal */
+            padding: 10mm; /* Espaciado interno */
+            box-sizing: border-box; /* Incluye borde y padding */
+            height: 160mm; /* Altura aproximada útil */
+        }
+
+        .titulo {
+            text-align: center; /* Centra título */
+            font-size: 16px; /* Tamaño */
+            font-weight: bold; /* Negrita */
+            margin-bottom: 8mm; /* Espacio inferior */
+        }
+
+        .dato {
+            margin-bottom: 4mm; /* Espacio entre líneas */
+            font-size: 13px; /* Tamaño */
+        }
+    </style>
+</head>
+<body>
+    <div class="hoja"> <!-- Hoja completa del tarjetón -->
+
+        <img src="{{ url_logo_fondo }}" alt="Fondo" class="marca-agua">
+        <!-- Usa la URL absoluta de la imagen para que WeasyPrint sí pueda cargarla -->
+
+        <div class="contenido">
+            <div class="mitad">
+                <div class="titulo">PAPÁS</div>
+                <div class="dato"><strong>NOMBRE:</strong> {{ nombre_impresion }}</div>
+                <div class="dato"><strong>GRUPO:</strong> {{ grupo_impresion }}</div>
+            </div>
+
+            <div class="mitad">
+                <div class="titulo">PADRINOS</div>
+                <div class="dato"><strong>NOMBRE:</strong> {{ nombre_impresion }}</div>
+                <div class="dato"><strong>GRUPO:</strong> {{ grupo_impresion }}</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

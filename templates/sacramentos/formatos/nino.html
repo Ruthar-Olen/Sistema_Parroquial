@@ -1,4 +1,3 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -92,8 +91,8 @@
 <body>
     <div class="documento"> <!-- Contenedor principal del documento -->
 
-        <img src="{% static 'img/logo_parroquia.jpg' %}" alt="Fondo" class="marca-agua">
-        <!-- Usa la imagen disponible como marca de agua temporal -->
+        <img src="{{ url_logo_fondo }}" alt="Fondo" class="marca-agua">
+        <!-- Usa la URL absoluta de la imagen para que WeasyPrint sí pueda cargarla -->
 
         <div class="contenido"> <!-- Contenido superior del PDF -->
             <div class="titulo-principal">{{ formato.titulo }}</div> <!-- Título editable del formato -->

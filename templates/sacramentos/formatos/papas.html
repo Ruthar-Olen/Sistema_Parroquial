@@ -1,1 +1,134 @@
-{% include 'sacramentos/formatos/nino.html' %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"> <!-- Define codificación -->
+    <title>{{ formato.titulo }}</title> <!-- Título del documento -->
+
+    <style>
+        @page {
+            size: letter portrait; /* Define hoja carta vertical */
+            margin: 10mm; /* Margen de impresión */
+        }
+
+        body {
+            font-family: Arial, sans-serif; /* Fuente base */
+            font-size: 12px; /* Tamaño general */
+            color: #1b1b1b; /* Color principal */
+            margin: 0; /* Sin margen extra */
+        }
+
+        .documento {
+            position: relative; /* Permite controlar bloques internos */
+            min-height: 250mm; /* Altura útil del documento */
+            padding: 8mm; /* Espaciado interno */
+        }
+
+        .marca-agua {
+            position: absolute; /* Posición libre en la hoja */
+            top: 30mm; /* Separación desde arriba */
+            right: 8mm; /* Separación desde la derecha */
+            width: 70mm; /* Tamaño de imagen */
+            opacity: 0.10; /* Transparencia suave */
+            z-index: 0; /* Fondo */
+        }
+
+        .contenido {
+            position: relative; /* Mantiene el contenido encima */
+            z-index: 1; /* Encima de la marca de agua */
+        }
+
+        .titulo-principal {
+            text-align: center; /* Centra el encabezado */
+            font-size: 18px; /* Tamaño */
+            font-weight: bold; /* Negrita */
+            margin-bottom: 4mm; /* Espacio inferior */
+        }
+
+        .subtitulo {
+            text-align: center; /* Centra el subtítulo */
+            font-size: 13px; /* Tamaño */
+            margin-bottom: 6mm; /* Espacio inferior */
+        }
+
+        .datos-alumno {
+            margin-bottom: 6mm; /* Espacio antes de la cuadrícula */
+        }
+
+        .dato-linea {
+            margin-bottom: 3mm; /* Espacio entre líneas */
+            font-size: 13px; /* Tamaño del dato */
+        }
+
+        .etiqueta {
+            font-weight: bold; /* Resalta etiqueta */
+        }
+
+        .tabla-cuadricula {
+            width: 100%; /* Ocupa todo el ancho */
+            border-collapse: collapse; /* Une bordes */
+            table-layout: fixed; /* Mantiene columnas uniformes */
+            margin-bottom: 8mm; /* Espacio debajo */
+        }
+
+        .tabla-cuadricula td {
+            border: 1px solid #555555; /* Borde visible */
+            height: 18mm; /* Alto uniforme por celda */
+            text-align: center; /* Centra texto */
+            vertical-align: middle; /* Centra verticalmente */
+            padding: 2mm; /* Espaciado interno */
+            font-size: 11px; /* Tamaño de contenido */
+            word-wrap: break-word; /* Permite salto de línea */
+        }
+
+        .pie-formato {
+            margin-top: 8mm; /* Espacio antes del pie */
+            font-size: 11px; /* Tamaño */
+            line-height: 1.5; /* Interlineado */
+            white-space: pre-line; /* Respeta saltos de línea */
+        }
+    </style>
+</head>
+<body>
+    <div class="documento"> <!-- Contenedor principal del documento -->
+
+        <img src="{{ url_logo_fondo }}" alt="Fondo" class="marca-agua">
+        <!-- Usa la URL absoluta de la imagen para que WeasyPrint sí pueda cargarla -->
+
+        <div class="contenido"> <!-- Contenido superior del PDF -->
+            <div class="titulo-principal">{{ formato.titulo }}</div> <!-- Título editable del formato -->
+
+            {% if formato.subtitulo %}
+                <div class="subtitulo">{{ formato.subtitulo }}</div> <!-- Subtítulo opcional -->
+            {% endif %}
+
+            <div class="datos-alumno">
+                <div class="dato-linea">
+                    <span class="etiqueta">NOMBRE:</span> {{ nombre_impresion }}
+                </div>
+
+                <div class="dato-linea">
+                    <span class="etiqueta">GRUPO:</span> {{ grupo_impresion }}
+                </div>
+            </div>
+
+            {% if matriz_celdas %}
+                <table class="tabla-cuadricula">
+                    <tbody>
+                        {% for fila in matriz_celdas %}
+                            <tr>
+                                {% for celda in fila %}
+                                    <td>{{ celda }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+
+            {% if formato.texto_pie %}
+                <div class="pie-formato">{{ formato.texto_pie }}</div> <!-- Texto inferior editable -->
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

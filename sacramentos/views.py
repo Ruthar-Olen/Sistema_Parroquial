@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404  # Funciones ba
 from django.contrib.auth.decorators import login_required, user_passes_test  # Decoradores de permisos
 from django.http import HttpResponse  # Respuesta HTTP para exportaciones
 from django.conf import settings  # Acceso a la configuración del proyecto
+from django.templatetags.static import static  # Permite construir la URL de archivos estáticos
 from .forms import InscripcionForm  # Formulario de inscripciones
 from .models import Inscripcion  # Modelo principal
 import csv  # Librería para CSV
@@ -34,11 +35,14 @@ from reportlab.platypus import (  # Componentes para construir PDFs
 def es_direccion(user):
     return user.groups.filter(name='Direccion Parroquial').exists()  # Revisa si el usuario pertenece a Dirección
 
+
 def es_secretaria(user):
     return user.groups.filter(name='Secretaria Parroquial').exists()  # Revisa si el usuario pertenece a Secretaría
 
+
 def es_catequesis(user):
     return user.groups.filter(name='Coordinacion Catequesis').exists()  # Revisa si el usuario pertenece a Catequesis
+
 
 def es_consulta(user):
     return user.groups.filter(name='Consulta').exists()  # Revisa si el usuario pertenece a Consulta
@@ -53,6 +57,7 @@ def puede_ver(user):
         or es_consulta(user)
     )  # Permiso para visualizar
 
+
 def puede_crear_editar(user):
     return (
         user.is_superuser
@@ -60,12 +65,14 @@ def puede_crear_editar(user):
         or es_secretaria(user)
     )  # Permiso para crear o editar
 
+
 def puede_eliminar(user):
     return (
         user.is_superuser
         or es_direccion(user)
     )  # Permiso para eliminar
-    
+
+
 def puede_generar_formatos(user):
     return (
         user.is_superuser
@@ -210,8 +217,8 @@ def detalle_inscripcion(request, pk):
         'inscripcion': inscripcion,
         'puede_editar': puede_crear_editar(request.user),
     })  # Renderiza expediente en pantalla
-    
-    
+
+
 @login_required
 @user_passes_test(puede_generar_formatos)
 def seleccionar_formato_inscripcion(request, pk):
@@ -301,7 +308,7 @@ def generar_formato_pdf(request, pk, clave_tipo):
             # Agrega la fila completa a la matriz final
 
     template_pdf = 'sacramentos/formatos/nino.html'
-    # Define el template por defecto para el primer formato funcional
+    # Define el template por defecto para el formato de niño
 
     if tipo_formato.clave.upper() == 'PAPAS':
         template_pdf = 'sacramentos/formatos/papas.html'
@@ -311,6 +318,9 @@ def generar_formato_pdf(request, pk, clave_tipo):
         template_pdf = 'sacramentos/formatos/tarjeton.html'
         # Usa el template de tarjetón cuando se solicite ese tipo
 
+    url_logo_fondo = request.build_absolute_uri(static('img/logo_parroquia.jpg'))
+    # Construye la URL absoluta de la imagen de fondo para que WeasyPrint sí pueda cargarla
+
     html_string = render_to_string(template_pdf, {
         'inscripcion': inscripcion,
         'formato': formato,
@@ -318,8 +328,10 @@ def generar_formato_pdf(request, pk, clave_tipo):
         'grupo_impresion': grupo_impresion,
         'matriz_celdas': matriz_celdas,
         'tipo_formato': tipo_formato,
+        'url_logo_fondo': url_logo_fondo,
     }, request=request)
     # Renderiza el template HTML que servirá como base para el PDF
+    # También envía la URL absoluta del fondo
 
     response = HttpResponse(content_type='application/pdf')
     # Define que la respuesta será un archivo PDF
@@ -772,7 +784,6 @@ def exportar_reporte_grupos_pdf(request):
     elementos.append(Paragraph(texto_filtros, estilo_subtitulo))  # Agrega filtros
     elementos.append(Spacer(1, 3))  # Espacio antes de grupos
 
-    # Anchos de columna ajustados para que TODO quepa en horizontal carta
     anchos_columnas = [
         10 * mm,  # ID
         16 * mm,  # Tipo
