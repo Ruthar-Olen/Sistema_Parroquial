@@ -6,6 +6,8 @@ from django.http import JsonResponse
 from .models import Catequista, GrupoCatequesis, HorarioCatequesis
 from .forms import CatequistaForm, GrupoCatequesisForm, HorarioCatequesisForm
 
+from sacramentos.models import FormatoCatequesis  # Importa los formatos de catequesis
+
 
 def es_catequesis(user):
     return user.is_superuser or user.groups.filter(name='Coordinacion Catequesis').exists()
@@ -227,6 +229,22 @@ def eliminar_horario(request, pk):
 
     return render(request, 'catequesis/horarios/eliminar.html', {
         'objeto': horario
+    })
+
+
+# =========================
+# FORMATOS (NUEVO)
+# =========================
+
+@never_cache
+@login_required
+@user_passes_test(es_catequesis)
+def lista_formatos(request):
+    formatos = FormatoCatequesis.objects.select_related('tipo').all().order_by('tipo__nombre', '-activo')
+    # Obtiene todos los formatos ordenados por tipo y dejando primero los activos
+
+    return render(request, 'catequesis/formatos/lista.html', {
+        'formatos': formatos  # Envía la lista al template
     })
 
 

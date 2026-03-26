@@ -7,6 +7,8 @@ from .views import (
     lista_horarios, crear_horario, editar_horario, eliminar_horario,
 
     grupos_por_catequista, horarios_por_grupo,
+
+    lista_formatos,  # Importa la vista de formatos
 )
 
 urlpatterns = [
@@ -26,6 +28,8 @@ urlpatterns = [
     path('horarios/nuevo/', crear_horario, name='crear_horario'),
     path('horarios/editar/<int:pk>/', editar_horario, name='editar_horario'),
     path('horarios/eliminar/<int:pk>/', eliminar_horario, name='eliminar_horario'),
+
+    path('formatos/', lista_formatos, name='lista_formatos'),  # Nueva ruta para formatos
 
     # API
     path('api/grupos-por-catequista/', grupos_por_catequista, name='grupos_por_catequista'),
