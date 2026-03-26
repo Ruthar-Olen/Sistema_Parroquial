@@ -7,46 +7,61 @@
     <style>
         @page {
             size: letter landscape; /* Define hoja carta horizontal */
-            margin: 8mm; /* Reduce márgenes para aprovechar mejor la hoja */
+            margin: 8mm; /* Márgenes reducidos para aprovechar mejor la hoja */
         }
 
         body {
             font-family: Arial, sans-serif; /* Fuente base del documento */
             color: #111111; /* Color principal del texto */
             margin: 0; /* Elimina márgenes del navegador */
-            font-size: 11pt; /* Tamaño base del texto */
+            font-size: 11pt; /* Tamaño general del texto */
         }
 
         .hoja {
             width: 100%; /* Ocupa todo el ancho disponible */
-            min-height: 190mm; /* Mantiene altura útil de la hoja */
-            position: relative; /* Permite controlar elementos internos */
+            min-height: 190mm; /* Mantiene una altura útil amplia */
+            position: relative; /* Permite manejar elementos internos */
         }
 
         .mitades {
-            display: table; /* Divide la hoja en dos columnas estables */
+            display: table; /* Divide la hoja en dos mitades estables */
             width: 100%; /* Ocupa todo el ancho */
-            table-layout: fixed; /* Mantiene mitades iguales */
+            table-layout: fixed; /* Mantiene ambas mitades iguales */
             border-collapse: collapse; /* Une bordes */
         }
 
         .mitad {
-            display: table-cell; /* Cada mitad funciona como una columna */
-            width: 50%; /* Ocupa media hoja */
+            display: table-cell; /* Cada mitad funciona como columna */
+            width: 50%; /* Cada mitad ocupa media hoja */
             vertical-align: top; /* Alinea arriba */
             box-sizing: border-box; /* Incluye padding dentro del ancho */
             border: 1px solid #222222; /* Borde exterior de cada tarjetón */
             padding: 3mm 4mm 4mm 4mm; /* Espaciado interno */
-            position: relative; /* Permite manejar fondo y bloques */
-            height: 178mm; /* Altura útil aproximada */
+            position: relative; /* Permite manejar fondo interno */
+            height: 178mm; /* Altura útil de cada mitad */
         }
 
         .mitad-izquierda {
-            border-right: 2px solid #222222; /* Refuerza la línea de corte central */
+            border-right: 2px solid #222222; /* Refuerza línea central de corte */
+        }
+
+        .marca-agua {
+            position: absolute; /* Coloca la imagen al fondo */
+            top: 52mm; /* Baja el fondo para no invadir el encabezado */
+            left: 50%; /* Lo centra horizontalmente */
+            transform: translateX(-50%); /* Ajusta centrado real */
+            width: 70mm; /* Tamaño del fondo */
+            opacity: 0.07; /* Fondo tenue */
+            z-index: 0; /* Lo envía detrás del contenido */
+        }
+
+        .contenido {
+            position: relative; /* Mantiene el contenido encima del fondo */
+            z-index: 1; /* Asegura visibilidad */
         }
 
         .encabezado {
-            text-align: center; /* Centra textos del encabezado */
+            text-align: center; /* Centra el encabezado */
             margin-bottom: 4mm; /* Espacio inferior */
             line-height: 1.2; /* Interlineado compacto */
         }
@@ -72,22 +87,22 @@
         }
 
         .etiqueta-campo {
-            display: block; /* Coloca la etiqueta en su propia línea */
+            display: block; /* Coloca etiqueta en su propia línea */
             font-weight: 700; /* Resalta la etiqueta */
             margin-bottom: 1mm; /* Espacio antes de la línea */
-            font-size: 10pt; /* Tamaño del texto */
+            font-size: 10pt; /* Tamaño de la etiqueta */
         }
 
         .linea-campo {
             border-bottom: 1px solid #222222; /* Dibuja línea de escritura */
-            min-height: 6mm; /* Da altura visual al campo */
+            min-height: 6mm; /* Da altura al campo */
             font-size: 10.5pt; /* Tamaño del dato */
             padding: 0 1mm 1mm 1mm; /* Espaciado interno */
             box-sizing: border-box; /* Mantiene dimensiones estables */
         }
 
         .fila-doble {
-            display: table; /* Permite dos columnas alineadas */
+            display: table; /* Permite dos columnas */
             width: 100%; /* Ocupa todo el ancho */
             table-layout: fixed; /* Mantiene proporciones */
             margin-bottom: 5mm; /* Espacio inferior */
@@ -95,53 +110,49 @@
 
         .columna-doble {
             display: table-cell; /* Cada campo ocupa una celda */
-            vertical-align: bottom; /* Alinea abajo */
+            vertical-align: bottom; /* Alinea al fondo */
         }
 
         .columna-doble.izquierda {
             padding-right: 4mm; /* Espacio entre columnas */
         }
 
-        .foto-grid {
-            display: table; /* Estructura dos fotos en línea */
+        .bloques-nombres {
+            display: table; /* Permite dos bloques alineados */
             width: 100%; /* Ocupa todo el ancho */
-            table-layout: fixed; /* Mantiene tamaños iguales */
-            margin-top: 1mm; /* Espacio superior */
-            margin-bottom: 3mm; /* Espacio inferior */
+            table-layout: fixed; /* Mantiene columnas iguales */
+            margin-top: 5mm; /* Espacio superior */
+            margin-bottom: 4mm; /* Espacio inferior */
         }
 
-        .foto-columna {
-            display: table-cell; /* Cada foto ocupa una columna */
-            text-align: center; /* Centra contenido */
+        .bloque-nombre {
+            display: table-cell; /* Cada nombre ocupa una columna */
             vertical-align: top; /* Alinea arriba */
+            text-align: center; /* Centra el contenido */
         }
 
-        .foto-columna.izquierda {
-            padding-right: 4mm; /* Espacio entre fotos */
+        .bloque-nombre.izquierda {
+            padding-right: 4mm; /* Espacio entre columnas */
         }
 
-        .caja-foto {
-            width: 100%; /* Ocupa todo el ancho disponible */
-            height: 32mm; /* Altura del cuadro de foto */
-            border: 1px solid #222222; /* Borde del recuadro */
-            box-sizing: border-box; /* Incluye borde dentro del tamaño */
-            display: flex; /* Permite centrar contenido interno */
+        .caja-nombre {
+            border: 1px solid #222222; /* Borde del cuadro */
+            min-height: 32mm; /* Altura suficiente para escribir a mano */
+            padding: 3mm; /* Espaciado interno */
+            box-sizing: border-box; /* Mantiene dimensiones */
+            display: flex; /* Permite centrar el contenido */
             align-items: center; /* Centra verticalmente */
             justify-content: center; /* Centra horizontalmente */
-            overflow: hidden; /* Oculta contenido sobrante */
-            background: #ffffff; /* Fondo blanco */
+            text-align: center; /* Centra el texto */
+            font-size: 10.5pt; /* Tamaño del nombre */
+            line-height: 1.3; /* Interlineado cómodo */
+            word-break: break-word; /* Permite saltos de línea */
         }
 
-        .icono-foto {
-            font-size: 28mm; /* Tamaño del ícono de referencia */
-            line-height: 1; /* Ajusta el alto del ícono */
-            color: #111111; /* Color oscuro */
-        }
-
-        .nombre-foto {
+        .etiqueta-bajo-cuadro {
             margin-top: 3mm; /* Espacio sobre la etiqueta */
-            font-size: 9.5pt; /* Tamaño de texto */
-            text-align: center; /* Centra texto */
+            font-size: 9.5pt; /* Tamaño del texto */
+            text-align: center; /* Centra la etiqueta */
         }
 
         .circulos-grid {
@@ -164,36 +175,21 @@
         .circulo {
             width: 58mm; /* Ancho del círculo */
             height: 58mm; /* Alto del círculo */
-            border: 2px solid #111111; /* Borde visible del círculo */
-            border-radius: 50%; /* Convierte el cuadro en círculo */
+            border: 2px solid #111111; /* Borde visible */
+            border-radius: 50%; /* Convierte en círculo */
             box-sizing: border-box; /* Mantiene tamaño real */
             margin: 0 auto; /* Centra el círculo */
-            display: flex; /* Permite centrar texto interno */
+            display: flex; /* Permite centrar contenido */
             align-items: center; /* Centra verticalmente */
             justify-content: center; /* Centra horizontalmente */
             text-align: center; /* Centra texto */
-            padding: 8mm; /* Da aire al texto interno */
-            font-size: 10pt; /* Tamaño del texto interior */
+            padding: 8mm; /* Da aire interno */
+            font-size: 10pt; /* Tamaño de texto */
             line-height: 1.35; /* Interlineado */
         }
 
-        .marca-agua {
-            position: absolute; /* Permite colocar fondo dentro de cada mitad */
-            top: 52mm; /* Baja la imagen para no estorbar encabezados */
-            left: 50%; /* La centra horizontalmente */
-            transform: translateX(-50%); /* Corrige el centrado real */
-            width: 70mm; /* Tamaño del fondo */
-            opacity: 0.07; /* Hace el fondo tenue */
-            z-index: 0; /* Envía la imagen al fondo */
-        }
-
-        .contenido {
-            position: relative; /* Mantiene contenido por encima del fondo */
-            z-index: 1; /* Deja el contenido encima de la marca de agua */
-        }
-
         .sacramento-texto {
-            font-weight: 700; /* Hace visible el nombre del sacramento */
+            font-weight: 700; /* Resalta el sacramento */
             text-transform: uppercase; /* Lo convierte a mayúsculas */
         }
     </style>
@@ -207,9 +203,9 @@
             <div class="mitad mitad-izquierda"> <!-- Primera mitad del tarjetón -->
 
                 <img src="{{ url_logo_fondo }}" alt="Fondo" class="marca-agua">
-                <!-- Usa imagen de fondo tenue para la mitad izquierda -->
+                <!-- Muestra la imagen de fondo tenue en esta mitad -->
 
-                <div class="contenido"> <!-- Contenido visible de la mitad izquierda -->
+                <div class="contenido"> <!-- Contenido visible del tarjetón -->
 
                     <div class="encabezado">
                         <div class="linea-encabezado-1">{{ formato.titulo }}</div>
@@ -229,7 +225,7 @@
                     <div class="fila-campo">
                         <span class="etiqueta-campo">Sacramento:</span>
                         <div class="linea-campo">
-                            <span class="sacramento-texto">{{ formato.tipo.nombre }}</span>
+                            <span class="sacramento-texto">{{ sacramento_impresion }}</span>
                         </div>
                     </div>
 
@@ -245,21 +241,19 @@
                         </div>
                     </div>
 
-                    <div class="foto-grid">
-                        <div class="foto-columna izquierda">
-                            <div class="caja-foto">
-                                <div class="icono-foto">👤</div>
-                                <!-- Ícono de referencia para foto del papá -->
+                    <div class="bloques-nombres">
+                        <div class="bloque-nombre izquierda">
+                            <div class="caja-nombre">
+                                {{ nombre_padre_impresion|default:"&nbsp;" }}
                             </div>
-                            <div class="nombre-foto">Nombre papá</div>
+                            <div class="etiqueta-bajo-cuadro">Nombre papá</div>
                         </div>
 
-                        <div class="foto-columna">
-                            <div class="caja-foto">
-                                <div class="icono-foto">👤</div>
-                                <!-- Ícono de referencia para foto de la mamá -->
+                        <div class="bloque-nombre">
+                            <div class="caja-nombre">
+                                {{ nombre_madre_impresion|default:"&nbsp;" }}
                             </div>
-                            <div class="nombre-foto">Nombre mamá</div>
+                            <div class="etiqueta-bajo-cuadro">Nombre mamá</div>
                         </div>
                     </div>
 
@@ -280,9 +274,9 @@
             <div class="mitad"> <!-- Segunda mitad del tarjetón -->
 
                 <img src="{{ url_logo_fondo }}" alt="Fondo" class="marca-agua">
-                <!-- Usa imagen de fondo tenue para la mitad derecha -->
+                <!-- Muestra la imagen de fondo tenue en esta mitad -->
 
-                <div class="contenido"> <!-- Contenido visible de la mitad derecha -->
+                <div class="contenido"> <!-- Contenido visible del tarjetón -->
 
                     <div class="encabezado">
                         <div class="linea-encabezado-1">{{ formato.titulo }}</div>
@@ -302,7 +296,7 @@
                     <div class="fila-campo">
                         <span class="etiqueta-campo">Sacramento:</span>
                         <div class="linea-campo">
-                            <span class="sacramento-texto">{{ formato.tipo.nombre }}</span>
+                            <span class="sacramento-texto">{{ sacramento_impresion }}</span>
                         </div>
                     </div>
 
@@ -318,21 +312,19 @@
                         </div>
                     </div>
 
-                    <div class="foto-grid">
-                        <div class="foto-columna izquierda">
-                            <div class="caja-foto">
-                                <div class="icono-foto">👤</div>
-                                <!-- Ícono de referencia para foto del padrino -->
+                    <div class="bloques-nombres">
+                        <div class="bloque-nombre izquierda">
+                            <div class="caja-nombre">
+                                {{ nombre_padrino_impresion|default:"&nbsp;" }}
                             </div>
-                            <div class="nombre-foto">Nombre padrino</div>
+                            <div class="etiqueta-bajo-cuadro">Nombre padrino</div>
                         </div>
 
-                        <div class="foto-columna">
-                            <div class="caja-foto">
-                                <div class="icono-foto">👤</div>
-                                <!-- Ícono de referencia para foto de la madrina -->
+                        <div class="bloque-nombre">
+                            <div class="caja-nombre">
+                                {{ nombre_madrina_impresion|default:"&nbsp;" }}
                             </div>
-                            <div class="nombre-foto">Nombre madrina</div>
+                            <div class="etiqueta-bajo-cuadro">Nombre madrina</div>
                         </div>
                     </div>
 
