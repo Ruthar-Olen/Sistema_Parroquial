@@ -7,84 +7,134 @@
     <style>
         @page {
             size: letter portrait; /* Define hoja carta vertical */
-            margin: 10mm; /* Margen de impresión */
+            margin: 8mm; /* Reduce márgenes para aprovechar mejor la hoja */
         }
 
         body {
-            font-family: Arial, sans-serif; /* Fuente base */
-            font-size: 12px; /* Tamaño general */
-            color: #1b1b1b; /* Color principal */
-            margin: 0; /* Sin margen extra */
+            font-family: Arial, sans-serif; /* Fuente base del documento */
+            font-size: 11pt; /* Tamaño general de texto */
+            color: #111111; /* Color principal */
+            margin: 0; /* Elimina márgenes extra del navegador */
         }
 
         .documento {
-            position: relative; /* Permite controlar bloques internos */
-            min-height: 250mm; /* Altura útil del documento */
-            padding: 8mm; /* Espaciado interno */
+            position: relative; /* Permite ubicar la marca de agua */
+            width: 100%; /* Ocupa todo el ancho útil */
+            min-height: 255mm; /* Altura útil aproximada de carta */
         }
 
         .marca-agua {
-            position: absolute; /* Posición libre en la hoja */
-            top: 30mm; /* Separación desde arriba */
-            right: 8mm; /* Separación desde la derecha */
-            width: 70mm; /* Tamaño de imagen */
-            opacity: 0.10; /* Transparencia suave */
-            z-index: 0; /* Fondo */
+            position: absolute; /* Se coloca detrás del contenido */
+            top: 48mm; /* Inicia debajo del encabezado */
+            left: 50%; /* Se centra horizontalmente */
+            transform: translateX(-50%); /* Ajusta el centro real */
+            width: 155mm; /* Tamaño amplio para cubrir la zona central */
+            opacity: 0.12; /* Transparencia suave pero visible */
+            z-index: 0; /* Permite que quede al fondo */
         }
 
         .contenido {
-            position: relative; /* Mantiene el contenido encima */
-            z-index: 1; /* Encima de la marca de agua */
+            position: relative; /* Mantiene el contenido por encima del fondo */
+            z-index: 1; /* Se asegura de quedar encima de la marca de agua */
         }
 
-        .titulo-principal {
-            text-align: center; /* Centra el encabezado */
-            font-size: 18px; /* Tamaño */
-            font-weight: bold; /* Negrita */
-            margin-bottom: 4mm; /* Espacio inferior */
+        .encabezado {
+            text-align: center; /* Centra todo el encabezado */
+            margin-bottom: 5mm; /* Espacio inferior antes de los datos */
         }
 
-        .subtitulo {
-            text-align: center; /* Centra el subtítulo */
-            font-size: 13px; /* Tamaño */
-            margin-bottom: 6mm; /* Espacio inferior */
+        .encabezado-linea-1 {
+            font-size: 18pt; /* Tamaño principal */
+            font-weight: 700; /* Negrita fuerte */
+            margin-bottom: 1mm; /* Espacio entre líneas */
         }
 
-        .datos-alumno {
+        .encabezado-linea-2 {
+            font-size: 13.5pt; /* Tamaño secundario */
+            font-weight: 700; /* También destacado */
+            margin-bottom: 2mm; /* Espacio antes de la tercera línea */
+        }
+
+        .encabezado-linea-3 {
+            font-size: 10.8pt; /* Tamaño más contenido */
+            font-weight: 700; /* Resalta el nombre del formato */
+            line-height: 1.35; /* Interlineado cómodo */
+        }
+
+        .bloque-datos {
+            width: 100%; /* Ocupa todo el ancho */
             margin-bottom: 6mm; /* Espacio antes de la cuadrícula */
+            border-collapse: collapse; /* Une líneas */
+            table-layout: fixed; /* Mantiene distribución estable */
         }
 
-        .dato-linea {
-            margin-bottom: 3mm; /* Espacio entre líneas */
-            font-size: 13px; /* Tamaño del dato */
+        .bloque-datos td {
+            vertical-align: bottom; /* Alinea textos con la línea inferior */
+            padding: 0; /* Sin relleno extra */
         }
 
-        .etiqueta {
-            font-weight: bold; /* Resalta etiqueta */
+        .col-nombre {
+            width: 72%; /* Da más espacio al nombre */
+            padding-right: 8mm; /* Espacio entre nombre y grupo */
+        }
+
+        .col-grupo {
+            width: 28%; /* Columna compacta para grupo */
+        }
+
+        .etiqueta-dato {
+            display: inline-block; /* Mantiene etiqueta en línea */
+            font-weight: 700; /* Negrita */
+            font-size: 11pt; /* Tamaño del texto de etiqueta */
+            margin-right: 2mm; /* Espacio antes de la línea */
+        }
+
+        .linea-escritura {
+            display: inline-block; /* Permite trazar línea en la misma fila */
+            border-bottom: 1px solid #333333; /* Línea de escritura */
+            min-height: 7mm; /* Da altura visual al campo */
+            vertical-align: bottom; /* Alinea con la etiqueta */
+            padding: 0 1mm 1mm 1mm; /* Ajuste interno del texto */
+            box-sizing: border-box; /* Mantiene dimensiones estables */
+            font-size: 11pt; /* Tamaño del dato escrito */
+        }
+
+        .linea-nombre {
+            width: calc(100% - 24mm); /* Aprovecha el ancho restante tras la etiqueta */
+        }
+
+        .linea-grupo {
+            width: calc(100% - 22mm); /* Ajuste específico para la etiqueta grupo */
+            text-align: center; /* Centra el grupo */
+            font-weight: 700; /* Hace visible el grupo */
         }
 
         .tabla-cuadricula {
-            width: 100%; /* Ocupa todo el ancho */
+            width: 100%; /* Ocupa todo el ancho útil */
             border-collapse: collapse; /* Une bordes */
-            table-layout: fixed; /* Mantiene columnas uniformes */
-            margin-bottom: 8mm; /* Espacio debajo */
+            table-layout: fixed; /* Mantiene columnas iguales */
+            margin-bottom: 0; /* Sin margen extra abajo */
         }
 
         .tabla-cuadricula td {
-            border: 1px solid #555555; /* Borde visible */
-            height: 18mm; /* Alto uniforme por celda */
-            text-align: center; /* Centra texto */
+            border: 1px solid #8b8b8b; /* Borde gris similar al formato de referencia */
+            height: 28mm; /* Altura más parecida al formato real */
+            text-align: center; /* Centra horizontalmente */
             vertical-align: middle; /* Centra verticalmente */
-            padding: 2mm; /* Espaciado interno */
-            font-size: 11px; /* Tamaño de contenido */
-            word-wrap: break-word; /* Permite salto de línea */
+            padding: 2mm 1.5mm; /* Espaciado interno */
+            font-size: 11pt; /* Tamaño de texto de las fechas */
+            line-height: 1.35; /* Interlineado cómodo para textos largos */
+            word-break: break-word; /* Permite cortes si es necesario */
         }
 
         .pie-formato {
-            margin-top: 8mm; /* Espacio antes del pie */
-            font-size: 11px; /* Tamaño */
-            line-height: 1.5; /* Interlineado */
-            white-space: pre-line; /* Respeta saltos de línea */
+            margin-top: 0; /* Lo deja pegado a la tabla como en la referencia */
+            border: 1px solid #8b8b8b; /* Continúa visualmente la cuadrícula */
+            border-top: none; /* Evita doble borde con la tabla */
+            padding: 2.5mm 3mm; /* Espaciado interno */
+            font-size: 10.5pt; /* Tamaño del pie */
+            line-height: 1.4; /* Interlineado */
+            white-space: pre-line; /* Respeta saltos de línea si existen */
         }
     </style>
 </head>
@@ -92,24 +142,38 @@
     <div class="documento"> <!-- Contenedor principal del documento -->
 
         <img src="{{ url_logo_fondo }}" alt="Fondo" class="marca-agua">
-        <!-- Usa la URL absoluta de la imagen para que WeasyPrint sí pueda cargarla -->
+        <!-- Usa la imagen como marca de agua amplia detrás de la cuadrícula -->
 
-        <div class="contenido"> <!-- Contenido superior del PDF -->
-            <div class="titulo-principal">{{ formato.titulo }}</div> <!-- Título editable del formato -->
+        <div class="contenido"> <!-- Contenido visible del formato -->
 
-            {% if formato.subtitulo %}
-                <div class="subtitulo">{{ formato.subtitulo }}</div> <!-- Subtítulo opcional -->
-            {% endif %}
+            <div class="encabezado">
+                <div class="encabezado-linea-1">{{ formato.titulo }}</div>
+                <!-- Línea 1 editable desde el formato -->
 
-            <div class="datos-alumno">
-                <div class="dato-linea">
-                    <span class="etiqueta">NOMBRE:</span> {{ nombre_impresion }}
+                {% if formato.subtitulo %}
+                    <div class="encabezado-linea-2">{{ formato.subtitulo }}</div>
+                    <!-- Línea 2 editable, aquí puede ir capilla o parroquia -->
+                {% endif %}
+
+                <div class="encabezado-linea-3">
+                    Cuadrícula de asistencia a misas de Domingo y Fiestas de Guardar: Niño(a)
                 </div>
-
-                <div class="dato-linea">
-                    <span class="etiqueta">GRUPO:</span> {{ grupo_impresion }}
-                </div>
+                <!-- Nombre formal del documento -->
             </div>
+
+            <table class="bloque-datos">
+                <tr>
+                    <td class="col-nombre">
+                        <span class="etiqueta-dato">Nombre:</span>
+                        <span class="linea-escritura linea-nombre">{{ nombre_impresion }}</span>
+                    </td>
+
+                    <td class="col-grupo">
+                        <span class="etiqueta-dato">Grupo:</span>
+                        <span class="linea-escritura linea-grupo">{{ grupo_impresion }}</span>
+                    </td>
+                </tr>
+            </table>
 
             {% if matriz_celdas %}
                 <table class="tabla-cuadricula">
@@ -126,7 +190,8 @@
             {% endif %}
 
             {% if formato.texto_pie %}
-                <div class="pie-formato">{{ formato.texto_pie }}</div> <!-- Texto inferior editable -->
+                <div class="pie-formato">{{ formato.texto_pie }}</div>
+                <!-- Pie editable del formato -->
             {% endif %}
         </div>
     </div>
