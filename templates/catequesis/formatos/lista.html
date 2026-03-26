@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block title %}Formatos de catequesis{% endblock %}
+{% block header %}Formatos de catequesis{% endblock %}
+
+{% block content %}
+
+<style>
+    .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .intro {
+        color: var(--texto-suave);
+        margin-bottom: 20px;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        background: var(--blanco);
+        border: 1px solid var(--gris-borde);
+        border-radius: 14px;
+    }
+
+    .data-table {
+        width: 100%;
+        min-width: 900px;
+        border-collapse: collapse;
+    }
+
+    .data-table thead th {
+        background: #f3f6fb;
+        color: var(--azul-principal);
+        font-size: 13px;
+        font-weight: 700;
+        padding: 14px 12px;
+        border-bottom: 1px solid var(--gris-borde);
+        white-space: nowrap;
+        text-align: left;
+    }
+
+    .data-table tbody td {
+        padding: 14px 12px;
+        border-bottom: 1px solid #edf1f6;
+        vertical-align: middle;
+        font-size: 14px;
+    }
+
+    .data-table tbody tr:nth-child(even) {
+        background: #fbfcfe;
+    }
+
+    .data-table tbody tr:hover {
+        background: #f5f8fc;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .badge-activo {
+        background: rgba(35, 135, 84, 0.12);
+        color: #1f7a4d;
+    }
+
+    .badge-inactivo {
+        background: rgba(179, 58, 58, 0.10);
+        color: #a13232;
+    }
+
+    .badge-vertical {
+        background: rgba(31, 53, 87, 0.10);
+        color: var(--azul-principal);
+    }
+
+    .badge-horizontal {
+        background: rgba(201, 163, 74, 0.15);
+        color: #8a6a1f;
+    }
+
+    .acciones {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .action-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px 10px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .action-view {
+        background: rgba(31, 53, 87, 0.10);
+        color: var(--azul-principal);
+    }
+
+    .action-edit {
+        background: rgba(201, 163, 74, 0.15);
+        color: #8a6a1f;
+    }
+
+    .summary-strip {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .summary-card {
+        background: #f6f8fc;
+        border: 1px solid var(--gris-borde);
+        border-radius: 12px;
+        padding: 14px 16px;
+        min-width: 160px;
+    }
+
+    .summary-card .label {
+        font-size: 12px;
+        color: var(--texto-suave);
+        margin-bottom: 4px;
+    }
+
+    .summary-card .value {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--azul-principal);
+    }
+
+    .empty {
+        background: #f8fafc;
+        border: 1px solid var(--gris-borde);
+        border-radius: 14px;
+        padding: 26px;
+        text-align: center;
+        color: var(--texto-suave);
+    }
+</style>
+
+<h1 class="page-title">Formatos de catequesis</h1>
+
+<p class="intro">
+    Aquí se muestran los formatos disponibles para cuadrículas y documentos de catequesis.
+</p>
+
+<div class="summary-strip">
+    <div class="summary-card">
+        <div class="label">Total formatos</div>
+        <div class="value">{{ formatos|length }}</div>
+    </div>
+</div>
+
+<div class="toolbar">
+    <a href="{% url 'menu_catequesis' %}" class="btn btn-secondary">Volver al módulo</a>
+</div>
+
+{% if formatos %}
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tipo</th>
+                    <th>Ciclo</th>
+                    <th>Título</th>
+                    <th>Subtítulo</th>
+                    <th>Orientación</th>
+                    <th>Usa celdas</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for formato in formatos %}
+                    <tr>
+                        <td>{{ formato.id }}</td>
+                        <td>{{ formato.tipo.nombre }}</td>
+                        <td>{{ formato.ciclo }}</td>
+                        <td>{{ formato.titulo }}</td>
+                        <td>{{ formato.subtitulo|default:"-" }}</td>
+
+                        <td>
+                            {% if formato.orientacion == 'vertical' %}
+                                <span class="badge badge-vertical">Vertical</span>
+                            {% else %}
+                                <span class="badge badge-horizontal">Horizontal</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if formato.usa_celdas %}
+                                Sí
+                            {% else %}
+                                No
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if formato.activo %}
+                                <span class="badge badge-activo">Activo</span>
+                            {% else %}
+                                <span class="badge badge-inactivo">Inactivo</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty">
+        No hay formatos registrados.
+    </div>
+{% endif %}
+
+{% endblock %}
