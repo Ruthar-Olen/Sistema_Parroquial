@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Seleccionar formato{% endblock %}
+{% block header %}Generar formatos{% endblock %}
+
+{% block content %}
+
+<style>
+    .formatos-header {
+        margin-bottom: 22px;
+    }
+
+    .formatos-header p {
+        color: var(--texto-suave);
+        margin-top: 8px;
+    }
+
+    .formatos-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 18px;
+    }
+
+    .formato-card {
+        background: #ffffff;
+        border: 1px solid var(--gris-borde);
+        border-radius: 14px;
+        padding: 22px;
+        box-shadow: var(--sombra);
+    }
+
+    .formato-card h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: var(--azul-principal);
+    }
+
+    .formato-card p {
+        color: var(--texto-suave);
+        margin-bottom: 18px;
+    }
+
+    .acciones-superiores {
+        margin-bottom: 18px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .dato-resumen {
+        font-size: 15px;
+        margin-bottom: 6px;
+    }
+</style>
+
+<h1 class="page-title">Generar formatos</h1>
+
+<div class="acciones-superiores">
+    <a href="{% url 'lista_inscripciones' %}" class="btn btn-secondary">Volver a la lista</a>
+</div>
+
+<div class="formatos-header">
+    <div class="dato-resumen"><strong>Niño(a):</strong> {{ inscripcion.nombre_completo|upper }}</div>
+    <div class="dato-resumen"><strong>Grupo:</strong> {{ inscripcion.grupo_catequesis.numero_grupo }}</div>
+    <p>Selecciona el formato que deseas generar en PDF.</p>
+</div>
+
+<div class="formatos-grid">
+    {% for tipo in tipos_formato %}
+        <div class="formato-card">
+            <h3>{{ tipo.nombre }}</h3>
+            <p>Genera el documento correspondiente a este tipo de formato.</p>
+
+            <a href="{% url 'generar_formato_pdf' inscripcion.id tipo.clave %}" class="btn btn-primary" target="_blank">
+                Abrir PDF
+            </a>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

@@ -10,6 +10,8 @@ from .views import (  # Importa las vistas del módulo
     exportar_inscripciones_excel,
     exportar_expediente_pdf,
     exportar_reporte_grupos_pdf,
+    seleccionar_formato_inscripcion,
+    generar_formato_pdf,
 )
 
 urlpatterns = [
@@ -23,4 +25,6 @@ urlpatterns = [
     path('detalle/<int:pk>/pdf/', exportar_expediente_pdf, name='exportar_expediente_pdf'),  # PDF individual bonito
     path('editar/<int:pk>/', editar_inscripcion, name='editar_inscripcion'),  # Editar inscripción
     path('eliminar/<int:pk>/', eliminar_inscripcion, name='eliminar_inscripcion'),  # Eliminar inscripción
+    path('formatos/<int:pk>/', seleccionar_formato_inscripcion, name='seleccionar_formato_inscripcion'),  # Pantalla para elegir formato
+    path('formatos/<int:pk>/<str:clave_tipo>/pdf/', generar_formato_pdf, name='generar_formato_pdf'),  # Genera el PDF del formato elegido
 ]

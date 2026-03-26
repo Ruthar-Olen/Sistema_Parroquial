@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Formato bloqueado{% endblock %}
+{% block header %}Generación bloqueada{% endblock %}
+
+{% block content %}
+
+<style>
+    .bloque-card {
+        background: #ffffff;
+        border: 1px solid #ead3d3;
+        border-radius: 14px;
+        padding: 24px;
+    }
+
+    .bloque-card h1 {
+        color: #a13232;
+        margin-top: 0;
+    }
+
+    .bloque-card p {
+        color: var(--texto);
+        margin-bottom: 14px;
+    }
+</style>
+
+<div class="bloque-card">
+    <h1 class="page-title">No se puede generar el formato</h1>
+
+    <p><strong>Inscripción:</strong> {{ inscripcion.nombre_completo|upper }}</p>
+    <p>{{ motivo }}</p>
+
+    <a href="{% url 'lista_inscripciones' %}" class="btn btn-secondary">Volver a la lista</a>
+</div>
+
+{% endblock %}

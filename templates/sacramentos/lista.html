@@ -311,6 +311,10 @@
                             <div class="acciones">
                                 <a href="{% url 'detalle_inscripcion' ins.id %}" class="action-link action-view">Ver</a>
 
+                                {% if puede_generar_formatos %}
+                                    <a href="{% url 'seleccionar_formato_inscripcion' ins.id %}" class="action-link action-view">Generar formatos</a>
+                                {% endif %}
+
                                 {% if puede_editar %}
                                     <a href="{% url 'editar_inscripcion' ins.id %}" class="action-link action-edit">Editar</a>
                                 {% endif %}

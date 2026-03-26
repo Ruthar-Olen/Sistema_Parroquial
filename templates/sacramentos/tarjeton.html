@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"> <!-- Define codificación -->
+    <title>{{ formato.titulo }}</title> <!-- Título del documento -->
+
+    <style>
+        @page {
+            size: letter landscape; /* Hoja carta horizontal */
+            margin: 10mm; /* Margen */
+        }
+
+        body {
+            font-family: Arial, sans-serif; /* Fuente base */
+            font-size: 12px; /* Tamaño base */
+            margin: 0; /* Sin margen externo */
+        }
+
+        .hoja {
+            display: table; /* Permite dividir en dos columnas fijas */
+            width: 100%; /* Ocupa el ancho completo */
+            table-layout: fixed; /* Columnas iguales */
+        }
+
+        .mitad {
+            display: table-cell; /* Cada mitad funciona como columna */
+            width: 50%; /* Mitad de la hoja */
+            vertical-align: top; /* Alinea arriba */
+            border: 1px dashed #999999; /* Guía de corte temporal */
+            padding: 10mm; /* Espaciado interno */
+            box-sizing: border-box; /* Incluye borde y padding */
+            height: 170mm; /* Altura aproximada útil */
+        }
+
+        .titulo {
+            text-align: center; /* Centra título */
+            font-size: 16px; /* Tamaño */
+            font-weight: bold; /* Negrita */
+            margin-bottom: 8mm; /* Espacio inferior */
+        }
+
+        .dato {
+            margin-bottom: 4mm; /* Espacio entre líneas */
+        }
+    </style>
+</head>
+<body>
+    <div class="hoja">
+        <div class="mitad">
+            <div class="titulo">PAPÁS</div>
+            <div class="dato"><strong>NOMBRE:</strong> {{ nombre_impresion }}</div>
+            <div class="dato"><strong>GRUPO:</strong> {{ grupo_impresion }}</div>
+        </div>
+
+        <div class="mitad">
+            <div class="titulo">PADRINOS</div>
+            <div class="dato"><strong>NOMBRE:</strong> {{ nombre_impresion }}</div>
+            <div class="dato"><strong>GRUPO:</strong> {{ grupo_impresion }}</div>
+        </div>
+    </div>
+</body>
+</html>

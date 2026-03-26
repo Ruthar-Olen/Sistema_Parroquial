@@ -9,6 +9,10 @@ import os  # Librería para manejar rutas
 from collections import OrderedDict  # Estructura ordenada para agrupar por grupo
 from openpyxl import Workbook  # Librería para Excel
 
+from django.template.loader import render_to_string  # Permite renderizar templates a texto HTML
+from weasyprint import HTML, CSS  # Herramientas para convertir HTML a PDF
+from catequesis.models import FormatoTipo, FormatoCatequesis  # Modelos de formatos configurables
+
 from reportlab.lib import colors  # Colores para PDF
 from reportlab.lib.pagesizes import letter, landscape  # Tamaños de página
 from reportlab.lib.units import mm  # Unidad milímetros
@@ -61,6 +65,13 @@ def puede_eliminar(user):
         user.is_superuser
         or es_direccion(user)
     )  # Permiso para eliminar
+    
+def puede_generar_formatos(user):
+    return (
+        user.is_superuser
+        or es_direccion(user)
+        or es_secretaria(user)
+    )  # Permiso para generar formatos PDF desde sacramentos
 
 
 # ==============================
@@ -135,6 +146,7 @@ def lista_inscripciones(request):
         'tipo': tipo,
         'puede_editar': puede_crear_editar(request.user),
         'puede_eliminar': puede_eliminar(request.user),
+        'puede_generar_formatos': puede_generar_formatos(request.user),
     })  # Renderiza la lista resumida
 
 
@@ -198,6 +210,141 @@ def detalle_inscripcion(request, pk):
         'inscripcion': inscripcion,
         'puede_editar': puede_crear_editar(request.user),
     })  # Renderiza expediente en pantalla
+    
+    
+@login_required
+@user_passes_test(puede_generar_formatos)
+def seleccionar_formato_inscripcion(request, pk):
+    inscripcion = get_object_or_404(Inscripcion, pk=pk)  # Busca la inscripción seleccionada
+
+    if not inscripcion.grupo_catequesis:
+        return render(request, 'sacramentos/formato_bloqueado.html', {
+            'inscripcion': inscripcion,
+            'motivo': 'La inscripción no tiene grupo asignado. No se puede generar ningún formato hasta capturar el grupo.'
+        })
+        # Bloquea la generación si la inscripción no tiene grupo asignado
+
+    tipos_formato = FormatoTipo.objects.filter(activo=True).order_by('nombre')
+    # Obtiene los tipos de formato activos que pueden mostrarse como opción
+
+    return render(request, 'sacramentos/seleccionar_formato.html', {
+        'inscripcion': inscripcion,
+        'tipos_formato': tipos_formato,
+    })
+    # Renderiza la pantalla para elegir qué formato se imprimirá
+
+
+@login_required
+@user_passes_test(puede_generar_formatos)
+def generar_formato_pdf(request, pk, clave_tipo):
+    inscripcion = get_object_or_404(Inscripcion, pk=pk)  # Busca la inscripción seleccionada
+
+    if not inscripcion.grupo_catequesis:
+        return render(request, 'sacramentos/formato_bloqueado.html', {
+            'inscripcion': inscripcion,
+            'motivo': 'La inscripción no tiene grupo asignado. No se puede generar ningún formato hasta capturar el grupo.'
+        })
+        # Bloquea la generación si no existe grupo asignado
+
+    tipo_formato = get_object_or_404(
+        FormatoTipo,
+        clave=clave_tipo.upper(),
+        activo=True
+    )  # Busca el tipo de formato solicitado por su clave
+
+    formato = get_object_or_404(
+        FormatoCatequesis,
+        tipo=tipo_formato,
+        activo=True
+    )  # Busca el formato activo correspondiente a ese tipo
+
+    nombre_mayusculas = (inscripcion.nombre_completo or '').upper()
+    # Convierte el nombre completo a mayúsculas para impresión formal
+
+    grupo_impresion = inscripcion.grupo_catequesis.numero_grupo.upper()
+    # Toma el número de grupo en formato corto, por ejemplo 1A o 3C
+
+    celdas = formato.celdas.all().order_by('fila', 'columna')
+    # Obtiene las celdas del formato en orden natural
+
+    max_fila = 0  # Inicializa fila máxima
+    max_columna = 0  # Inicializa columna máxima
+
+    for celda in celdas:
+        if celda.fila > max_fila:
+            max_fila = celda.fila
+            # Guarda el mayor número de fila encontrado
+
+        if celda.columna > max_columna:
+            max_columna = celda.columna
+            # Guarda el mayor número de columna encontrado
+
+    matriz_celdas = []
+    # Aquí se construirá la cuadrícula completa que usará el template
+
+    if formato.usa_celdas and max_fila > 0 and max_columna > 0:
+        mapa_celdas = {
+            (celda.fila, celda.columna): celda.contenido
+            for celda in celdas
+        }
+        # Convierte las celdas a un diccionario para ubicarlas rápidamente por fila y columna
+
+        for fila in range(1, max_fila + 1):
+            fila_actual = []
+            # Crea una fila vacía de trabajo
+
+            for columna in range(1, max_columna + 1):
+                fila_actual.append(mapa_celdas.get((fila, columna), ''))
+                # Inserta el contenido de la celda o texto vacío si no existe
+
+            matriz_celdas.append(fila_actual)
+            # Agrega la fila completa a la matriz final
+
+    template_pdf = 'sacramentos/formatos/nino.html'
+    # Define el template por defecto para el primer formato funcional
+
+    if tipo_formato.clave.upper() == 'PAPAS':
+        template_pdf = 'sacramentos/formatos/papas.html'
+        # Usa el template de papás cuando se solicite ese tipo
+
+    elif tipo_formato.clave.upper() == 'TARJETON':
+        template_pdf = 'sacramentos/formatos/tarjeton.html'
+        # Usa el template de tarjetón cuando se solicite ese tipo
+
+    html_string = render_to_string(template_pdf, {
+        'inscripcion': inscripcion,
+        'formato': formato,
+        'nombre_impresion': nombre_mayusculas,
+        'grupo_impresion': grupo_impresion,
+        'matriz_celdas': matriz_celdas,
+        'tipo_formato': tipo_formato,
+    }, request=request)
+    # Renderiza el template HTML que servirá como base para el PDF
+
+    response = HttpResponse(content_type='application/pdf')
+    # Define que la respuesta será un archivo PDF
+
+    response['Content-Disposition'] = (
+        f'inline; filename="formato_{tipo_formato.clave.lower()}_{inscripcion.id}.pdf"'
+    )
+    # Muestra el PDF en navegador y le asigna un nombre de archivo coherente
+
+    html = HTML(string=html_string, base_url=request.build_absolute_uri('/'))
+    # Construye el documento HTML resolviendo correctamente rutas de imágenes y archivos estáticos
+
+    css_impresion = CSS(string='''
+        @page {
+            size: letter;
+            margin: 10mm;
+        }
+    ''')
+    # Define una hoja tamaño carta con márgenes estables para impresión
+
+    html.write_pdf(response, stylesheets=[css_impresion])
+    # Convierte el HTML a PDF y lo escribe directamente en la respuesta
+
+    return response
+    # Devuelve el PDF generado al navegador
 
 
 # ==============================
