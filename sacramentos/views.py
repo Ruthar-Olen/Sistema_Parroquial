@@ -265,14 +265,47 @@ def generar_formato_pdf(request, pk, clave_tipo):
         activo=True
     )  # Busca el formato activo correspondiente a ese tipo
 
-    nombre_mayusculas = (inscripcion.nombre_completo or '').upper()
-    # Convierte el nombre completo a mayúsculas para impresión formal
+    nombre_impresion = (inscripcion.nombre_completo or '').upper()
+        # Por defecto usa el nombre completo del inscrito en mayúsculas
+
+    if tipo_formato.clave.upper() == 'PAPAS':
+        nombres_padres = []
+        # Aquí se reunirán los nombres del padre y de la madre si existen
+
+        if inscripcion.nombre_padre:
+            nombres_padres.append(inscripcion.nombre_padre.strip())
+            # Agrega el nombre del padre si fue capturado
+
+        if inscripcion.nombre_madre:
+            nombres_padres.append(inscripcion.nombre_madre.strip())
+            # Agrega el nombre de la madre si fue capturado
+
+        nombre_impresion = ' Y '.join(nombres_padres).upper()
+        # Une los nombres con "Y" y los convierte a mayúsculas
 
     grupo_impresion = inscripcion.grupo_catequesis.numero_grupo.upper()
     # Toma el número de grupo en formato corto, por ejemplo 1A o 3C
 
-    celdas = formato.celdas.all().order_by('fila', 'columna')
-    # Obtiene las celdas del formato en orden natural
+    formato_celdas = formato
+    # Por defecto usa el mismo formato seleccionado para leer la cuadrícula
+
+    if tipo_formato.clave.upper() == 'PAPAS':
+        tipo_nino = FormatoTipo.objects.filter(clave='NINO', activo=True).first()
+        # Busca el tipo de formato Niño para reutilizar su cuadrícula
+
+        if tipo_nino:
+            formato_nino = FormatoCatequesis.objects.filter(
+                tipo=tipo_nino,
+                activo=True
+            ).first()
+            # Busca el formato activo de Niño
+
+            if formato_nino and formato_nino.usa_celdas:
+                formato_celdas = formato_nino
+                # Si existe, usa la cuadrícula del formato Niño para Papás
+
+    celdas = formato_celdas.celdas.all().order_by('fila', 'columna')
+    # Obtiene las celdas del formato que realmente se usará como cuadrícula
 
     max_fila = 0  # Inicializa fila máxima
     max_columna = 0  # Inicializa columna máxima
@@ -324,7 +357,7 @@ def generar_formato_pdf(request, pk, clave_tipo):
     html_string = render_to_string(template_pdf, {
         'inscripcion': inscripcion,
         'formato': formato,
-        'nombre_impresion': nombre_mayusculas,
+        'nombre_impresion': nombre_impresion,
         'grupo_impresion': grupo_impresion,
         'matriz_celdas': matriz_celdas,
         'tipo_formato': tipo_formato,
