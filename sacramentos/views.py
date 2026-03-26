@@ -322,7 +322,7 @@ def generar_formato_pdf(request, pk, clave_tipo):
     matriz_celdas = []
     # Aquí se construirá la cuadrícula completa que usará el template
 
-    if formato.usa_celdas and max_fila > 0 and max_columna > 0:
+    if formato_celdas.usa_celdas and max_fila > 0 and max_columna > 0:
         mapa_celdas = {
             (celda.fila, celda.columna): celda.contenido
             for celda in celdas
@@ -354,6 +354,21 @@ def generar_formato_pdf(request, pk, clave_tipo):
     url_logo_fondo = request.build_absolute_uri(static('img/logo_parroquia.jpg'))
     # Construye la URL absoluta de la imagen de fondo para que WeasyPrint sí pueda cargarla
 
+    nombre_padre_impresion = (inscripcion.nombre_padre or '').upper()
+    # Toma el nombre del padre y lo convierte a mayúsculas
+
+    nombre_madre_impresion = (inscripcion.nombre_madre or '').upper()
+    # Toma el nombre de la madre y lo convierte a mayúsculas
+
+    nombre_padrino_impresion = (inscripcion.nombre_padrino or '').upper()
+    # Toma el nombre del padrino y lo convierte a mayúsculas
+
+    nombre_madrina_impresion = (inscripcion.nombre_madrina or '').upper()
+    # Toma el nombre de la madrina y lo convierte a mayúsculas
+
+    sacramento_impresion = inscripcion.get_tipo_display().upper()
+    # Toma el nombre visible del sacramento y lo convierte a mayúsculas
+
     html_string = render_to_string(template_pdf, {
         'inscripcion': inscripcion,
         'formato': formato,
@@ -362,7 +377,14 @@ def generar_formato_pdf(request, pk, clave_tipo):
         'matriz_celdas': matriz_celdas,
         'tipo_formato': tipo_formato,
         'url_logo_fondo': url_logo_fondo,
+        'nombre_padre_impresion': nombre_padre_impresion,
+        'nombre_madre_impresion': nombre_madre_impresion,
+        'nombre_padrino_impresion': nombre_padrino_impresion,
+        'nombre_madrina_impresion': nombre_madrina_impresion,
+        'sacramento_impresion': sacramento_impresion,
     }, request=request)
+     # Renderiza el template HTML y además envía los nombres reales de padres y padrinos
+    # También envía el sacramento real del inscrito
     # Renderiza el template HTML que servirá como base para el PDF
     # También envía la URL absoluta del fondo
 
