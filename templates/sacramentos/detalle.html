@@ -132,160 +132,159 @@
             <h1 class="expediente-title">Expediente de {{ inscripcion.nombre_completo }}</h1> <!-- Título -->
 
             <div class="expediente-meta"> <!-- Datos rápidos -->
-                <div><strong>ID:</strong> {{ inscripcion.id }}</div>
-                <div><strong>Tipo:</strong> {{ inscripcion.get_tipo_display }}</div>
-                <div><strong>Fecha:</strong> {{ inscripcion.fecha|date:"d/m/Y" }}</div>
+                <div><strong>ID:</strong> {{ inscripcion.id }}</div> <!-- Muestra ID -->
+                <div><strong>Tipo:</strong> {{ inscripcion.get_tipo_display }}</div> <!-- Muestra tipo -->
+                <div><strong>Fecha:</strong> {{ inscripcion.fecha|date:"d/m/Y" }}</div> <!-- Muestra fecha -->
             </div>
         </div>
 
         <div class="acciones-expediente"> <!-- Botones -->
             {% if request.user.is_superuser or puede_editar %}
-                <a href="{% url 'editar_inscripcion' inscripcion.id %}" class="btn btn-primary">Editar</a>
+                <a href="{% url 'editar_inscripcion' inscripcion.id %}" class="btn btn-primary">Editar</a> <!-- Botón editar -->
             {% endif %}
-            <a href="{% url 'lista_inscripciones' %}" class="btn btn-secondary">Volver a la lista</a>
-            <button type="button" class="btn btn-secondary" onclick="window.print()">Imprimir expediente</button>
-            <a href="{% url 'exportar_expediente_pdf' inscripcion.id %}" class="btn btn-primary">Descargar PDF</a>
+            <a href="{% url 'lista_inscripciones' %}" class="btn btn-secondary">Volver a la lista</a> <!-- Botón regresar -->
+            <a href="{% url 'exportar_expediente_pdf' inscripcion.id %}" class="btn btn-primary">Descargar PDF</a> <!-- Exportar PDF -->
         </div>
     </div>
 
     <h2 class="section-title-exp">Datos generales</h2> <!-- Título sección -->
     <div class="expediente-grid">
         <div class="dato dato-full">
-            <div class="dato-label">Nombre completo</div>
-            <div class="dato-valor">{{ inscripcion.nombre_completo }}</div>
+            <div class="dato-label">Nombre completo</div> <!-- Etiqueta -->
+            <div class="dato-valor">{{ inscripcion.nombre_completo }}</div> <!-- Valor -->
         </div>
 
         <div class="dato">
-            <div class="dato-label">Teléfono</div>
-            <div class="dato-valor">{{ inscripcion.telefono|default:"-" }}</div>
+            <div class="dato-label">Teléfono</div> <!-- Etiqueta -->
+            <div class="dato-valor">{{ inscripcion.telefono|default:"-" }}</div> <!-- Valor -->
         </div>
 
         <div class="dato">
-            <div class="dato-label">Edad</div>
-            <div class="dato-valor">{{ inscripcion.edad|default:"-" }}</div>
+            <div class="dato-label">Edad</div> <!-- Etiqueta -->
+            <div class="dato-valor">{{ inscripcion.edad|default:"-" }}</div> <!-- Valor -->
         </div>
 
         <div class="dato">
-            <div class="dato-label">Sacramento solicitado</div>
-            <div class="dato-valor">{{ inscripcion.get_tipo_display }}</div>
+            <div class="dato-label">Sacramento solicitado</div> <!-- Etiqueta -->
+            <div class="dato-valor">{{ inscripcion.get_tipo_display }}</div> <!-- Valor -->
         </div>
     </div>
 
-    <h2 class="section-title-exp">Familia y vínculos</h2>
+    <h2 class="section-title-exp">Familia y vínculos</h2> <!-- Título sección -->
     <div class="expediente-grid-2">
         <div class="dato">
-            <div class="dato-label">Nombre del padre</div>
-            <div class="dato-valor">{{ inscripcion.nombre_padre|default:"-" }}</div>
+            <div class="dato-label">Nombre del padre</div> <!-- Etiqueta -->
+            <div class="dato-valor">{{ inscripcion.nombre_padre|default:"-" }}</div> <!-- Valor -->
         </div>
 
         <div class="dato">
-            <div class="dato-label">Nombre de la madre</div>
-            <div class="dato-valor">{{ inscripcion.nombre_madre|default:"-" }}</div>
+            <div class="dato-label">Nombre de la madre</div> <!-- Etiqueta -->
+            <div class="dato-valor">{{ inscripcion.nombre_madre|default:"-" }}</div> <!-- Valor -->
         </div>
 
         <div class="dato">
-            <div class="dato-label">Nombre del padrino</div>
-            <div class="dato-valor">{{ inscripcion.nombre_padrino|default:"-" }}</div>
+            <div class="dato-label">Nombre del padrino</div> <!-- Etiqueta -->
+            <div class="dato-valor">{{ inscripcion.nombre_padrino|default:"-" }}</div> <!-- Valor -->
         </div>
 
         <div class="dato">
-            <div class="dato-label">Nombre de la madrina</div>
-            <div class="dato-valor">{{ inscripcion.nombre_madrina|default:"-" }}</div>
-        </div>
-    </div>
-
-    <h2 class="section-title-exp">Catequesis</h2>
-    <div class="expediente-grid">
-        <div class="dato">
-            <div class="dato-label">Catequista</div>
-            <div class="dato-valor">{{ inscripcion.catequista|default:"-" }}</div>
-        </div>
-
-        <div class="dato">
-            <div class="dato-label">Grupo</div>
-            <div class="dato-valor">{{ inscripcion.grupo_catequesis|default:"-" }}</div>
-        </div>
-
-        <div class="dato">
-            <div class="dato-label">Lugar de clases</div>
-            <div class="dato-valor">{{ inscripcion.lugar_clases|default:"-" }}</div>
-        </div>
-
-        <div class="dato">
-            <div class="dato-label">Día de clases</div>
-            <div class="dato-valor">{{ inscripcion.dia_clases|default:"-" }}</div>
-        </div>
-
-        <div class="dato">
-            <div class="dato-label">Hora de clases</div>
-            <div class="dato-valor">{{ inscripcion.hora_clases|default:"-" }}</div>
+            <div class="dato-label">Nombre de la madrina</div> <!-- Etiqueta -->
+            <div class="dato-valor">{{ inscripcion.nombre_madrina|default:"-" }}</div> <!-- Valor -->
         </div>
     </div>
 
-    <h2 class="section-title-exp">Historial sacramental</h2>
+    <h2 class="section-title-exp">Catequesis</h2> <!-- Título sección -->
     <div class="expediente-grid">
         <div class="dato">
-            <div class="dato-label">Bautizo</div>
+            <div class="dato-label">Catequista</div> <!-- Etiqueta -->
+            <div class="dato-valor">{{ inscripcion.catequista|default:"-" }}</div> <!-- Valor -->
+        </div>
+
+        <div class="dato">
+            <div class="dato-label">Grupo</div> <!-- Etiqueta -->
+            <div class="dato-valor">{{ inscripcion.grupo_catequesis|default:"-" }}</div> <!-- Valor -->
+        </div>
+
+        <div class="dato">
+            <div class="dato-label">Lugar de clases</div> <!-- Etiqueta -->
+            <div class="dato-valor">{{ inscripcion.lugar_clases|default:"-" }}</div> <!-- Valor -->
+        </div>
+
+        <div class="dato">
+            <div class="dato-label">Día de clases</div> <!-- Etiqueta -->
+            <div class="dato-valor">{{ inscripcion.dia_clases|default:"-" }}</div> <!-- Valor -->
+        </div>
+
+        <div class="dato">
+            <div class="dato-label">Hora de clases</div> <!-- Etiqueta -->
+            <div class="dato-valor">{{ inscripcion.hora_clases|default:"-" }}</div> <!-- Valor -->
+        </div>
+    </div>
+
+    <h2 class="section-title-exp">Historial sacramental</h2> <!-- Título sección -->
+    <div class="expediente-grid">
+        <div class="dato">
+            <div class="dato-label">Bautizo</div> <!-- Etiqueta -->
             <div class="dato-valor">
-                {% if inscripcion.bautizo %}<span class="estado-si">Sí</span>{% else %}<span class="estado-no">No</span>{% endif %}
+                {% if inscripcion.bautizo %}<span class="estado-si">Sí</span>{% else %}<span class="estado-no">No</span>{% endif %} <!-- Estado -->
             </div>
         </div>
 
         <div class="dato">
-            <div class="dato-label">Eucaristía</div>
+            <div class="dato-label">Eucaristía</div> <!-- Etiqueta -->
             <div class="dato-valor">
-                {% if inscripcion.eucaristia %}<span class="estado-si">Sí</span>{% else %}<span class="estado-no">No</span>{% endif %}
+                {% if inscripcion.eucaristia %}<span class="estado-si">Sí</span>{% else %}<span class="estado-no">No</span>{% endif %} <!-- Estado -->
             </div>
         </div>
 
         <div class="dato">
-            <div class="dato-label">Confirmación</div>
+            <div class="dato-label">Confirmación</div> <!-- Etiqueta -->
             <div class="dato-valor">
-                {% if inscripcion.confirmacion %}<span class="estado-si">Sí</span>{% else %}<span class="estado-no">No</span>{% endif %}
+                {% if inscripcion.confirmacion %}<span class="estado-si">Sí</span>{% else %}<span class="estado-no">No</span>{% endif %} <!-- Estado -->
             </div>
         </div>
 
         <div class="dato">
-            <div class="dato-label">Matrimonio</div>
+            <div class="dato-label">Matrimonio</div> <!-- Etiqueta -->
             <div class="dato-valor">
-                {% if inscripcion.matrimonio %}<span class="estado-si">Sí</span>{% else %}<span class="estado-no">No</span>{% endif %}
+                {% if inscripcion.matrimonio %}<span class="estado-si">Sí</span>{% else %}<span class="estado-no">No</span>{% endif %} <!-- Estado -->
             </div>
         </div>
     </div>
 
-    <h2 class="section-title-exp">Documentos entregados</h2>
+    <h2 class="section-title-exp">Documentos entregados</h2> <!-- Título sección -->
     <div class="expediente-grid">
         <div class="dato">
-            <div class="dato-label">Acta de nacimiento</div>
+            <div class="dato-label">Acta de nacimiento</div> <!-- Etiqueta -->
             <div class="dato-valor">
-                {% if inscripcion.acta_nacimiento %}<span class="estado-si">Sí</span>{% else %}<span class="estado-no">No</span>{% endif %}
+                {% if inscripcion.acta_nacimiento %}<span class="estado-si">Sí</span>{% else %}<span class="estado-no">No</span>{% endif %} <!-- Estado -->
             </div>
         </div>
 
         <div class="dato">
-            <div class="dato-label">Boleta de bautizo</div>
+            <div class="dato-label">Boleta de bautizo</div> <!-- Etiqueta -->
             <div class="dato-valor">
-                {% if inscripcion.boleta_bautizo %}<span class="estado-si">Sí</span>{% else %}<span class="estado-no">No</span>{% endif %}
+                {% if inscripcion.boleta_bautizo %}<span class="estado-si">Sí</span>{% else %}<span class="estado-no">No</span>{% endif %} <!-- Estado -->
             </div>
         </div>
 
         <div class="dato">
-            <div class="dato-label">Boleta de confirmación</div>
+            <div class="dato-label">Boleta de confirmación</div> <!-- Etiqueta -->
             <div class="dato-valor">
-                {% if inscripcion.boleta_confirmacion %}<span class="estado-si">Sí</span>{% else %}<span class="estado-no">No</span>{% endif %}
+                {% if inscripcion.boleta_confirmacion %}<span class="estado-si">Sí</span>{% else %}<span class="estado-no">No</span>{% endif %} <!-- Estado -->
             </div>
         </div>
 
         <div class="dato">
-            <div class="dato-label">INE</div>
+            <div class="dato-label">INE</div> <!-- Etiqueta -->
             <div class="dato-valor">
-                {% if inscripcion.ine %}<span class="estado-si">Sí</span>{% else %}<span class="estado-no">No</span>{% endif %}
+                {% if inscripcion.ine %}<span class="estado-si">Sí</span>{% else %}<span class="estado-no">No</span>{% endif %} <!-- Estado -->
             </div>
         </div>
 
         <div class="dato dato-full">
-            <div class="dato-label">Otros documentos</div>
-            <div class="dato-valor">{{ inscripcion.otros_documentos|default:"-" }}</div>
+            <div class="dato-label">Otros documentos</div> <!-- Etiqueta -->
+            <div class="dato-valor">{{ inscripcion.otros_documentos|default:"-" }}</div> <!-- Valor -->
         </div>
     </div>
 
