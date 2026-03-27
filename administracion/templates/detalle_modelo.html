@@ -1,0 +1,129 @@
+{% extends 'base.html' %} <!-- Usa el layout visual global del sistema -->
+
+{% block title %}Detalle de modelo{% endblock %} <!-- Título del navegador -->
+{% block header %}Administración{% endblock %} <!-- Título del topbar -->
+
+{% block content %}
+
+<style>
+    .summary-strip {
+        display: flex; /* Tarjetas en fila */
+        gap: 14px; /* Espacio entre tarjetas */
+        flex-wrap: wrap; /* Permite salto de línea */
+        margin-bottom: 18px; /* Espacio inferior */
+    }
+
+    .summary-card {
+        background: #f6f8fc; /* Fondo suave */
+        border: 1px solid var(--gris-borde); /* Borde suave */
+        border-radius: 12px; /* Bordes redondeados */
+        padding: 14px 16px; /* Espaciado */
+        min-width: 220px; /* Ancho mínimo */
+    }
+
+    .summary-card .label {
+        font-size: 12px; /* Texto pequeño */
+        color: var(--texto-suave); /* Color secundario */
+        margin-bottom: 4px; /* Espacio inferior */
+    }
+
+    .summary-card .value {
+        font-size: 22px; /* Tamaño destacado */
+        font-weight: 700; /* Negrita */
+        color: var(--azul-principal); /* Azul institucional */
+    }
+
+    .table-wrapper {
+        overflow-x: auto; /* Scroll horizontal si se necesita */
+        background: var(--blanco); /* Fondo blanco */
+        border: 1px solid var(--gris-borde); /* Borde */
+        border-radius: 14px; /* Bordes */
+    }
+
+    .data-table {
+        width: 100%; /* Ancho completo */
+        min-width: 860px; /* Evita compresión excesiva */
+        border-collapse: collapse; /* Une bordes */
+    }
+
+    .data-table thead th {
+        background: #f3f6fb; /* Fondo encabezado */
+        color: var(--azul-principal); /* Texto azul */
+        font-size: 13px; /* Tamaño compacto */
+        font-weight: 700; /* Negrita */
+        padding: 14px 12px; /* Espaciado */
+        border-bottom: 1px solid var(--gris-borde); /* Línea inferior */
+        white-space: nowrap; /* Evita saltos */
+    }
+
+    .data-table tbody td {
+        padding: 14px 12px; /* Espaciado */
+        border-bottom: 1px solid #edf1f6; /* Línea inferior */
+        font-size: 14px; /* Tamaño legible */
+    }
+
+    .data-table tbody tr:nth-child(even) {
+        background: #fbfcfe; /* Zebra suave */
+    }
+
+    .data-table tbody tr:hover {
+        background: #f5f8fc; /* Hover suave */
+    }
+
+    .toolbar {
+        display: flex; /* Barra de acciones en fila */
+        justify-content: space-between; /* Separa extremos */
+        align-items: center; /* Centrado vertical */
+        margin-bottom: 16px; /* Espacio inferior */
+        gap: 12px; /* Espacio */
+        flex-wrap: wrap; /* Permite salto */
+    }
+</style>
+
+<h1 class="page-title">{{ nombre_modelo }}</h1> <!-- Nombre del modelo seleccionado -->
+
+<div class="toolbar"> <!-- Acciones superiores -->
+    <a href="{% url 'dashboard_administracion' %}" class="btn btn-secondary">Volver al panel</a>
+</div>
+
+<div class="summary-strip"> <!-- Resumen superior -->
+    <div class="summary-card">
+        <div class="label">Aplicación</div>
+        <div class="value" style="font-size:16px;">{{ app_label }}</div>
+    </div>
+
+    <div class="summary-card">
+        <div class="label">Modelo</div>
+        <div class="value" style="font-size:16px;">{{ model_name }}</div>
+    </div>
+
+    <div class="summary-card">
+        <div class="label">Total de registros</div>
+        <div class="value">{{ total }}</div>
+    </div>
+</div>
+
+<div class="table-wrapper"> <!-- Tabla de datos -->
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Representación</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for registro in registros %}
+                <tr>
+                    <td>{{ registro.pk }}</td>
+                    <td>{{ registro }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="2">No hay registros disponibles para este modelo.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

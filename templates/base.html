@@ -252,6 +252,9 @@
             <div class="nav-section">
                 <div class="nav-section-title">Inicio</div> <!-- Sección principal -->
                 <a class="nav-link" href="/dashboard/usuario/">Inicio</a> <!-- Link dashboard -->
+                {% if request.user.is_superuser %}
+                    <a class="nav-link" href="/administracion/">Administración</a> <!-- Link al módulo interno exclusivo -->
+                {% endif %}
             </div>
 
             <!-- 2. DOCUMENTOS -->

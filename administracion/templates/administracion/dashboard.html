@@ -1,0 +1,138 @@
+{% extends 'base.html' %} <!-- Usa el layout visual global del sistema -->
+
+{% block title %}Administración{% endblock %} <!-- Título del navegador -->
+{% block header %}Administración{% endblock %} <!-- Título del topbar -->
+
+{% block content %}
+
+<style>
+    .summary-strip {
+        display: flex; /* Tarjetas resumen en fila */
+        gap: 14px; /* Espacio entre tarjetas */
+        flex-wrap: wrap; /* Permite salto de línea */
+        margin-bottom: 18px; /* Espacio inferior */
+    }
+
+    .summary-card {
+        background: #f6f8fc; /* Fondo suave institucional */
+        border: 1px solid var(--gris-borde); /* Borde suave */
+        border-radius: 12px; /* Bordes redondeados */
+        padding: 14px 16px; /* Espaciado interior */
+        min-width: 220px; /* Ancho mínimo */
+    }
+
+    .summary-card .label {
+        font-size: 12px; /* Texto pequeño descriptivo */
+        color: var(--texto-suave); /* Color secundario */
+        margin-bottom: 4px; /* Espacio inferior */
+    }
+
+    .summary-card .value {
+        font-size: 22px; /* Valor grande */
+        font-weight: 700; /* Negrita */
+        color: var(--azul-principal); /* Azul institucional */
+    }
+
+    .table-wrapper {
+        overflow-x: auto; /* Permite scroll en tablas amplias */
+        background: var(--blanco); /* Fondo blanco */
+        border: 1px solid var(--gris-borde); /* Borde suave */
+        border-radius: 14px; /* Bordes redondeados */
+    }
+
+    .data-table {
+        width: 100%; /* Ancho completo */
+        min-width: 860px; /* Evita ruptura de columnas */
+        border-collapse: collapse; /* Une bordes */
+    }
+
+    .data-table thead th {
+        background: #f3f6fb; /* Fondo encabezado */
+        color: var(--azul-principal); /* Texto azul */
+        font-size: 13px; /* Tamaño compacto */
+        font-weight: 700; /* Negrita */
+        padding: 14px 12px; /* Espaciado */
+        border-bottom: 1px solid var(--gris-borde); /* Línea inferior */
+        white-space: nowrap; /* Evita cortes raros */
+    }
+
+    .data-table tbody td {
+        padding: 14px 12px; /* Espaciado interno */
+        border-bottom: 1px solid #edf1f6; /* Línea separadora */
+        font-size: 14px; /* Tamaño legible */
+    }
+
+    .data-table tbody tr:nth-child(even) {
+        background: #fbfcfe; /* Zebra suave */
+    }
+
+    .data-table tbody tr:hover {
+        background: #f5f8fc; /* Hover suave */
+    }
+
+    .badge-app {
+        display: inline-block; /* Insignia en línea */
+        padding: 6px 10px; /* Espaciado */
+        border-radius: 999px; /* Estilo pill */
+        font-size: 12px; /* Tamaño pequeño */
+        font-weight: 700; /* Negrita */
+        background: rgba(31, 53, 87, 0.10); /* Fondo azul suave */
+        color: var(--azul-principal); /* Texto azul */
+    }
+
+    .action-link {
+        display: inline-flex; /* Estilo de acción */
+        align-items: center; /* Centrado vertical */
+        justify-content: center; /* Centrado horizontal */
+        padding: 7px 10px; /* Espaciado */
+        border-radius: 8px; /* Bordes */
+        font-size: 12px; /* Tamaño compacto */
+        font-weight: 600; /* Negrita */
+        text-decoration: none; /* Sin subrayado */
+        white-space: nowrap; /* No cortar texto */
+        background: rgba(201, 163, 74, 0.15); /* Fondo dorado suave */
+        color: #8a6a1f; /* Texto dorado oscuro */
+    }
+</style>
+
+<h1 class="page-title">Panel de administración interna</h1> <!-- Título principal -->
+
+<div class="summary-strip"> <!-- Resumen superior -->
+    <div class="summary-card">
+        <div class="label">Modelos registrados en /admin</div>
+        <div class="value">{{ modelos_admin|length }}</div>
+    </div>
+</div>
+
+<div class="table-wrapper"> <!-- Tabla de navegación por modelos -->
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Aplicación</th>
+                <th>Modelo</th>
+                <th>Registros</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in modelos_admin %}
+                <tr>
+                    <td><span class="badge-app">{{ item.app_label }}</span></td>
+                    <td>{{ item.nombre_modelo }}</td>
+                    <td>{{ item.total }}</td>
+                    <td>
+                        <a href="{% url 'detalle_modelo_administracion' item.app_label item.model_name %}" class="action-link">
+                            Ver registros
+                        </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">No hay modelos registrados en el admin.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
